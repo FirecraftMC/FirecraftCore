@@ -3,10 +3,13 @@ package net.firecraftmc.core;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.FirecraftPlugin;
 import net.firecraftmc.shared.classes.FirecraftSocket;
+import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.packets.FPacketServerPlayerJoin;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -22,7 +25,9 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     private String server;
 
     public void onEnable() {
+        this.saveDefaultConfig();
         this.socket = new FirecraftSocket(this, "localhost", 1234);
+        this.socket.start();
         this.getServer().getPluginManager().registerEvents(this, this);
         this.server = getConfig().getString("server");
     }
@@ -37,16 +42,32 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         new BukkitRunnable() {
             public void run() {
                 if (onlineFirecraftPlayers.get(player.getUniqueId()) != null) {
-                    player.sendMessage("§7§lSuccessfully retrieved your data!");
+                    player.sendMessage("§7§oYour data has been successfully retrieved!");
                     //TODO Make this a bit more rank based in the future
-                    getFirecraftPlayers().forEach(firecraftPlayer -> firecraftPlayer.sendMessage("&e" + e.getPlayer().getName() + " joined the game."));
+                    for (FirecraftPlayer fp : onlineFirecraftPlayers.values()) {
+                        fp.sendMessage("&e" + player.getName() + " joined the game.");
+                    }
                     this.cancel();
                 }
             }
         }.runTaskTimerAsynchronously(this, 5L, 1L);
     }
 
+    @EventHandler
+    public void onPlayerChat(AsyncPlayerChatEvent e) {
+        Player player = e.getPlayer();
+        if (getFirecraftPlayer(player.getUniqueId()) == null) {
+            player.sendMessage("§c§oYour playerdata has not been recieved yet, you cannot speak.");
+            e.setCancelled(true);
+            return;
+        }
+
+        //TODO Make this channel based
+        e.setFormat(Utils.formatChat(getFirecraftPlayer(player.getUniqueId()), e.getMessage()));
+    }
+
     public void addFirecraftPlayer(FirecraftPlayer firecraftPlayer) {
+        firecraftPlayer.setPlayer(Bukkit.getPlayer(firecraftPlayer.getUuid()));
         this.onlineFirecraftPlayers.put(firecraftPlayer.getUuid(), firecraftPlayer);
     }
 

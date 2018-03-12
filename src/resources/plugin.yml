@@ -2,4 +2,3 @@ name: FirecraftCore
 main: net.firecraftmc.core.FirecraftCore
 version: 1.0-ALPHA
 author: Firestar311
-load: STARTUP
