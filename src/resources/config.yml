@@ -1,1 +1,3 @@
-server: Test1
+server:
+    name: name
+    color: RED

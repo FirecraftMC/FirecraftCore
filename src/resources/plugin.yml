@@ -2,3 +2,13 @@ name: FirecraftCore
 main: net.firecraftmc.core.FirecraftCore
 version: 1.0-ALPHA
 author: Firestar311
+commands:
+    chat:
+        description: Base command for everything chat.
+    gamemode:
+    gmc:
+    gms:
+    gmsp:
+    gma:
+    teleport:
+        aliases: [tp]
