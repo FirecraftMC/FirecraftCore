@@ -12,3 +12,6 @@ commands:
     gma:
     teleport:
         aliases: [tp]
+    nick:
+    vanish:
+        aliases: [v]

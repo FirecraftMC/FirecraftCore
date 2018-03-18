@@ -39,7 +39,6 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
 
     public void onDisable() {
         socket.sendPacket(new FPacketServerDisconnect(server));
-
     }
 
     @EventHandler
@@ -53,7 +52,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             public void run() {
                 FirecraftPlayer player = onlineFirecraftPlayers.get(p.getUniqueId());
                 if (player != null) {
-                    player.sendMessage("&7&oYour data has been successfully recieved!");
+                    player.sendMessage("&7&oYour data has been successfully received!");
                     if (Rank.isStaff(player.getRank()))
                         socket.sendPacket(new FPacketStaffChatStaffJoin(server, player));
 
@@ -79,7 +78,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent e) {
         FirecraftPlayer player = getFirecraftPlayer(e.getPlayer().getUniqueId());
         if (player == null) {
-            player.sendMessage("§c§oYour playerdata has not been recieved yet, you cannot speak.");
+            e.getPlayer().sendMessage("§c§oYour player data has not been received yet, you cannot speak.");
             e.setCancelled(true);
             return;
         }
@@ -169,6 +168,11 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                         mode = GameMode.ADVENTURE;
                     } else if (args[0].equalsIgnoreCase("spectator") || args[0].equalsIgnoreCase("sp") || args[0].equals("3")) {
                         mode = GameMode.SPECTATOR;
+                    }
+
+                    if (mode == null) {
+                        player.sendMessage("&cYou did not provide a valid gamemode.");
+                        return true;
                     }
 
                     FirecraftPlayer target = null;
@@ -294,6 +298,10 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 player.sendMessage("&cYou did not provide the correct number of arguments.");
                 return true;
             }
+        } else if (cmd.getName().equalsIgnoreCase("nick")) {
+
+        } else if (cmd.getName().equalsIgnoreCase("vanish")) {
+
         }
 
         return true;
@@ -334,11 +342,9 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 player.sendMessage("&aYou set your own gamemode to &b" + mode.toString().toLowerCase());
             } else {
                 player.sendMessage("&cOnly Junior Admins and above can use the gamemode command.");
-                return;
             }
         } else if (sender instanceof ConsoleCommandSender) {
             sender.sendMessage("§cIt is not yet implemented for console to set gamemodes.");
-            return;
         }
     }
 }
