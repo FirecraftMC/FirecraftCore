@@ -1,9 +1,12 @@
 package net.firecraftmc.core;
 
-import net.firecraftmc.shared.classes.*;
+import net.firecraftmc.shared.classes.FirecraftPlayer;
+import net.firecraftmc.shared.classes.FirecraftPlugin;
+import net.firecraftmc.shared.classes.FirecraftServer;
+import net.firecraftmc.shared.classes.FirecraftSocket;
 import net.firecraftmc.shared.enums.Channel;
 import net.firecraftmc.shared.enums.Rank;
-import net.firecraftmc.shared.packets.*;
+import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -16,25 +19,24 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FirecraftCore extends FirecraftPlugin implements Listener {
 
-    private HashMap<UUID, FirecraftPlayer> onlineFirecraftPlayers = new HashMap<>();
+    private volatile ConcurrentHashMap<UUID, FirecraftPlayer> onlineFirecraftPlayers = new ConcurrentHashMap<>();
 
     private FirecraftSocket socket;
     private FirecraftServer server;
 
     public void onEnable() {
         this.saveDefaultConfig();
-        this.socket = new FirecraftSocket(this, "localhost", 1234);
+        this.socket = new FirecraftSocket(this, "localhost", getConfig().getInt("port"));
         this.socket.start();
         this.getServer().getPluginManager().registerEvents(this, this);
-        server = new FirecraftServer(getConfig().getString("server.name"), ChatColor.valueOf(getConfig().getString("server.color")));
+        this.server = new FirecraftServer(getConfig().getString("server.name"), ChatColor.valueOf(getConfig().getString("server.color")));
     }
 
     public void onDisable() {
@@ -43,65 +45,17 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        e.setJoinMessage(null);
 
-        Player p = e.getPlayer();
-        p.sendMessage("§7§oPlease wait while we retrieve your player data...");
-        socket.sendPacket(new FPacketServerPlayerJoin(server, p.getUniqueId()));
-        new BukkitRunnable() {
-            public void run() {
-                FirecraftPlayer player = onlineFirecraftPlayers.get(p.getUniqueId());
-                if (player != null) {
-                    player.sendMessage("&7&oYour data has been successfully received!");
-                    if (Rank.isStaff(player.getRank()))
-                        socket.sendPacket(new FPacketStaffChatStaffJoin(server, player));
-
-                    if (player.getRank().equals(Rank.FIRECRAFT_TEAM)) {
-                        for (FirecraftPlayer fp : onlineFirecraftPlayers.values()) {
-                            if (fp.getRank().equals(Rank.FIRECRAFT_TEAM)) {
-                                fp.sendMessage("&4&lFCT> " + player.getNameNoPrefix() + " &ejoined the game.");
-                            }
-                        }
-                        player.sendMessage("&7&oBecause you are Firecraft Team, only other Firecraft Team members saw you join.");
-                    } else {
-                        for (FirecraftPlayer fp : onlineFirecraftPlayers.values()) {
-                            fp.sendMessage(player.getNameNoPrefix() + " &ejoined the game.");
-                        }
-                    }
-                    this.cancel();
-                }
-            }
-        }.runTaskTimerAsynchronously(this, 5L, 1L);
     }
 
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent e) {
-        FirecraftPlayer player = getFirecraftPlayer(e.getPlayer().getUniqueId());
-        if (player == null) {
-            e.getPlayer().sendMessage("§c§oYour player data has not been received yet, you cannot speak.");
-            e.setCancelled(true);
-            return;
-        }
 
-        if (player.getChannel().equals(Channel.GLOBAL)) {
-            e.setFormat(Utils.formatChat(getFirecraftPlayer(player.getUuid()), e.getMessage()));
-        } else if (player.getChannel().equals(Channel.STAFF)) {
-            socket.sendPacket(new FPacketStaffChatMessage(server, player, e.getMessage()));
-            e.setCancelled(true);
-        }
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
-        e.setQuitMessage(null);
 
-        Player p = e.getPlayer();
-        FirecraftPlayer player = onlineFirecraftPlayers.get(p.getUniqueId());
-        if (Rank.isStaff(player.getRank())) socket.sendPacket(new FPacketStaffChatStaffQuit(server, player));
-        for (FirecraftPlayer fp : onlineFirecraftPlayers.values()) {
-            fp.sendMessage(player.getNameNoPrefix() + " &eleft the game.");
-        }
-        onlineFirecraftPlayers.remove(p.getUniqueId());
     }
 
     public void addFirecraftPlayer(FirecraftPlayer firecraftPlayer) {
