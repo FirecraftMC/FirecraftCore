@@ -5,6 +5,7 @@ author: Firestar311
 commands:
     chat:
         description: Base command for everything chat.
+        aliases: [c]
     gamemode:
     gmc:
     gms:
@@ -15,3 +16,4 @@ commands:
     nick:
     vanish:
         aliases: [v]
+    viewprofile:

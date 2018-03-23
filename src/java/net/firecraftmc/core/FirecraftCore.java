@@ -1,12 +1,13 @@
 package net.firecraftmc.core;
 
-import net.firecraftmc.shared.classes.FirecraftPlayer;
-import net.firecraftmc.shared.classes.FirecraftPlugin;
-import net.firecraftmc.shared.classes.FirecraftServer;
-import net.firecraftmc.shared.classes.FirecraftSocket;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.enums.Channel;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
+import net.firecraftmc.shared.packets.FPacketServerPlayerJoin;
+import net.firecraftmc.shared.packets.staffchat.FPStaffChatJoin;
+import net.firecraftmc.shared.packets.staffchat.FPStaffChatMessage;
+import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -19,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -26,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FirecraftCore extends FirecraftPlugin implements Listener {
 
-    private volatile ConcurrentHashMap<UUID, FirecraftPlayer> onlineFirecraftPlayers = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<UUID, FirecraftPlayer> onlineFirecraftPlayers = new ConcurrentHashMap<>();
 
     private FirecraftSocket socket;
     private FirecraftServer server;
@@ -45,17 +47,58 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
+        e.setJoinMessage(null);
+        Player p = e.getPlayer();
+        p.sendMessage("§7§oPlease wait while we retreive your data...");
+        FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(server, p.getUniqueId());
+        socket.sendPacket(serverPlayerJoin);
+        System.out.println("Sent the Player Join Packet.");
+        new BukkitRunnable() {
+            public void run() {
+                if (getFirecraftPlayer(p.getUniqueId()) != null) {
+                    cancel();
+                    p.sendMessage("§7§oYour data has been received, restrictions lifted.");
 
-    }
-
-    @EventHandler
-    public void onPlayerChat(AsyncPlayerChatEvent e) {
-
+                    FirecraftPlayer player = getFirecraftPlayer(p.getUniqueId());
+                    if (Rank.isStaff(player.getRank())) {
+                        FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(server, player);
+                        socket.sendPacket(staffChatJoin);
+                    }
+                }
+            }
+        }.runTaskTimerAsynchronously(this, 0L, 20);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
+        e.setQuitMessage(null);
+        FirecraftPlayer player = getFirecraftPlayer(e.getPlayer().getUniqueId());
+        if (Rank.isStaff(player.getRank())) {
+            FPStaffChatQuit staffQuit = new FPStaffChatQuit(server, player);
+            socket.sendPacket(staffQuit);
+        }
 
+        onlineFirecraftPlayers.remove(player.getUuid());
+    }
+
+    @EventHandler
+    public void onPlayerChat(AsyncPlayerChatEvent e) {
+        e.setCancelled(true);
+        FirecraftPlayer player = getFirecraftPlayer(e.getPlayer().getUniqueId());
+        if (player == null) {
+            e.getPlayer().sendMessage("§cYour player data has not been received yet, you are not alowed to speak.");
+            return;
+        }
+
+        if (player.getChannel().equals(Channel.GLOBAL)) {
+            String format = ChatUtils.formatGlobal(player, e.getMessage());
+            for (FirecraftPlayer op : onlineFirecraftPlayers.values()) {
+                op.sendMessage(format);
+            }
+        } else if (player.getChannel().equals(Channel.STAFF)) {
+            FPStaffChatMessage msg = new FPStaffChatMessage(server, player, e.getMessage());
+            socket.sendPacket(msg);
+        }
     }
 
     public void addFirecraftPlayer(FirecraftPlayer firecraftPlayer) {
@@ -69,6 +112,10 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
 
     public Collection<FirecraftPlayer> getFirecraftPlayers() {
         return onlineFirecraftPlayers.values();
+    }
+
+    public void removeFirecraftPlayer(UUID uuid) {
+        this.onlineFirecraftPlayers.remove(uuid);
     }
 
     public void updateFirecraftPlayer(FirecraftPlayer target) {
@@ -88,15 +135,23 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     return true;
                 }
 
-                if (args[0].equalsIgnoreCase("staff")) {
+                if (args[0].equalsIgnoreCase("staff") || args[0].equalsIgnoreCase("s")) {
                     if (!Rank.isStaff(player.getRank())) {
                         player.sendMessage("&cOnly staff members may use the staff chat channel.");
                         return true;
                     }
 
+                    if (player.getChannel().equals(Channel.STAFF)) {
+                        player.sendMessage("&cYou are already speaking in that channel.");
+                        return true;
+                    }
                     player.setChannel(Channel.STAFF);
                     player.sendMessage("&aYou are now speaking in " + Channel.STAFF.getColor() + "&lSTAFF");
-                } else if (args[0].equalsIgnoreCase("global")) {
+                } else if (args[0].equalsIgnoreCase("global") || args[0].equalsIgnoreCase("g")) {
+                    if (player.getChannel().equals(Channel.GLOBAL)) {
+                        player.sendMessage("&cYou are already speaking in that channel.");
+                        return true;
+                    }
                     player.setChannel(Channel.GLOBAL);
                     player.sendMessage("&aYou are now speaking in " + Channel.GLOBAL.getColor() + "&lGLOBAL");
                 } else {
@@ -256,6 +311,38 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
 
         } else if (cmd.getName().equalsIgnoreCase("vanish")) {
 
+        } else if (cmd.getName().equalsIgnoreCase("viewprofile")) {
+            if (sender instanceof Player) {
+                FirecraftPlayer player = onlineFirecraftPlayers.get(((Player) sender).getUniqueId());
+                if (player.getName().equalsIgnoreCase("Jayfeather311")) {
+                    if (args.length != 1) {
+                        player.sendMessage("&cInvalid amount of arguments.");
+                        return true;
+                    }
+                    UUID uuid;
+                    FirecraftPlayer target = null;
+                    try {
+                        uuid = UUID.fromString(args[0]);
+                        target = getFirecraftPlayer(uuid);
+                    } catch (Exception e) {
+                        for (FirecraftPlayer p : onlineFirecraftPlayers.values()) {
+                            if (p.getName().equalsIgnoreCase(args[0])) {
+                                target = p;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (target == null) {
+                        player.sendMessage("&cCould not find a player with that name/uuid.");
+                        return true;
+                    }
+
+                    player.sendMessage("&6Displaying profile info for " + target.getName());
+                    player.sendMessage("&7Rank: " + target.getRank().getBaseColor() + target.getRank().toString());
+                    player.sendMessage("&7Channel: " + target.getChannel().getColor() + target.getChannel().toString());
+                }
+            }
         }
 
         return true;
