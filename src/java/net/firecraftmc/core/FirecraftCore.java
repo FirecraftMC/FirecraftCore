@@ -3,6 +3,7 @@ package net.firecraftmc.core;
 import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.enums.Channel;
 import net.firecraftmc.shared.enums.Rank;
+import net.firecraftmc.shared.nms.nick.NickWrapper1_8_R3;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import net.firecraftmc.shared.packets.FPacketServerPlayerJoin;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatJoin;
@@ -29,9 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FirecraftCore extends FirecraftPlugin implements Listener {
 
     private ConcurrentHashMap<UUID, FirecraftPlayer> onlineFirecraftPlayers = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<UUID, FirecraftPlayer> requestedProfiles = new ConcurrentHashMap<>();
 
     private FirecraftSocket socket;
     private FirecraftServer server;
+    private NickWrapper nickWrapper;
 
     public void onEnable() {
         this.saveDefaultConfig();
@@ -39,6 +42,11 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         this.socket.start();
         this.getServer().getPluginManager().registerEvents(this, this);
         this.server = new FirecraftServer(getConfig().getString("server.name"), ChatColor.valueOf(getConfig().getString("server.color")));
+
+        String versionString = ReflectionUtils.getVersion();
+        if (versionString.equalsIgnoreCase("v1_8_R3")) {
+            this.nickWrapper = new NickWrapper1_8_R3(this);
+        }
     }
 
     public void onDisable() {
@@ -116,6 +124,28 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
 
     public void removeFirecraftPlayer(UUID uuid) {
         this.onlineFirecraftPlayers.remove(uuid);
+    }
+
+    public NickWrapper getNickWrapper() {
+        return nickWrapper;
+    }
+
+    public void addProfile(FirecraftPlayer profile) {
+        this.requestedProfiles.put(profile.getUuid(), profile);
+    }
+
+    public FirecraftPlayer getProfile(UUID uuid) {
+        if (this.onlineFirecraftPlayers.containsKey(uuid)) {
+            return this.onlineFirecraftPlayers.get(uuid);
+        } else if (this.requestedProfiles.containsKey(uuid)) {
+            return this.requestedProfiles.get(uuid);
+        }
+
+        return null;
+    }
+
+    public FirecraftSocket getSocket() {
+        return socket;
     }
 
     public void updateFirecraftPlayer(FirecraftPlayer target) {
