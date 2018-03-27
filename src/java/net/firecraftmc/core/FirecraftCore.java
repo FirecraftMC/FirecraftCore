@@ -46,9 +46,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         this.server = new FirecraftServer(getConfig().getString("server.name"), ChatColor.valueOf(getConfig().getString("server.color")));
     }
 
-    public void onDisable() {
-        socket.sendPacket(new FPacketServerDisconnect(server));
-    }
+    public void onDisable() { socket.sendPacket(new FPacketServerDisconnect(server)); }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
@@ -145,8 +143,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
 
                 if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
-                if (CmdUtils.checkArgCountExact(sender, args, 1)) return true;
-
+                if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
                 if (CmdUtils.checkCmdAliases(args, 0, "staff", "st", "s")) {
                     if (!Rank.isStaff(player.getRank())) {
                         player.sendMessage("&cOnly staff members may use the staff chat channel.");
