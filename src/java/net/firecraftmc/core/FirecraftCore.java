@@ -3,6 +3,8 @@ package net.firecraftmc.core;
 import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.enums.Channel;
 import net.firecraftmc.shared.enums.Rank;
+import net.firecraftmc.shared.exceptions.NicknameException;
+import net.firecraftmc.shared.packets.FPRequestProfile;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import net.firecraftmc.shared.packets.FPacketServerPlayerJoin;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatJoin;
@@ -22,14 +24,16 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Collection;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FirecraftCore extends FirecraftPlugin implements Listener {
 
     private ConcurrentHashMap<UUID, FirecraftPlayer> onlineFirecraftPlayers = new ConcurrentHashMap<>();
     private ConcurrentHashMap<UUID, FirecraftPlayer> requestedProfiles = new ConcurrentHashMap<>();
+
+    private List<UUID> settingNick = new ArrayList<>();
+    private Map<UUID, FirecraftPlayer> confirmNick = new HashMap<>();
 
     private FirecraftSocket socket;
     private FirecraftServer server;
@@ -107,21 +111,13 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         this.onlineFirecraftPlayers.put(firecraftPlayer.getUuid(), firecraftPlayer);
     }
 
-    public FirecraftPlayer getFirecraftPlayer(UUID uuid) {
-        return onlineFirecraftPlayers.get(uuid);
-    }
+    public FirecraftPlayer getFirecraftPlayer(UUID uuid) { return onlineFirecraftPlayers.get(uuid); }
 
-    public Collection<FirecraftPlayer> getFirecraftPlayers() {
-        return onlineFirecraftPlayers.values();
-    }
+    public Collection<FirecraftPlayer> getFirecraftPlayers() { return onlineFirecraftPlayers.values(); }
 
-    public void removeFirecraftPlayer(UUID uuid) {
-        this.onlineFirecraftPlayers.remove(uuid);
-    }
+    public void removeFirecraftPlayer(UUID uuid) { this.onlineFirecraftPlayers.remove(uuid); }
 
-    public void addProfile(FirecraftPlayer profile) {
-        this.requestedProfiles.put(profile.getUuid(), profile);
-    }
+    public void addProfile(FirecraftPlayer profile) { this.requestedProfiles.put(profile.getUuid(), profile); }
 
     public FirecraftPlayer getProfile(UUID uuid) {
         if (this.onlineFirecraftPlayers.containsKey(uuid)) {
@@ -133,9 +129,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         return null;
     }
 
-    public FirecraftSocket getSocket() {
-        return socket;
-    }
+    public FirecraftSocket getSocket() { return socket; }
 
     public void updateFirecraftPlayer(FirecraftPlayer target) {
         target.setPlayer(Bukkit.getPlayer(target.getUuid()));
@@ -149,12 +143,11 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 return true;
             } else if (sender instanceof Player) {
                 FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
-                if (args.length != 1) {
-                    player.sendMessage("&cInvalid amount of arguments.");
-                    return true;
-                }
 
-                if (args[0].equalsIgnoreCase("staff") || args[0].equalsIgnoreCase("s")) {
+                if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
+                if (CmdUtils.checkArgCountExact(sender, args, 1)) return true;
+
+                if (CmdUtils.checkCmdAliases(args, 0, "staff", "st", "s")) {
                     if (!Rank.isStaff(player.getRank())) {
                         player.sendMessage("&cOnly staff members may use the staff chat channel.");
                         return true;
@@ -166,7 +159,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     }
                     player.setChannel(Channel.STAFF);
                     player.sendMessage("&aYou are now speaking in " + Channel.STAFF.getColor() + "&lSTAFF");
-                } else if (args[0].equalsIgnoreCase("global") || args[0].equalsIgnoreCase("g")) {
+                } else if (CmdUtils.checkCmdAliases(args, 0, "global", "gl", "g")) {
                     if (player.getChannel().equals(Channel.GLOBAL)) {
                         player.sendMessage("&cYou are already speaking in that channel.");
                         return true;
@@ -180,21 +173,20 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             }
         } else if (cmd.getName().equalsIgnoreCase("gamemode")) {
             if (sender instanceof Player) {
-                if (!(args.length > 0)) {
-                    sender.sendMessage("§cYou did not provide enough arguments.");
-                    return true;
-                }
+                if (!CmdUtils.checkArgCountGreater(sender, args, 0)) return true;
 
                 FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
+                if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
+
                 if (player.getRank().equals(Rank.JUNIOR_ADMIN) || player.getRank().isHigher(Rank.JUNIOR_ADMIN)) {
                     GameMode mode = null;
-                    if (args[0].equalsIgnoreCase("creative") || args[0].equalsIgnoreCase("c") || args[0].equals("1")) {
+                    if (CmdUtils.checkCmdAliases(args, 0, "creative", "c", "1")) {
                         mode = GameMode.CREATIVE;
-                    } else if (args[0].equalsIgnoreCase("survival") || args[0].equalsIgnoreCase("s") || args[0].equals("0")) {
+                    } else if (CmdUtils.checkCmdAliases(args, 0, "survival", "s", "0")) {
                         mode = GameMode.SURVIVAL;
-                    } else if (args[0].equalsIgnoreCase("adventure") || args[0].equalsIgnoreCase("a") || args[0].equals("2")) {
+                    } else if (CmdUtils.checkCmdAliases(args, 0, "adventure", "a", "2")) {
                         mode = GameMode.ADVENTURE;
-                    } else if (args[0].equalsIgnoreCase("spectator") || args[0].equalsIgnoreCase("sp") || args[0].equals("3")) {
+                    } else if (CmdUtils.checkCmdAliases(args, 0, "spectator", "sp", "spec", "3")) {
                         mode = GameMode.SPECTATOR;
                     }
 
@@ -255,7 +247,10 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             }
 
             FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
+            if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
+
             if (!(player.getRank().equals(Rank.JUNIOR_MOD) || player.getRank().isHigher(Rank.JUNIOR_MOD))) {
+                //TODO Add checks for staff based ranks for SrMods and below
                 player.sendMessage("&cOnly Junior Mods and above can teleport directly.");
                 return true;
             }
@@ -284,7 +279,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 player.sendMessage("&aYou teleported to " + target.getNameNoPrefix());
                 if (target.getRank().equals(Rank.FIRECRAFT_TEAM)) {
                     target.sendMessage(player.getNameNoPrefix() + " &ateleported to you.");
-                    player.sendMessage("&7&oYou teleported to a Firecraft Team member, they were notified of this action.");
+                    player.sendMessage("&7&oYou teleported to a Firecraft Team member, they were notified of that action.");
                 }
             } else if (args.length == 2) {
                 if (player.getRank().equals(Rank.JUNIOR_MOD) || player.getRank().equals(Rank.MOD) || player.getRank().equals(Rank.SENIOR_MOD)) {
@@ -327,13 +322,101 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("nick")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("§cOnly players may use that command.");
+                return true;
+            }
 
+            FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
+            if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
+            if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
+            this.settingNick.add(player.getUuid());
+            player.sendMessage("&6&l╔══════════════════════════════════════");
+            player.sendMessage("&6&l║ &7You have started the nicname process.");
+            player.sendMessage("&6&l║ &7You may cancel with /nickcancel.");
+            player.sendMessage("&6&l║ &7You will be restricted until finished or until canceled.");
+            player.sendMessage("&6&l║ &7Getting the UUID of the name provided.");
+            UUID uuid;
+            try {
+                uuid = MojangUtils.getUUIDFromName(args[0]);
+            } catch (Exception e) {
+                player.sendMessage("&6&l║ &cThere was an error getting the UUID from the name, nickname proccess cancelled.");
+                player.sendMessage("&6&l╚══════════════════════════════════════");
+                this.settingNick.remove(player.getUuid());
+                return true;
+            }
+            if (getProfile(uuid) == null) {
+                player.sendMessage("&6&l║ &7There is no local copy for the nickname provided.");
+                player.sendMessage("&6&l║ &7Requesting the profile for " + args[0] + " this may take a bit.");
+
+                FPRequestProfile profileRequest = new FPRequestProfile(uuid);
+                this.socket.sendPacket(profileRequest);
+                new BukkitRunnable() {
+                    public void run() {
+                        FirecraftPlayer profile = getProfile(uuid);
+                        if (profile != null) {
+                            cancel();
+                            confirmNick.put(player.getUuid(), profile);
+                            player.sendMessage("&6&l║ &7The profile has been received, you need to confirm the request.");
+                            player.sendMessage("&6&l║ &7To confirm type &a/nickconfirm&7. To cancel type &c/nickcancel&7.");
+                            player.sendMessage("&6&l╚══════════════════════════════════════");
+                            //TODO Display profile somewhere here and in the one below as well
+                        }
+                    }
+                }.runTaskTimerAsynchronously(this, 0L, 10L);
+            } else {
+                player.sendMessage("&6&l║ &7There is information for the nickname you provided.");
+                player.sendMessage("&6&l║ &7You must confirm the nickname information.");
+                player.sendMessage("&6&l║ &7To confirm type &a/nickconfirm &7tocancel type &c/nickcancel&7.");
+                this.confirmNick.put(player.getUuid(), getProfile(uuid));
+            }
+        } else if (cmd.getName().equalsIgnoreCase("nickcancel")) {
+            if (sender instanceof Player) {
+                FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
+                if (this.confirmNick.containsKey(player.getUuid()) || this.settingNick.contains(player.getUuid())) {
+                    player.sendMessage("&cYou have cancelled the nickname process.");
+                    this.confirmNick.remove(player.getUuid());
+                    this.settingNick.remove(player.getUuid());
+                    return true;
+                } else {
+                    player.sendMessage("&cYou are not currently setting a nickname.");
+                    return true;
+                }
+            } else {
+                sender.sendMessage("§cOnly players may use that command.");
+                return true;
+            }
+        } else if (cmd.getName().equalsIgnoreCase("nickconfirm")) {
+            if (sender instanceof Player) {
+                FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
+                if (this.confirmNick.containsKey(player.getUuid())) {
+                    FirecraftPlayer nick = this.confirmNick.get(player.getUuid());
+                    try {
+                        player.setNick(this, nick);
+                    } catch (NicknameException e) {
+                        player.sendMessage("&cThere was an error setting the nickname.");
+                        this.settingNick.remove(player.getUuid());
+                        this.confirmNick.remove(player.getUuid());
+                        return true;
+                    }
+
+                    player.sendMessage("&aSet your nickname to &b" + nick.getName());
+                    this.settingNick.remove(player.getUuid());
+                    this.confirmNick.remove(player.getUuid());
+                } else {
+                    player.sendMessage("&cYou are not currently setting a nickname.");
+                    return true;
+                }
+            } else {
+                sender.sendMessage("§cOnly players may use that command.");
+                return true;
+            }
         } else if (cmd.getName().equalsIgnoreCase("vanish")) {
-
+            sender.sendMessage("§cNot implemented yet.ª");
         } else if (cmd.getName().equalsIgnoreCase("viewprofile")) {
             if (sender instanceof Player) {
                 FirecraftPlayer player = onlineFirecraftPlayers.get(((Player) sender).getUniqueId());
-                if (player.getName().equalsIgnoreCase("Jayfeather311")) {
+                if (Rank.isStaff(player.getRank())) {
                     if (args.length != 1) {
                         player.sendMessage("&cInvalid amount of arguments.");
                         return true;
