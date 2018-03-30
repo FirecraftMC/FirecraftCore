@@ -35,6 +35,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     private List<UUID> settingNick = new ArrayList<>();
     private Map<UUID, FirecraftPlayer> confirmNick = new HashMap<>();
 
+    private NickWrapper nickWrapper;
+
     private FirecraftSocket socket;
     private FirecraftServer server;
 
@@ -44,9 +46,20 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         this.socket.start();
         this.getServer().getPluginManager().registerEvents(this, this);
         this.server = new FirecraftServer(getConfig().getString("server.name"), ChatColor.valueOf(getConfig().getString("server.color")));
+
+        String versionString = ReflectionUtils.getVersion();
+        if (versionString.equalsIgnoreCase("v1_8_R3")) {
+            this.nickWrapper = new NickWrapper1_8_R3();
+        } else if (versionString.equalsIgnoreCase("v1_12_R1")) {
+            this.nickWrapper = new NickWrapper1_12_R1();
+        }
     }
 
     public void onDisable() { socket.sendPacket(new FPacketServerDisconnect(server)); }
+
+    public NickWrapper getNickWrapper() {
+        return nickWrapper;
+    }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
@@ -328,9 +341,9 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
             if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
             this.settingNick.add(player.getUuid());
-            player.sendMessage("&6&l╔══════════════════════════════════════");
+            player.sendMessage("&6&l╔═══════════════════════════════");
             player.sendMessage("&6&l║ &7You have started the nicname process.");
-            player.sendMessage("&6&l║ &7You may cancel with /nickcancel.");
+            player.sendMessage("&6&l║ &7You may cancel with &c/nickcancel&7.");
             player.sendMessage("&6&l║ &7You will be restricted until finished or until canceled.");
             player.sendMessage("&6&l║ &7Getting the UUID of the name provided.");
             UUID uuid;
@@ -338,7 +351,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 uuid = MojangUtils.getUUIDFromName(args[0]);
             } catch (Exception e) {
                 player.sendMessage("&6&l║ &cThere was an error getting the UUID from the name, nickname proccess cancelled.");
-                player.sendMessage("&6&l╚══════════════════════════════════════");
+                player.sendMessage("&6&l╚═══════════════════════════════");
                 this.settingNick.remove(player.getUuid());
                 return true;
             }
@@ -356,7 +369,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                             confirmNick.put(player.getUuid(), profile);
                             player.sendMessage("&6&l║ &7The profile has been received, you need to confirm the request.");
                             player.sendMessage("&6&l║ &7To confirm type &a/nickconfirm&7. To cancel type &c/nickcancel&7.");
-                            player.sendMessage("&6&l╚══════════════════════════════════════");
+                            player.sendMessage("&6&l╚═══════════════════════════════");
                             //TODO Display profile somewhere here and in the one below as well
                         }
                     }

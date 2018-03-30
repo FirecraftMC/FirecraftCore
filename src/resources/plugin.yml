@@ -17,3 +17,5 @@ commands:
     vanish:
         aliases: [v]
     viewprofile:
+    nickconfirm:
+    nickcancel:
