@@ -29,6 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FirecraftCore extends FirecraftPlugin implements Listener {
 
+    //TODO Add a Display Name option in the Firecraft Player class that formats based on staff rank.
+
     private ConcurrentHashMap<UUID, FirecraftPlayer> onlineFirecraftPlayers = new ConcurrentHashMap<>();
     private ConcurrentHashMap<UUID, FirecraftPlayer> requestedProfiles = new ConcurrentHashMap<>();
 
@@ -227,8 +229,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                         }
 
                         target.setGamemode(mode);
-                        player.sendMessage("&aYou have set " + target.getNameNoPrefix() + "&a's gamemode to &b" + mode.toString().toLowerCase());
-                        target.sendMessage("&aYour gamemode has been set to &b" + mode.toString().toLowerCase() + " &aby " + player.getNameNoPrefix());
+                        player.sendMessage("&aYou have set &b" + target.getDisplayName() + "&a's gamemode to &b" + mode.toString().toLowerCase());
+                        target.sendMessage("&aYour gamemode has been set to &b" + mode.toString().toLowerCase() + " &aby &b" + player.getDisplayName());
                         return true;
                     }
 
@@ -286,9 +288,9 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 }
 
                 player.teleport(target.getLocation());
-                player.sendMessage("&aYou teleported to " + target.getNameNoPrefix());
+                player.sendMessage("&aYou teleported to " + target.getDisplayName());
                 if (target.getRank().equals(Rank.FIRECRAFT_TEAM)) {
-                    target.sendMessage(player.getNameNoPrefix() + " &ateleported to you.");
+                    target.sendMessage(player.getName() + " &ateleported to you.");
                     player.sendMessage("&7&oYou teleported to a Firecraft Team member, they were notified of that action.");
                 }
             } else if (args.length == 2) {
@@ -324,9 +326,9 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 }
 
                 t1.teleport(t2.getLocation());
-                t1.sendMessage("&aYou were teleported to " + t2.getNameNoPrefix() + " &aby " + player.getNameNoPrefix());
-                t2.sendMessage(t1.getNameNoPrefix() + " &awas teleported to you by " + player.getNameNoPrefix());
-                player.sendMessage("&aYou teleported " + t1.getNameNoPrefix() + " &ato " + t2.getNameNoPrefix());
+                t1.sendMessage("&aYou were teleported to " + t2.getDisplayName() + " &aby " + player.getDisplayName());
+                t2.sendMessage(t1.getDisplayName() + " &awas teleported to you by " + player.getDisplayName());
+                player.sendMessage("&aYou teleported " + t1.getDisplayName() + " &ato " + t2.getDisplayName());
             } else {
                 player.sendMessage("&cYou did not provide the correct number of arguments.");
                 return true;
@@ -486,8 +488,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     }
 
                     target.setGamemode(mode);
-                    player.sendMessage("&aYou have set " + target.getNameNoPrefix() + "&a's gamemode to &b" + mode.toString().toLowerCase());
-                    target.sendMessage("&aYour gamemode has been set to &b" + mode.toString().toLowerCase() + " &aby " + player.getNameNoPrefix());
+                    player.sendMessage("&aYou have set " + target.getDisplayName() + "&a's gamemode to &b" + mode.toString().toLowerCase());
+                    target.sendMessage("&aYour gamemode has been set to &b" + mode.toString().toLowerCase() + " &aby " + player.getDisplayName());
                     return;
                 }
 
