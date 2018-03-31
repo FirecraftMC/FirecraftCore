@@ -18,6 +18,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -59,6 +60,10 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         }
 
         this.scoreboardManager = Bukkit.getScoreboardManager();
+
+        for (Rank r : Rank.values()) {
+            createScoreboardTeam(r, r.getTeamName());
+        }
     }
 
     public void onDisable() { socket.sendPacket(new FPacketServerDisconnect(server)); }
@@ -86,6 +91,9 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                         FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(server, player);
                         socket.sendPacket(staffChatJoin);
                     }
+
+                    Team rankTeam = teamMap.get(player.getRank());
+                    rankTeam.addEntry(player.getName());
                 }
             }
         }.runTaskTimerAsynchronously(this, 0L, 20);
@@ -104,7 +112,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         requestedProfiles.put(player.getUuid(), player);
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.MONITOR)
     public void onPlayerChat(AsyncPlayerChatEvent e) {
         e.setCancelled(true);
         FirecraftPlayer player = getFirecraftPlayer(e.getPlayer().getUniqueId());
