@@ -23,13 +23,12 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FirecraftCore extends FirecraftPlugin implements Listener {
-
-    //TODO Add a Display Name option in the Firecraft Player class that formats based on staff rank.
 
     private ConcurrentHashMap<UUID, FirecraftPlayer> onlineFirecraftPlayers = new ConcurrentHashMap<>();
     private ConcurrentHashMap<UUID, FirecraftPlayer> requestedProfiles = new ConcurrentHashMap<>();
@@ -41,6 +40,9 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
 
     private FirecraftSocket socket;
     private FirecraftServer server;
+
+    private ScoreboardManager scoreboardManager;
+    private Map<Rank, Team> teamMap = new HashMap<>();
 
     public void onEnable() {
         this.saveDefaultConfig();
@@ -55,6 +57,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         } else if (versionString.equalsIgnoreCase("v1_12_R1")) {
             this.nickWrapper = new NickWrapper1_12_R1();
         }
+
+        this.scoreboardManager = Bukkit.getScoreboardManager();
     }
 
     public void onDisable() { socket.sendPacket(new FPacketServerDisconnect(server)); }
@@ -97,6 +101,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         }
 
         onlineFirecraftPlayers.remove(player.getUuid());
+        requestedProfiles.put(player.getUuid(), player);
     }
 
     @EventHandler
@@ -506,5 +511,16 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         } else if (sender instanceof ConsoleCommandSender) {
             sender.sendMessage("§cIt is not yet implemented for console to set gamemodes.");
         }
+    }
+
+    private void createScoreboardTeam(Rank rank, String name) {
+        Scoreboard board = scoreboardManager.getMainScoreboard();
+        Team team = board.registerNewTeam(name);
+        if (Rank.isStaff(rank)) {
+            team.setPrefix(rank.getPrefix() + " ");
+        } else {
+            team.setPrefix(rank.getPrefix() + " §r");
+        }
+        this.teamMap.put(rank, team);
     }
 }
