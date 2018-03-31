@@ -342,6 +342,11 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
             if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
+
+            if (!(player.getRank().equals(Rank.VIP) || player.getRank().equals(Rank.JUNIOR_ADMIN) || player.getRank().isHigher(Rank.JUNIOR_ADMIN))) {
+                player.sendMessage("&cYou are not allowed to use the nickname command.");
+                return true;
+            }
             this.settingNick.add(player.getUuid());
             player.sendMessage("&6&l╔═══════════════════════════════");
             player.sendMessage("&6&l║ &7You have started the nicname process.");
