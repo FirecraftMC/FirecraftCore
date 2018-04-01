@@ -79,7 +79,6 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         p.sendMessage("§7§oPlease wait while we retreive your data...");
         FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(server, p.getUniqueId());
         socket.sendPacket(serverPlayerJoin);
-        System.out.println("Sent the Player Join Packet.");
         new BukkitRunnable() {
             public void run() {
                 if (getFirecraftPlayer(p.getUniqueId()) != null) {
@@ -87,12 +86,18 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     p.sendMessage("§7§oYour data has been received, restrictions lifted.");
 
                     FirecraftPlayer player = getFirecraftPlayer(p.getUniqueId());
-                    if (Rank.isStaff(player.getRank())) {
+                    if (Rank.isStaff(player.getMainRank())) {
                         FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(server, player);
                         socket.sendPacket(staffChatJoin);
                     }
 
-                    Team rankTeam = teamMap.get(player.getRank());
+                    for (FirecraftPlayer p : onlineFirecraftPlayers.values()) {
+                        if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                            p.sendMessage(player.getDisplayName() + " &ajoined the game.");
+                        }
+                    }
+
+                    Team rankTeam = teamMap.get(player.getMainRank());
                     rankTeam.addEntry(player.getName());
                 }
             }
@@ -103,7 +108,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     public void onPlayerQuit(PlayerQuitEvent e) {
         e.setQuitMessage(null);
         FirecraftPlayer player = getFirecraftPlayer(e.getPlayer().getUniqueId());
-        if (Rank.isStaff(player.getRank())) {
+        if (Rank.isStaff(player.getMainRank())) {
             FPStaffChatQuit staffQuit = new FPStaffChatQuit(server, player);
             socket.sendPacket(staffQuit);
         }
@@ -120,15 +125,19 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             e.getPlayer().sendMessage("§cYour player data has not been received yet, you are not alowed to speak.");
             return;
         }
+        System.out.println(player.getName() + " has sent a chat message.");
 
         if (player.getChannel().equals(Channel.GLOBAL)) {
+            System.out.println(player.getName() + " is in the global channel.");
             String format = ChatUtils.formatGlobal(player, e.getMessage());
             for (FirecraftPlayer op : onlineFirecraftPlayers.values()) {
                 op.sendMessage(format);
             }
         } else if (player.getChannel().equals(Channel.STAFF)) {
+            System.out.println(player.getName() + " is in the staff chat channel.");
             FPStaffChatMessage msg = new FPStaffChatMessage(server, player, e.getMessage());
             socket.sendPacket(msg);
+            System.out.println("Packet Sent.");
         }
     }
 
@@ -173,7 +182,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
                 if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
                 if (CmdUtils.checkCmdAliases(args, 0, "staff", "st", "s")) {
-                    if (!Rank.isStaff(player.getRank())) {
+                    if (!Rank.isStaff(player.getMainRank())) {
                         player.sendMessage("&cOnly staff members may use the staff chat channel.");
                         return true;
                     }
@@ -203,7 +212,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
                 if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
 
-                if (player.getRank().equals(Rank.JUNIOR_ADMIN) || player.getRank().isHigher(Rank.JUNIOR_ADMIN)) {
+                if (player.getMainRank().equals(Rank.JUNIOR_ADMIN) || player.getMainRank().isHigher(Rank.JUNIOR_ADMIN)) {
                     GameMode mode = null;
                     if (CmdUtils.checkCmdAliases(args, 0, "creative", "c", "1")) {
                         mode = GameMode.CREATIVE;
@@ -230,13 +239,13 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     }
 
                     if (target != null) {
-                        if (player.getRank().equals(Rank.JUNIOR_ADMIN)) {
+                        if (player.getMainRank().equals(Rank.JUNIOR_ADMIN)) {
                             player.sendMessage("&cOnly Admins and Higher can set other player's gamemodes.");
                             return true;
                         }
 
                         //TODO Add a bypass for FCT Members
-                        if (target.getRank().equals(player.getRank()) || target.getRank().isHigher(player.getRank())) {
+                        if (target.getMainRank().equals(player.getMainRank()) || target.getMainRank().isHigher(player.getMainRank())) {
                             player.sendMessage("&cYou cannot set the gamemode of someone of the same rank or higher than you.");
                             return true;
                         }
@@ -274,7 +283,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
 
-            if (!(player.getRank().equals(Rank.JUNIOR_MOD) || player.getRank().isHigher(Rank.JUNIOR_MOD))) {
+            if (!(player.getMainRank().equals(Rank.JUNIOR_MOD) || player.getMainRank().isHigher(Rank.JUNIOR_MOD))) {
                 //TODO Add checks for staff based ranks for SrMods and below
                 player.sendMessage("&cOnly Junior Mods and above can teleport directly.");
                 return true;
@@ -293,8 +302,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     return true;
                 }
 
-                if (player.getRank().equals(Rank.JUNIOR_MOD)) {
-                    if (target.getRank().isHigher(Rank.JUNIOR_MOD)) {
+                if (player.getMainRank().equals(Rank.JUNIOR_MOD)) {
+                    if (target.getMainRank().isHigher(Rank.JUNIOR_MOD)) {
                         player.sendMessage("&cJunior Mods cannot teleport to players of higher rank.");
                         return true;
                     }
@@ -302,12 +311,12 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
 
                 player.teleport(target.getLocation());
                 player.sendMessage("&aYou teleported to " + target.getDisplayName());
-                if (target.getRank().equals(Rank.FIRECRAFT_TEAM)) {
+                if (target.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
                     target.sendMessage(player.getName() + " &ateleported to you.");
                     player.sendMessage("&7&oYou teleported to a Firecraft Team member, they were notified of that action.");
                 }
             } else if (args.length == 2) {
-                if (player.getRank().equals(Rank.JUNIOR_MOD) || player.getRank().equals(Rank.MOD) || player.getRank().equals(Rank.SENIOR_MOD)) {
+                if (player.getMainRank().equals(Rank.JUNIOR_MOD) || player.getMainRank().equals(Rank.MOD) || player.getMainRank().equals(Rank.SENIOR_MOD)) {
                     player.sendMessage("&cOnly Junior Admins and above can teleport players to other players.");
                     return true;
                 }
@@ -333,7 +342,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     return true;
                 }
 
-                if (t1.getRank().equals(player.getRank()) || t1.getRank().isHigher(player.getRank())) {
+                if (t1.getMainRank().equals(player.getMainRank()) || t1.getMainRank().isHigher(player.getMainRank())) {
                     player.sendMessage("&cYou cannot forcefully teleport players equal to or higher than your rank.");
                     return true;
                 }
@@ -356,7 +365,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
             if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
 
-            if (!(player.getRank().equals(Rank.VIP) || player.getRank().equals(Rank.JUNIOR_ADMIN) || player.getRank().isHigher(Rank.JUNIOR_ADMIN))) {
+            if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.JUNIOR_ADMIN) || player.getMainRank().isHigher(Rank.JUNIOR_ADMIN))) {
                 player.sendMessage("&cYou are not allowed to use the nickname command.");
                 return true;
             }
@@ -398,6 +407,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 player.sendMessage("&6&l║ &7There is information for the nickname you provided.");
                 player.sendMessage("&6&l║ &7You must confirm the nickname information.");
                 player.sendMessage("&6&l║ &7To confirm type &a/nickconfirm &7tocancel type &c/nickcancel&7.");
+                player.sendMessage("&6&l╚═══════════════════════════════");
                 this.confirmNick.put(player.getUuid(), getProfile(uuid));
             }
         } else if (cmd.getName().equalsIgnoreCase("nickcancel")) {
@@ -441,12 +451,33 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 sender.sendMessage("§cOnly players may use that command.");
                 return true;
             }
+
+        } else if (cmd.getName().equalsIgnoreCase("nickreset")) {
+            if (sender instanceof ConsoleCommandSender) {
+                sender.sendMessage("§cConsole can't set nicknames, so it can't reset nicknames");
+                return true;
+            }
+
+            FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
+            if (player.getNick() == null) {
+                player.sendMessage("&cYou do not have a nick currently set.");
+                return true;
+            }
+
+            try {
+                player.resetNick(this);
+            } catch (NicknameException e) {
+                player.sendMessage("&cThere was an error resetting your nickname.");
+                return true;
+            }
+
+            player.sendMessage("&aYou have reset your nickname.");
         } else if (cmd.getName().equalsIgnoreCase("vanish")) {
             sender.sendMessage("§cNot implemented yet.ª");
         } else if (cmd.getName().equalsIgnoreCase("viewprofile")) {
             if (sender instanceof Player) {
                 FirecraftPlayer player = onlineFirecraftPlayers.get(((Player) sender).getUniqueId());
-                if (Rank.isStaff(player.getRank())) {
+                if (Rank.isStaff(player.getMainRank())) {
                     if (args.length != 1) {
                         player.sendMessage("&cInvalid amount of arguments.");
                         return true;
@@ -471,7 +502,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     }
 
                     player.sendMessage("&6Displaying profile info for " + target.getName());
-                    player.sendMessage("&7Rank: " + target.getRank().getBaseColor() + target.getRank().toString());
+                    player.sendMessage("&7Rank: " + target.getMainRank().getBaseColor() + target.getMainRank().toString());
                     player.sendMessage("&7Channel: " + target.getChannel().getColor() + target.getChannel().toString());
                 }
             }
@@ -483,7 +514,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     private void gamemodeShortcut(CommandSender sender, GameMode mode, String[] args) {
         if (sender instanceof Player) {
             FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
-            if (player.getRank().equals(Rank.JUNIOR_ADMIN) || player.getRank().isHigher(Rank.JUNIOR_ADMIN)) {
+            if (player.getMainRank().equals(Rank.JUNIOR_ADMIN) || player.getMainRank().isHigher(Rank.JUNIOR_ADMIN)) {
                 FirecraftPlayer target = null;
                 if (args.length > 0) {
                     for (FirecraftPlayer p : getFirecraftPlayers()) {
@@ -494,13 +525,13 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 }
 
                 if (target != null) {
-                    if (player.getRank().equals(Rank.JUNIOR_ADMIN)) {
+                    if (player.getMainRank().equals(Rank.JUNIOR_ADMIN)) {
                         player.sendMessage("&cOnly Admins and Higher can set other player's gamemodes.");
                         return;
                     }
 
                     //TODO Add a bypass for FCT Members
-                    if (target.getRank().equals(player.getRank()) || target.getRank().isHigher(player.getRank())) {
+                    if (target.getMainRank().equals(player.getMainRank()) || target.getMainRank().isHigher(player.getMainRank())) {
                         player.sendMessage("&cYou cannot set the gamemode of someone of the same rank or higher than you.");
                         return;
                     }
@@ -523,12 +554,18 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
 
     private void createScoreboardTeam(Rank rank, String name) {
         Scoreboard board = scoreboardManager.getMainScoreboard();
-        Team team = board.registerNewTeam(name);
-        if (Rank.isStaff(rank)) {
-            team.setPrefix(rank.getPrefix() + " ");
+        if (board.getTeam(name) == null) {
+            Team team = board.registerNewTeam(name);
+            if (rank.equals(Rank.BUILD_TEAM)) {
+                team.setPrefix(rank.getBaseColor() + "§lBT ");
+            } else if (Rank.isStaff(rank)) {
+                team.setPrefix(rank.getPrefix() + " ");
+            } else {
+                team.setPrefix(rank.getPrefix() + " §r");
+            }
+            this.teamMap.put(rank, team);
         } else {
-            team.setPrefix(rank.getPrefix() + " §r");
+            this.teamMap.put(rank, board.getTeam(name));
         }
-        this.teamMap.put(rank, team);
     }
 }

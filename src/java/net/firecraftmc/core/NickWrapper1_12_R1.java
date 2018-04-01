@@ -20,9 +20,7 @@ public class NickWrapper1_12_R1 extends NickWrapper {
     private final PacketPlayOutPlayerInfo.EnumPlayerInfoAction action_remove = PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER;
     private final PacketPlayOutPlayerInfo.EnumPlayerInfoAction action_add = PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER;
 
-    public NickWrapper1_12_R1() {
-        this.minecraftServer = ((CraftServer) Bukkit.getServer()).getServer();
-    }
+    public NickWrapper1_12_R1() { this.minecraftServer = ((CraftServer) Bukkit.getServer()).getServer(); }
 
     public void refreshOthers(FirecraftPlugin plugin, Player player, String name) {
         List<Player> canSee = new ArrayList<>();

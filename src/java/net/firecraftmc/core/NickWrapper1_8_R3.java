@@ -6,7 +6,7 @@ import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_8_R3 .entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -20,9 +20,7 @@ public class NickWrapper1_8_R3 extends NickWrapper {
     private final PacketPlayOutPlayerInfo.EnumPlayerInfoAction action_remove = PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER;
     private final PacketPlayOutPlayerInfo.EnumPlayerInfoAction action_add = PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER;
 
-    public NickWrapper1_8_R3() {
-        this.minecraftServer = ((CraftServer) Bukkit.getServer()).getServer();
-    }
+    public NickWrapper1_8_R3() { this.minecraftServer = ((CraftServer) Bukkit.getServer()).getServer(); }
 
     public void refreshOthers(FirecraftPlugin plugin, Player player, String name) {
         List<Player> canSee = new ArrayList<>();
