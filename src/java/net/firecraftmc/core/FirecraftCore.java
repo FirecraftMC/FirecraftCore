@@ -215,7 +215,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
                 if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
 
-                if (player.getMainRank().equals(Rank.JUNIOR_ADMIN) || player.getMainRank().isHigher(Rank.JUNIOR_ADMIN)) {
+                if (player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN)) {
                     GameMode mode = null;
                     if (CmdUtils.checkCmdAliases(args, 0, "creative", "c", "1")) {
                         mode = GameMode.CREATIVE;
@@ -242,7 +242,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     }
 
                     if (target != null) {
-                        if (player.getMainRank().equals(Rank.JUNIOR_ADMIN)) {
+                        if (player.getMainRank().equals(Rank.TRIAL_ADMIN)) {
                             player.sendMessage("&cOnly Admins and Higher can set other player's gamemodes.");
                             return true;
                         }
@@ -286,7 +286,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
 
-            if (!(player.getMainRank().equals(Rank.JUNIOR_MOD) || player.getMainRank().isHigher(Rank.JUNIOR_MOD))) {
+            if (!(player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN))) {
                 //TODO Add checks for staff based ranks for SrMods and below
                 player.sendMessage("&cOnly Junior Mods and above can teleport directly.");
                 return true;
@@ -305,8 +305,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     return true;
                 }
 
-                if (player.getMainRank().equals(Rank.JUNIOR_MOD)) {
-                    if (target.getMainRank().isHigher(Rank.JUNIOR_MOD)) {
+                if (player.getMainRank().equals(Rank.TRIAL_ADMIN)) {
+                    if (target.getMainRank().isHigher(Rank.TRIAL_ADMIN)) {
                         player.sendMessage("&cJunior Mods cannot teleport to players of higher rank.");
                         return true;
                     }
@@ -319,7 +319,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     player.sendMessage("&7&oYou teleported to a Firecraft Team member, they were notified of that action.");
                 }
             } else if (args.length == 2) {
-                if (player.getMainRank().equals(Rank.JUNIOR_MOD) || player.getMainRank().equals(Rank.MOD) || player.getMainRank().equals(Rank.SENIOR_MOD)) {
+                if (player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().equals(Rank.MOD)) {
                     player.sendMessage("&cOnly Junior Admins and above can teleport players to other players.");
                     return true;
                 }
@@ -368,7 +368,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
             if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
 
-            if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.JUNIOR_ADMIN) || player.getMainRank().isHigher(Rank.JUNIOR_ADMIN))) {
+            if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN))) {
                 player.sendMessage("&cYou are not allowed to use the nickname command.");
                 return true;
             }
@@ -517,7 +517,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     private void gamemodeShortcut(CommandSender sender, GameMode mode, String[] args) {
         if (sender instanceof Player) {
             FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
-            if (player.getMainRank().equals(Rank.JUNIOR_ADMIN) || player.getMainRank().isHigher(Rank.JUNIOR_ADMIN)) {
+            if (player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN)) {
                 FirecraftPlayer target = null;
                 if (args.length > 0) {
                     for (FirecraftPlayer p : getFirecraftPlayers()) {
@@ -528,7 +528,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 }
 
                 if (target != null) {
-                    if (player.getMainRank().equals(Rank.JUNIOR_ADMIN)) {
+                    if (player.getMainRank().equals(Rank.TRIAL_ADMIN)) {
                         player.sendMessage("&cOnly Admins and Higher can set other player's gamemodes.");
                         return;
                     }
