@@ -66,7 +66,10 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         }
     }
 
-    public void onDisable() { socket.sendPacket(new FPacketServerDisconnect(server)); }
+    public void onDisable() {
+        socket.sendPacket(new FPacketServerDisconnect(server));
+        socket.close();
+    }
 
     public NickWrapper getNickWrapper() {
         return nickWrapper;
