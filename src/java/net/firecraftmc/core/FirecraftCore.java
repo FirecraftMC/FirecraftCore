@@ -102,7 +102,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     
                     Team rankTeam = teamMap.get(player.getMainRank());
                     rankTeam.addEntry(player.getName());
-    
+                    
                     player.playerOnlineStuff();
                     
                     for (FirecraftPlayer p : onlinePlayers.values()) {
@@ -119,19 +119,23 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     public void onPlayerQuit(PlayerQuitEvent e) {
         e.setQuitMessage(null);
         FirecraftPlayer player = getFirecraftPlayer(e.getPlayer().getUniqueId());
+        player.refreshOnlineStatus();
         if (Rank.isStaff(player.getMainRank())) {
             FPStaffChatQuit staffQuit = new FPStaffChatQuit(server, player);
             socket.sendPacket(staffQuit);
         }
+        
+        FPacketServerPlayerLeave playerLeave = new FPacketServerPlayerLeave(server, player);
+        socket.sendPacket(playerLeave);
         
         Team rankTeam = teamMap.get(player.getMainRank());
         rankTeam.removeEntry(player.getName());
         
         onlinePlayers.remove(player.getUuid());
         otherProfiles.put(player.getUuid(), player);
-    
+        
         for (FirecraftPlayer p : onlinePlayers.values()) {
-            String online = Bukkit.getServer().getOnlinePlayers().size()-1 + "";
+            String online = Bukkit.getServer().getOnlinePlayers().size() - 1 + "";
             String max = Bukkit.getServer().getMaxPlayers() + "";
             p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + online + "§7/§9" + max, "");
         }
@@ -175,7 +179,11 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     }
     
     public void addProfile(FirecraftPlayer profile) {
-        this.otherProfiles.put(profile.getUuid(), profile);
+        if (!this.otherProfiles.containsKey(profile.getUuid())) {
+            this.otherProfiles.put(profile.getUuid(), profile);
+        } else {
+            this.otherProfiles.replace(profile.getUuid(), profile);
+        }
     }
     
     public FirecraftPlayer getProfile(UUID uuid) {
@@ -492,6 +500,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     this.confirmNick.remove(player.getUuid());
                     player.setActionBar(new ActionBar("&fYou are currently &cNICKED"));
                     FPStaffChatSetNick setNick = new FPStaffChatSetNick(server, player, nick);
+                    socket.sendPacket(setNick);
                 } else {
                     player.sendMessage("&cYou are not currently setting a nickname.");
                     return true;
@@ -521,6 +530,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             }
             
             player.sendMessage("&aYou have reset your nickname.");
+            FPStaffChatResetNick resetNick = new FPStaffChatResetNick(server, player);
+            socket.sendPacket(resetNick);
         } else if (cmd.getName().equalsIgnoreCase("vanish")) {
             sender.sendMessage("§cNot implemented yet.");
         } else if (cmd.getName().equalsIgnoreCase("viewprofile")) {
