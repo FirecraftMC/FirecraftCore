@@ -102,9 +102,17 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     
                     Team rankTeam = teamMap.get(player.getMainRank());
                     rankTeam.addEntry(player.getName());
+    
+                    player.playerOnlineStuff();
+                    
+                    for (FirecraftPlayer p : onlinePlayers.values()) {
+                        String online = Bukkit.getServer().getOnlinePlayers().size() + "";
+                        String max = Bukkit.getServer().getMaxPlayers() + "";
+                        p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + online + "§7/§9" + max, "");
+                    }
                 }
             }
-        }.runTaskTimerAsynchronously(this, 0L, 20);
+        }.runTaskTimer(this, 0L, 20);
     }
     
     @EventHandler
@@ -121,6 +129,12 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         
         onlinePlayers.remove(player.getUuid());
         otherProfiles.put(player.getUuid(), player);
+    
+        for (FirecraftPlayer p : onlinePlayers.values()) {
+            String online = Bukkit.getServer().getOnlinePlayers().size()-1 + "";
+            String max = Bukkit.getServer().getMaxPlayers() + "";
+            p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + online + "§7/§9" + max, "");
+        }
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -477,6 +491,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     this.settingNick.remove(player.getUuid());
                     this.confirmNick.remove(player.getUuid());
                     player.setActionBar(new ActionBar("&fYou are currently &cNICKED"));
+                    FPStaffChatSetNick setNick = new FPStaffChatSetNick(server, player, nick);
                 } else {
                     player.sendMessage("&cYou are not currently setting a nickname.");
                     return true;
@@ -612,5 +627,9 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         } else {
             this.teamMap.put(rank, board.getTeam(name));
         }
+    }
+    
+    public FirecraftServer getFirecraftServer() {
+        return server;
     }
 }
