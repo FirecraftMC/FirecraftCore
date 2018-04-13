@@ -27,12 +27,12 @@ public class NickWrapper1_8_R3 extends NickWrapper {
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.canSee(player)) {
                 canSee.add(p);
-                p.hidePlayer(plugin, player);
+                p.hidePlayer(player);
             }
         }
 
         for (Player p : canSee) {
-            p.showPlayer(plugin, player);
+            p.showPlayer(player);
         }
     }
 
@@ -84,13 +84,12 @@ public class NickWrapper1_8_R3 extends NickWrapper {
         }.runTaskLater(plugin, 2L);
     }
 
-
-    public NickInfo setNick(FirecraftPlugin plugin, FirecraftPlayer player, FirecraftPlayer nickProfile) {
+    public FirecraftPlayer.NickInfo setNick(FirecraftPlugin plugin, FirecraftPlayer player, FirecraftPlayer nickProfile) {
         setProfileName(player.getPlayer(), nickProfile.getName());
         setSkinProperties(player.getPlayer(), nickProfile.getSkin());
         refreshOthers(plugin, player.getPlayer(), nickProfile.getName());
         refreshSelf(plugin, player.getPlayer(), nickProfile.getName());
 
-        return new NickInfo(player.getUuid(), nickProfile);
+        return new FirecraftPlayer.NickInfo(nickProfile);
     }
 }
