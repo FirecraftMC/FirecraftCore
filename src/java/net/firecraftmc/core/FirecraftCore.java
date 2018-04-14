@@ -33,6 +33,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     
     private ScoreboardManager scoreboardManager;
     private Map<Rank, Team> teamMap = new HashMap<>();
+    private final List<String> interactTypes = Arrays.asList("inventoryinteract", "itemuse", "itempickup", "blockbreak", "blockplace", "entityinteract", "chat", "silentinventoryopen");
     
     public void onEnable() {
         instance = this;
@@ -62,6 +63,17 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 }
             }
         }.runTaskTimerAsynchronously(this, 5 * 60L, 60L);
+        
+        new VanishEvents(this);
+        
+        new BukkitRunnable() {
+            public void run() {
+                for (FirecraftPlayer p : onlinePlayers.values()) {
+                    if (p.getActionBar() != null)
+                        p.getActionBar().send(p.getPlayer());
+                }
+            }
+        }.runTaskTimerAsynchronously(this, 0L, 40L);
     }
     
     public void onDisable() {
@@ -110,6 +122,14 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                         String max = Bukkit.getServer().getMaxPlayers() + "";
                         p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + online + "§7/§9" + max, "");
                     }
+                    
+                    for (FirecraftPlayer p : onlinePlayers.values()) {
+                        if (p.isVanished()) {
+                            if (!p.getMainRank().equals(player.getMainRank()) || !p.getMainRank().isHigher(player.getMainRank())) {
+                                player.getPlayer().hidePlayer(p.getPlayer());
+                            }
+                        }
+                    }
                 }
             }
         }.runTaskTimer(this, 0L, 20);
@@ -151,6 +171,10 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         }
         
         if (player.getChannel().equals(Channel.GLOBAL)) {
+            if (player.isVanished()) {
+                player.sendMessage("&cYou are not allowed to talk in global while vanished.");
+                return;
+            }
             String format = ChatUtils.formatGlobal(player, e.getMessage());
             for (FirecraftPlayer op : onlinePlayers.values()) {
                 op.sendMessage(format);
@@ -533,7 +557,175 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             FPStaffChatResetNick resetNick = new FPStaffChatResetNick(server, player);
             socket.sendPacket(resetNick);
         } else if (cmd.getName().equalsIgnoreCase("vanish")) {
-            sender.sendMessage("§cNot implemented yet.");
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("§cOnly players may use the vanish command.");
+                return true;
+            }
+            
+            FirecraftPlayer player = this.getFirecraftPlayer(((Player) sender).getUniqueId());
+            if (player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.MOD) || player.getMainRank().isHigher(Rank.MOD)) {
+                if (args.length == 0) {
+                    if (player.isVanished()) {
+                        player.unVanish();
+                        for (FirecraftPlayer p : onlinePlayers.values()) {
+                            p.getPlayer().showPlayer(player.getPlayer());
+                            if (!player.isNicked()) {
+                                player.getPlayer().setPlayerListName(player.getName());
+                            } else {
+                                player.getPlayer().setPlayerListName(player.getNick().getNickProfile().getName());
+                            }
+                        }
+                        player.setActionBar(null);
+                    } else {
+                        player.vanish();
+                        for (FirecraftPlayer p : onlinePlayers.values()) {
+                            if (!p.getMainRank().equals(player.getMainRank()) || !p.getMainRank().isHigher(player.getMainRank())) {
+                                p.getPlayer().hidePlayer(player.getPlayer());
+                            }
+                            if (!player.isNicked()) {
+                                player.getPlayer().setPlayerListName(player.getName() + " §7§l[V]");
+                            } else {
+                                player.getPlayer().setPlayerListName(player.getNick().getNickProfile().getName() + "§7§l[V]");
+                            }
+                        }
+                        
+                        player.setActionBar(new ActionBar("&fYou are currently &cVANISHED"));
+                    }
+                    FPStaffChatVanishToggle toggleVanish = new FPStaffChatVanishToggle(server, player, player.isVanished());
+                    socket.sendPacket(toggleVanish);
+                } else if (args.length == 1) {
+                    if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
+                        player.sendMessage("&cOnly Admins or higher can toggle vanish for other players.");
+                        return true;
+                    }
+                    
+                    FirecraftPlayer target = null;
+                    for (FirecraftPlayer fp : getFirecraftPlayers()) {
+                        if (fp.getName().equalsIgnoreCase(args[0])) {
+                            target = fp;
+                        }
+                    }
+                    
+                    if (target == null) {
+                        player.sendMessage("&cCannot find the player " + args[0]);
+                        return true;
+                    }
+                    
+                    if (target.getMainRank().equals(player.getMainRank()) || target.getMainRank().isHigher(player.getMainRank())) {
+                        //TODO add override for Firecraft Team
+                        player.sendMessage("&cYou cannot toggle vanish for players whose rank is equal to or higher than yours.");
+                        return true;
+                    }
+                    
+                    if (target.isVanished()) {
+                        target.unVanish();
+                        for (FirecraftPlayer p : onlinePlayers.values()) {
+                            p.getPlayer().showPlayer(target.getPlayer());
+                            if (!target.isNicked()) {
+                                target.getPlayer().setPlayerListName(target.getName());
+                            } else {
+                                target.getPlayer().setPlayerListName(target.getNick().getNickProfile().getName());
+                            }
+                        }
+                        target.setActionBar(null);
+                    } else {
+                        target.vanish();
+                        for (FirecraftPlayer p : onlinePlayers.values()) {
+                            if (!p.getMainRank().equals(target.getMainRank()) || !p.getMainRank().isHigher(target.getMainRank())) {
+                                p.getPlayer().hidePlayer(target.getPlayer());
+                            }
+                            if (!target.isNicked()) {
+                                target.getPlayer().setPlayerListName(target.getName() + "§7§l[V]");
+                            } else {
+                                target.getPlayer().setPlayerListName(target.getNick().getNickProfile().getName() + "§7§l[V]");
+                            }
+                        }
+                        target.setActionBar(new ActionBar("&fYou are currently &cVANISHED"));
+                    }
+                    FPStaffChatVanishToggleOthers vanishToggleOthers = new FPStaffChatVanishToggleOthers(server, player, target);
+                    socket.sendPacket(vanishToggleOthers);
+                } else {
+                    if (!CmdUtils.checkCmdAliases(args, 0, "settings", "s")) {
+                        player.sendMessage("&cUnknown subcommand " + args[0]);
+                        return true;
+                    }
+                    
+                    if (!player.isVanished()) {
+                        player.sendMessage("&cYou are currently not vanished.");
+                        return true;
+                    }
+                    
+                    List<String> toggled = new ArrayList<>(7);
+                    for (int i = 1; i < args.length; i++) {
+                        if (interactTypes.contains(args[i].toLowerCase())) {
+                            if (!toggled.contains(args[i].toLowerCase())) {
+                                toggled.add(args[i]);
+                            } else {
+                                player.sendMessage("&d&l[Vanish] &cThe option &b" + args[i] + " &chas duplicates, ignoring them.");
+                            }
+                        }
+                    }
+                    
+                    toggled.forEach(option -> {
+                        if (option.equalsIgnoreCase("inventoryinteract")) {
+                            if (!player.getMainRank().equals(Rank.MOD) || !player.getMainRank().isHigher(Rank.MOD)) {
+                                player.sendMessage("&d&l[Vanish] &cOnly Mods or above can toggle interacting with inventories.");
+                            } else {
+                                player.getVanishInfo().toggleInventoryInteract();
+                                player.sendMessage("&d&l[Vanish] &aYou have toggled inventoryinteract to &b" + player.getVanishInfo().inventoryInteract());
+                            }
+                        } else if (option.equalsIgnoreCase("itemuse")) {
+                            if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
+                                player.sendMessage("&d&l[Vanish] &cOnly Admins or above can toggle using items.");
+                            } else {
+                                player.getVanishInfo().itemUse();
+                                player.sendMessage("&d&l[Vanish] &aYou have toggled itemuse to &b" + player.getVanishInfo().itemUse());
+                            }
+                        } else if (option.equalsIgnoreCase("itempickup")) {
+                            if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
+                                player.sendMessage("&d&l[Vanish] &cOnly Admins or above can toggle using picking up items.");
+                            } else {
+                                player.getVanishInfo().itemPickup();
+                                player.sendMessage("&d&l[Vanish] &aYou have toggled itempickup to &b" + player.getVanishInfo().itemPickup());
+                            }
+                        } else if (option.equalsIgnoreCase("blockbreak")) {
+                            if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
+                                player.sendMessage("&d&l[Vanish] &cOnly Admins or above can toggle breaking blocks.");
+                            } else {
+                                player.getVanishInfo().blockBreak();
+                                player.sendMessage("&d&l[Vanish] &aYou have toggled blockbreak to &b" + player.getVanishInfo().blockBreak());
+                            }
+                        } else if (option.equalsIgnoreCase("blockplace")) {
+                            if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
+                                player.sendMessage("&d&l[Vanish] &cOnly Admins or above can toggle using placing blocks.");
+                            } else {
+                                player.getVanishInfo().blockPlace();
+                                player.sendMessage("&d&l[Vanish] &aYou have toggled blockplace to &b" + player.getVanishInfo().blockPlace());
+                            }
+                        } else if (option.equalsIgnoreCase("entityinteract")) {
+                            if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
+                                player.sendMessage("&d&l[Vanish] &cOnly Admins or above can toggle interacting with entities.");
+                            } else {
+                                player.getVanishInfo().entityInteract();
+                                player.sendMessage("&d&l[Vanish] &aYou have toggled entityinteract to &b" + player.getVanishInfo().entityInteract());
+                            }
+                        } else if (option.equalsIgnoreCase("chat")) {
+                            player.getVanishInfo().toggleChatInteract();
+                            player.sendMessage("&d&l[Vanish] &aYou have toggled chat to " + player.getVanishInfo().canChat());
+                        } else if (option.equalsIgnoreCase("silentinventoryopen")) {
+                            if (!player.getMainRank().equals(Rank.MOD) || !player.getMainRank().isHigher(Rank.MOD)) {
+                                player.sendMessage("&d&l[Vanish] &cOnly Mods or above can toggle opening inventories silently.");
+                            } else {
+                                player.getVanishInfo().toggleSilentInventories();
+                                player.sendMessage("&d&l[Vanish] &aYou have toggled silentinventoryopen to &b" + player.getVanishInfo().canChat());
+                            }
+                        }
+                    });
+                }
+            } else {
+                player.sendMessage("&cOnly VIPS, Mods or above can vanish!");
+                return true;
+            }
         } else if (cmd.getName().equalsIgnoreCase("viewprofile")) {
             if (sender instanceof Player) {
                 FirecraftPlayer player = onlinePlayers.get(((Player) sender).getUniqueId());
@@ -621,6 +813,28 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         } else if (sender instanceof ConsoleCommandSender) {
             sender.sendMessage("§cIt is not yet implemented for console to set gamemodes.");
         }
+    }
+    
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
+        if (cmd.getName().equalsIgnoreCase("vanish")) {
+            if (args.length > 1) {
+                if (CmdUtils.checkCmdAliases(args, 0, "settings", "s")) {
+                    List<String> c = new ArrayList<>();
+                    for (int i = 1; i < args.length; i++) {
+                        for (String it : interactTypes) {
+                            if (!args[i].equalsIgnoreCase(it)) {
+                                if (it.startsWith(args[i].toLowerCase())) {
+                                    c.add(it);
+                                }
+                            }
+                        }
+                    }
+                    return c;
+                }
+            }
+        }
+        
+        return null;
     }
     
     private void createScoreboardTeam(Rank rank, String name) {
