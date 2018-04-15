@@ -1,12 +1,12 @@
-package net.firecraftmc.core;
+package net.firecraftmc.core.wrapper;
 
 import com.mojang.authlib.properties.Property;
 import net.firecraftmc.shared.classes.*;
-import net.minecraft.server.v1_12_R1.*;
+import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -14,13 +14,13 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NickWrapper1_12_R1 extends NickWrapper {
+public class NickWrapper1_8_R3 extends NickWrapper {
     private MinecraftServer minecraftServer;
 
     private final PacketPlayOutPlayerInfo.EnumPlayerInfoAction action_remove = PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER;
     private final PacketPlayOutPlayerInfo.EnumPlayerInfoAction action_add = PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER;
 
-    public NickWrapper1_12_R1() { this.minecraftServer = ((CraftServer) Bukkit.getServer()).getServer(); }
+    public NickWrapper1_8_R3() { this.minecraftServer = ((CraftServer) Bukkit.getServer()).getServer(); }
 
     public void refreshOthers(FirecraftPlugin plugin, Player player, String name) {
         List<Player> canSee = new ArrayList<>();
@@ -36,7 +36,7 @@ public class NickWrapper1_12_R1 extends NickWrapper {
         }
     }
 
-    private void setProfileName(Player player, String name) {
+    public void setProfileName(Player player, String name) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
         try {
             Field nameField = craftPlayer.getProfile().getClass().getDeclaredField("name");
@@ -53,7 +53,7 @@ public class NickWrapper1_12_R1 extends NickWrapper {
         craftPlayer.getProfile().getProperties().put(skin.getName(), new Property(skin.getName(), skin.getValue(), skin.getSignature()));
     }
 
-    private void refreshSelf(FirecraftPlugin plugin, Player nicked, String name) {
+    public void refreshSelf(FirecraftPlugin plugin, Player nicked, String name) {
         CraftPlayer craftPlayer = (CraftPlayer) nicked;
         PacketPlayOutPlayerInfo removePlayer = new PacketPlayOutPlayerInfo(action_remove, craftPlayer.getHandle());
         PacketPlayOutPlayerInfo addPlayer = new PacketPlayOutPlayerInfo(action_add, craftPlayer.getHandle());

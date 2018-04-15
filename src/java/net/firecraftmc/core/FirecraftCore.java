@@ -1,17 +1,23 @@
 package net.firecraftmc.core;
 
+import net.firecraftmc.core.managers.*;
+import net.firecraftmc.core.wrapper.NickWrapper1_12_R1;
+import net.firecraftmc.core.wrapper.NickWrapper1_8_R3;
 import net.firecraftmc.shared.classes.*;
-import net.firecraftmc.shared.classes.utils.*;
-import net.firecraftmc.shared.enums.Channel;
+import net.firecraftmc.shared.classes.utils.ReflectionUtils;
 import net.firecraftmc.shared.enums.Rank;
-import net.firecraftmc.shared.exceptions.NicknameException;
 import net.firecraftmc.shared.packets.*;
-import net.firecraftmc.shared.packets.staffchat.*;
-import org.bukkit.*;
-import org.bukkit.command.*;
+import net.firecraftmc.shared.packets.staffchat.FPStaffChatJoin;
+import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.*;
-import org.bukkit.event.player.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
 
@@ -20,20 +26,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FirecraftCore extends FirecraftPlugin implements Listener {
     
-    private ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<UUID, FirecraftPlayer> otherProfiles = new ConcurrentHashMap<>();
-    
-    private List<UUID> settingNick = new ArrayList<>();
-    private Map<UUID, FirecraftPlayer> confirmNick = new HashMap<>();
-    
+    private PlayerManager playerManager;
     private NickWrapper nickWrapper;
     
     private FirecraftSocket socket;
     private FirecraftServer server;
-    
-    private ScoreboardManager scoreboardManager;
-    private Map<Rank, Team> teamMap = new HashMap<>();
-    private final List<String> interactTypes = Arrays.asList("inventoryinteract", "itemuse", "itempickup", "blockbreak", "blockplace", "entityinteract", "chat", "silentinventoryopen");
     
     public void onEnable() {
         instance = this;
@@ -50,12 +47,6 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             this.nickWrapper = new NickWrapper1_12_R1();
         }
         
-        this.scoreboardManager = Bukkit.getScoreboardManager();
-        
-        for (Rank r : Rank.values()) {
-            createScoreboardTeam(r, r.getTeamName());
-        }
-        
         new BukkitRunnable() {
             public void run() {
                 if (socket == null || !socket.isOpen()) {
@@ -64,16 +55,33 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             }
         }.runTaskTimerAsynchronously(this, 5 * 60L, 60L);
         
-        new VanishEvents(this);
+        this.playerManager = new PlayerManager(this);
         
-        new BukkitRunnable() {
-            public void run() {
-                for (FirecraftPlayer p : onlinePlayers.values()) {
-                    if (p.getActionBar() != null)
-                        p.getActionBar().send(p.getPlayer());
-                }
-            }
-        }.runTaskTimerAsynchronously(this, 0L, 40L);
+        this.getCommand("chat").setExecutor(new ChatManager(this));
+        NickManager nickManager = new NickManager(this);
+        this.getCommand("nick").setExecutor(nickManager);
+        this.getCommand("nickcancel").setExecutor(nickManager);
+        this.getCommand("nickconfirm").setExecutor(nickManager);
+        this.getCommand("nickreset").setExecutor(nickManager);
+        
+        GamemodeManager gmManager = new GamemodeManager(this);
+        this.getCommand("gamemode").setExecutor(gmManager);
+        this.getCommand("gmc").setExecutor(gmManager);
+        this.getCommand("gms").setExecutor(gmManager);
+        this.getCommand("gma").setExecutor(gmManager);
+        this.getCommand("gmsp").setExecutor(gmManager);
+        
+        TeleportationManager tpManager = new TeleportationManager(this);
+        this.getCommand("teleport").setExecutor(tpManager);
+        this.getCommand("tphere").setExecutor(tpManager);
+        this.getCommand("back").setExecutor(tpManager);
+        this.getCommand("tpall").setExecutor(tpManager);
+        this.getCommand("tpaccept").setExecutor(tpManager);
+        this.getCommand("tpdeny").setExecutor(tpManager);
+        this.getCommand("tpa").setExecutor(tpManager);
+        
+        this.getCommand("vanish").setExecutor(new VanishManager(this));
+        this.getCommand("viewprofile").setExecutor(playerManager);
     }
     
     public void onDisable() {
@@ -87,771 +95,12 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         return nickWrapper;
     }
     
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e) {
-        e.setJoinMessage(null);
-        Player p = e.getPlayer();
-        p.sendMessage("§7§oPlease wait while we retrieve your data. You will be restricted until we get your data.");
-        FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(server, p.getUniqueId());
-        socket.sendPacket(serverPlayerJoin);
-        new BukkitRunnable() {
-            public void run() {
-                if (getFirecraftPlayer(p.getUniqueId()) != null) {
-                    cancel();
-                    p.sendMessage("§7§oYour data has been received, restrictions lifted.");
-                    
-                    FirecraftPlayer player = getFirecraftPlayer(p.getUniqueId());
-                    if (Rank.isStaff(player.getMainRank())) {
-                        FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(server, player);
-                        socket.sendPacket(staffChatJoin);
-                    }
-                    
-                    for (FirecraftPlayer p : onlinePlayers.values()) {
-                        if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                            p.sendMessage(player.getDisplayName() + " &ajoined the game.");
-                        }
-                    }
-                    
-                    Team rankTeam = teamMap.get(player.getMainRank());
-                    rankTeam.addEntry(player.getName());
-                    
-                    player.playerOnlineStuff();
-                    
-                    for (FirecraftPlayer p : onlinePlayers.values()) {
-                        String online = Bukkit.getServer().getOnlinePlayers().size() + "";
-                        String max = Bukkit.getServer().getMaxPlayers() + "";
-                        p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + online + "§7/§9" + max, "");
-                    }
-                    
-                    for (FirecraftPlayer p : onlinePlayers.values()) {
-                        if (p.isVanished()) {
-                            if (!p.getMainRank().equals(player.getMainRank()) || !p.getMainRank().isHigher(player.getMainRank())) {
-                                player.getPlayer().hidePlayer(p.getPlayer());
-                            }
-                        }
-                    }
-                }
-            }
-        }.runTaskTimer(this, 0L, 20);
-    }
-    
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent e) {
-        e.setQuitMessage(null);
-        FirecraftPlayer player = getFirecraftPlayer(e.getPlayer().getUniqueId());
-        player.refreshOnlineStatus();
-        if (Rank.isStaff(player.getMainRank())) {
-            FPStaffChatQuit staffQuit = new FPStaffChatQuit(server, player);
-            socket.sendPacket(staffQuit);
-        }
-        
-        FPacketServerPlayerLeave playerLeave = new FPacketServerPlayerLeave(server, player);
-        socket.sendPacket(playerLeave);
-        
-        Team rankTeam = teamMap.get(player.getMainRank());
-        rankTeam.removeEntry(player.getName());
-        
-        onlinePlayers.remove(player.getUuid());
-        otherProfiles.put(player.getUuid(), player);
-        
-        for (FirecraftPlayer p : onlinePlayers.values()) {
-            String online = Bukkit.getServer().getOnlinePlayers().size() - 1 + "";
-            String max = Bukkit.getServer().getMaxPlayers() + "";
-            p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + online + "§7/§9" + max, "");
-        }
-    }
-    
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerChat(AsyncPlayerChatEvent e) {
-        e.setCancelled(true);
-        FirecraftPlayer player = getFirecraftPlayer(e.getPlayer().getUniqueId());
-        if (player == null) {
-            e.getPlayer().sendMessage("§cYour player data has not been received yet, you are not allowed to speak.");
-            return;
-        }
-        
-        if (player.getChannel().equals(Channel.GLOBAL)) {
-            if (player.isVanished()) {
-                player.sendMessage("&cYou are not allowed to talk in global while vanished.");
-                return;
-            }
-            String format = ChatUtils.formatGlobal(player, e.getMessage());
-            for (FirecraftPlayer op : onlinePlayers.values()) {
-                op.sendMessage(format);
-            }
-        } else if (player.getChannel().equals(Channel.STAFF)) {
-            FPStaffChatMessage msg = new FPStaffChatMessage(server, player, e.getMessage());
-            socket.sendPacket(msg);
-        }
-    }
-    
-    public void addFirecraftPlayer(FirecraftPlayer firecraftPlayer) {
-        firecraftPlayer.setPlayer(Bukkit.getPlayer(firecraftPlayer.getUuid()));
-        this.onlinePlayers.put(firecraftPlayer.getUuid(), firecraftPlayer);
-    }
-    
-    public FirecraftPlayer getFirecraftPlayer(UUID uuid) {
-        return onlinePlayers.get(uuid);
-    }
-    
-    public Collection<FirecraftPlayer> getFirecraftPlayers() {
-        return onlinePlayers.values();
-    }
-    
-    public void removeFirecraftPlayer(UUID uuid) {
-        this.onlinePlayers.remove(uuid);
-    }
-    
-    public void addProfile(FirecraftPlayer profile) {
-        if (!this.otherProfiles.containsKey(profile.getUuid())) {
-            this.otherProfiles.put(profile.getUuid(), profile);
-        } else {
-            this.otherProfiles.replace(profile.getUuid(), profile);
-        }
-    }
-    
-    public FirecraftPlayer getProfile(UUID uuid) {
-        if (this.onlinePlayers.containsKey(uuid)) {
-            return this.onlinePlayers.get(uuid);
-        } else if (this.otherProfiles.containsKey(uuid)) {
-            return this.otherProfiles.get(uuid);
-        }
-        
-        return null;
-    }
-    
     public FirecraftSocket getSocket() {
         return socket;
     }
     
-    public void updateFirecraftPlayer(FirecraftPlayer target) {
-        target.setPlayer(Bukkit.getPlayer(target.getUuid()));
-        this.onlinePlayers.replace(target.getUuid(), target);
-    }
-    
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("chat")) {
-            if (sender instanceof ConsoleCommandSender) {
-                sender.sendMessage("§cConsole cannot use the chat command.");
-                return true;
-            } else if (sender instanceof Player) {
-                FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
-                
-                if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
-                if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
-                if (CmdUtils.checkCmdAliases(args, 0, "staff", "st", "s")) {
-                    if (!Rank.isStaff(player.getMainRank())) {
-                        player.sendMessage("&cOnly staff members may use the staff chat channel.");
-                        return true;
-                    }
-                    
-                    if (player.getChannel().equals(Channel.STAFF)) {
-                        player.sendMessage("&cYou are already speaking in that channel.");
-                        return true;
-                    }
-                    player.setChannel(Channel.STAFF);
-                    player.sendMessage("&aYou are now speaking in " + Channel.STAFF.getColor() + "&lSTAFF");
-                } else if (CmdUtils.checkCmdAliases(args, 0, "global", "gl", "g")) {
-                    if (player.getChannel().equals(Channel.GLOBAL)) {
-                        player.sendMessage("&cYou are already speaking in that channel.");
-                        return true;
-                    }
-                    player.setChannel(Channel.GLOBAL);
-                    player.sendMessage("&aYou are now speaking in " + Channel.GLOBAL.getColor() + "&lGLOBAL");
-                } else {
-                    player.sendMessage("&cSupport for other channels is currently not implemented.");
-                    return true;
-                }
-            }
-        } else if (cmd.getName().equalsIgnoreCase("gamemode")) {
-            if (sender instanceof Player) {
-                if (!CmdUtils.checkArgCountGreater(sender, args, 0)) return true;
-                
-                FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
-                if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
-                
-                if (player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN)) {
-                    GameMode mode = null;
-                    if (CmdUtils.checkCmdAliases(args, 0, "creative", "c", "1")) {
-                        mode = GameMode.CREATIVE;
-                    } else if (CmdUtils.checkCmdAliases(args, 0, "survival", "s", "0")) {
-                        mode = GameMode.SURVIVAL;
-                    } else if (CmdUtils.checkCmdAliases(args, 0, "adventure", "a", "2")) {
-                        mode = GameMode.ADVENTURE;
-                    } else if (CmdUtils.checkCmdAliases(args, 0, "spectator", "sp", "spec", "3")) {
-                        mode = GameMode.SPECTATOR;
-                    }
-                    
-                    if (mode == null) {
-                        player.sendMessage("&cYou did not provide a valid gamemode.");
-                        return true;
-                    }
-                    
-                    FirecraftPlayer target = null;
-                    if (args.length > 1) {
-                        for (FirecraftPlayer p : getFirecraftPlayers()) {
-                            if (p.getName().equalsIgnoreCase(args[1])) {
-                                target = p;
-                            }
-                        }
-                    }
-                    
-                    if (target != null) {
-                        if (player.getMainRank().equals(Rank.TRIAL_ADMIN)) {
-                            player.sendMessage("&cOnly Admins and Higher can set other player's gamemodes.");
-                            return true;
-                        }
-                        
-                        //TODO Add a bypass for FCT Members
-                        if (target.getMainRank().equals(player.getMainRank()) || target.getMainRank().isHigher(player.getMainRank())) {
-                            player.sendMessage("&cYou cannot set the gamemode of someone of the same rank or higher than you.");
-                            return true;
-                        }
-                        
-                        target.setGamemode(mode);
-                        player.sendMessage("&aYou have set &b" + target.getDisplayName() + "&a's gamemode to &b" + mode.toString().toLowerCase());
-                        target.sendMessage("&aYour gamemode has been set to &b" + mode.toString().toLowerCase() + " &aby &b" + player.getDisplayName());
-                        return true;
-                    }
-                    
-                    player.setGamemode(mode);
-                    player.sendMessage("&aYou set your own gamemode to &b" + mode.toString().toLowerCase());
-                } else {
-                    player.sendMessage("&cOnly Junior Admins and above can use the gamemode command.");
-                    return true;
-                }
-            } else if (sender instanceof ConsoleCommandSender) {
-                sender.sendMessage("§cIt is not yet implemented for console to set gamemodes.");
-                return true;
-            }
-        } else if (cmd.getName().equalsIgnoreCase("gmc")) {
-            gamemodeShortcut(sender, GameMode.CREATIVE, args);
-        } else if (cmd.getName().equalsIgnoreCase("gms")) {
-            gamemodeShortcut(sender, GameMode.SURVIVAL, args);
-        } else if (cmd.getName().equalsIgnoreCase("gmsp")) {
-            gamemodeShortcut(sender, GameMode.SPECTATOR, args);
-        } else if (cmd.getName().equalsIgnoreCase("gma")) {
-            gamemodeShortcut(sender, GameMode.ADVENTURE, args);
-        } else if (cmd.getName().equalsIgnoreCase("teleport")) {
-            if (sender instanceof ConsoleCommandSender) {
-                sender.sendMessage("§cConsole is not able to teleport players.");
-                return true;
-            }
-            
-            FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
-            if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
-            
-            if (!(player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN))) {
-                //TODO Add checks for staff based ranks for SrMods and below
-                player.sendMessage("&cOnly Junior Mods and above can teleport directly.");
-                return true;
-            }
-            
-            if (args.length == 1) {
-                FirecraftPlayer target = null;
-                for (FirecraftPlayer fp : getFirecraftPlayers()) {
-                    if (fp.getName().equalsIgnoreCase(args[0])) {
-                        target = fp;
-                    }
-                }
-                
-                if (target == null) {
-                    player.sendMessage("&cCould not find the player " + args[0]);
-                    return true;
-                }
-                
-                if (player.getMainRank().equals(Rank.TRIAL_ADMIN)) {
-                    if (target.getMainRank().isHigher(Rank.TRIAL_ADMIN)) {
-                        player.sendMessage("&cJunior Mods cannot teleport to players of higher rank.");
-                        return true;
-                    }
-                }
-                
-                player.teleport(target.getLocation());
-                player.sendMessage("&aYou teleported to " + target.getDisplayName());
-                if (target.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                    target.sendMessage(player.getName() + " &ateleported to you.");
-                    player.sendMessage("&7&oYou teleported to a Firecraft Team member, they were notified of that action.");
-                }
-            } else if (args.length == 2) {
-                if (player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().equals(Rank.MOD)) {
-                    player.sendMessage("&cOnly Junior Admins and above can teleport players to other players.");
-                    return true;
-                }
-                
-                FirecraftPlayer t1 = null;
-                FirecraftPlayer t2 = null;
-                
-                for (FirecraftPlayer fp : getFirecraftPlayers()) {
-                    if (fp.getName().equalsIgnoreCase(args[0])) {
-                        t1 = fp;
-                    } else if (fp.getName().equalsIgnoreCase(args[1])) {
-                        t2 = fp;
-                    }
-                }
-                
-                if (t1 == null) {
-                    player.sendMessage("&cThe name provided for the first player is invalid.");
-                    return true;
-                }
-                
-                if (t2 == null) {
-                    player.sendMessage("&cThe name provided for the second player is invalid.");
-                    return true;
-                }
-                
-                if (t1.getMainRank().equals(player.getMainRank()) || t1.getMainRank().isHigher(player.getMainRank())) {
-                    player.sendMessage("&cYou cannot forcefully teleport players equal to or higher than your rank.");
-                    return true;
-                }
-                
-                t1.teleport(t2.getLocation());
-                t1.sendMessage("&aYou were teleported to " + t2.getDisplayName() + " &aby " + player.getDisplayName());
-                t2.sendMessage(t1.getDisplayName() + " &awas teleported to you by " + player.getDisplayName());
-                player.sendMessage("&aYou teleported " + t1.getDisplayName() + " &ato " + t2.getDisplayName());
-            } else {
-                player.sendMessage("&cYou did not provide the correct number of arguments.");
-                return true;
-            }
-        } else if (cmd.getName().equalsIgnoreCase("nick")) {
-            if (!(sender instanceof Player)) {
-                sender.sendMessage("§cOnly players may use that command.");
-                return true;
-            }
-            
-            FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
-            if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
-            if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
-            
-            if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN))) {
-                player.sendMessage("&cYou are not allowed to use the nickname command.");
-                return true;
-            }
-            this.settingNick.add(player.getUuid());
-            player.sendMessage("&6&l╔═══════════════════════════════");
-            player.sendMessage("&6&l║ &7You have started the nickname process.");
-            player.sendMessage("&6&l║ &7You may cancel with &c/nickcancel&7.");
-            player.sendMessage("&6&l║ &7You will be restricted until finished or until canceled.");
-            player.sendMessage("&6&l║ &7Getting the UUID of the name provided.");
-            UUID uuid;
-            try {
-                uuid = MojangUtils.getUUIDFromName(args[0]);
-            } catch (Exception e) {
-                player.sendMessage("&6&l║ &cThere was an error getting the UUID from the name, nickname process cancelled.");
-                player.sendMessage("&6&l╚═══════════════════════════════");
-                this.settingNick.remove(player.getUuid());
-                return true;
-            }
-            
-            if (getFirecraftPlayer(uuid) != null) {
-                player.sendMessage("&6&l║ &7The profile that you requested is online on this server. You cannot use it.");
-                player.sendMessage("&6&l╚═══════════════════════════════");
-                settingNick.remove(player.getUuid());
-                return true;
-            }
-            
-            if (getProfile(uuid) == null) {
-                player.sendMessage("&6&l║ &7There is no local copy for the nickname provided.");
-                player.sendMessage("&6&l║ &7Requesting the profile for " + args[0] + " this may take a bit.");
-                
-                FPRequestProfile profileRequest = new FPRequestProfile(uuid);
-                this.socket.sendPacket(profileRequest);
-                new BukkitRunnable() {
-                    public void run() {
-                        FirecraftPlayer profile = getProfile(uuid);
-                        if (profile != null) {
-                            cancel();
-                            if (profile.getMainRank().isHigher(player.getMainRank()) || profile.getMainRank().equals(player.getMainRank())) {
-                                player.sendMessage("&6&l║ &7The profile's rank is equal to or higher than yours. You cannot use it.");
-                                player.sendMessage("&6&l╚═══════════════════════════════");
-                                settingNick.remove(player.getUuid());
-                                return;
-                            }
-                            
-                            if (profile.isOnline()) {
-                                player.sendMessage("&6&l║ &7The profile that you requested is online on a different server. You cannot use it.");
-                                player.sendMessage("&6&l╚═══════════════════════════════");
-                                settingNick.remove(player.getUuid());
-                                return;
-                            }
-                            
-                            confirmNick.put(player.getUuid(), profile);
-                            player.sendMessage("&6&l║ &7The profile has been received, you need to confirm the request.");
-                            player.sendMessage("&6&l║ &7To confirm type &a/nickconfirm&7. To cancel type &c/nickcancel&7.");
-                            player.sendMessage("&6&l╚═══════════════════════════════");
-                        }
-                    }
-                }.runTaskTimerAsynchronously(this, 0L, 10L);
-            } else {
-                player.sendMessage("&6&l║ &7There is information for the nickname you provided.");
-                player.sendMessage("&6&l║ &7You must confirm the nickname information.");
-                player.sendMessage("&6&l║ &7To confirm type &a/nickconfirm &7tocancel type &c/nickcancel&7.");
-                player.sendMessage("&6&l╚═══════════════════════════════");
-                this.confirmNick.put(player.getUuid(), getProfile(uuid));
-            }
-        } else if (cmd.getName().equalsIgnoreCase("nickcancel")) {
-            if (sender instanceof Player) {
-                FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
-                if (this.confirmNick.containsKey(player.getUuid()) || this.settingNick.contains(player.getUuid())) {
-                    player.sendMessage("&cYou have cancelled the nickname process.");
-                    this.confirmNick.remove(player.getUuid());
-                    this.settingNick.remove(player.getUuid());
-                    return true;
-                } else {
-                    player.sendMessage("&cYou are not currently setting a nickname.");
-                    return true;
-                }
-            } else {
-                sender.sendMessage("§cOnly players may use that command.");
-                return true;
-            }
-        } else if (cmd.getName().equalsIgnoreCase("nickconfirm")) {
-            if (sender instanceof Player) {
-                FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
-                if (this.confirmNick.containsKey(player.getUuid())) {
-                    FirecraftPlayer nick = this.confirmNick.get(player.getUuid());
-                    try {
-                        player.setNick(this, nick);
-                    } catch (NicknameException e) {
-                        player.sendMessage("&cThere was an error setting the nickname.");
-                        this.settingNick.remove(player.getUuid());
-                        this.confirmNick.remove(player.getUuid());
-                        return true;
-                    }
-                    
-                    player.sendMessage("&aSet your nickname to &b" + nick.getName());
-                    this.settingNick.remove(player.getUuid());
-                    this.confirmNick.remove(player.getUuid());
-                    player.setActionBar(new ActionBar("&fYou are currently &cNICKED"));
-                    FPStaffChatSetNick setNick = new FPStaffChatSetNick(server, player, nick);
-                    socket.sendPacket(setNick);
-                } else {
-                    player.sendMessage("&cYou are not currently setting a nickname.");
-                    return true;
-                }
-            } else {
-                sender.sendMessage("§cOnly players may use that command.");
-                return true;
-            }
-            
-        } else if (cmd.getName().equalsIgnoreCase("nickreset")) {
-            if (sender instanceof ConsoleCommandSender) {
-                sender.sendMessage("§cConsole can't set nicknames, so it can't reset nicknames");
-                return true;
-            }
-            
-            FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
-            if (player.getNick() == null) {
-                player.sendMessage("&cYou do not have a nick currently set.");
-                return true;
-            }
-            
-            try {
-                player.resetNick(this);
-            } catch (NicknameException e) {
-                player.sendMessage("&cThere was an error resetting your nickname.");
-                return true;
-            }
-            
-            player.sendMessage("&aYou have reset your nickname.");
-            FPStaffChatResetNick resetNick = new FPStaffChatResetNick(server, player);
-            socket.sendPacket(resetNick);
-        } else if (cmd.getName().equalsIgnoreCase("vanish")) {
-            if (!(sender instanceof Player)) {
-                sender.sendMessage("§cOnly players may use the vanish command.");
-                return true;
-            }
-            
-            FirecraftPlayer player = this.getFirecraftPlayer(((Player) sender).getUniqueId());
-            if (player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.MOD) || player.getMainRank().isHigher(Rank.MOD)) {
-                if (args.length == 0) {
-                    if (player.isVanished()) {
-                        player.unVanish();
-                        for (FirecraftPlayer p : onlinePlayers.values()) {
-                            p.getPlayer().showPlayer(player.getPlayer());
-                            if (!player.isNicked()) {
-                                player.getPlayer().setPlayerListName(player.getName());
-                            } else {
-                                player.getPlayer().setPlayerListName(player.getNick().getNickProfile().getName());
-                            }
-                        }
-                        player.setActionBar(null);
-                    } else {
-                        player.vanish();
-                        for (FirecraftPlayer p : onlinePlayers.values()) {
-                            if (!p.getMainRank().equals(player.getMainRank()) || !p.getMainRank().isHigher(player.getMainRank())) {
-                                p.getPlayer().hidePlayer(player.getPlayer());
-                            }
-                            if (!player.isNicked()) {
-                                player.getPlayer().setPlayerListName(player.getName() + " §7§l[V]");
-                            } else {
-                                player.getPlayer().setPlayerListName(player.getNick().getNickProfile().getName() + "§7§l[V]");
-                            }
-                        }
-                        
-                        player.setActionBar(new ActionBar("&fYou are currently &cVANISHED"));
-                    }
-                    FPStaffChatVanishToggle toggleVanish = new FPStaffChatVanishToggle(server, player, player.isVanished());
-                    socket.sendPacket(toggleVanish);
-                } else if (args.length == 1) {
-                    if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
-                        player.sendMessage("&cOnly Admins or higher can toggle vanish for other players.");
-                        return true;
-                    }
-                    
-                    FirecraftPlayer target = null;
-                    for (FirecraftPlayer fp : getFirecraftPlayers()) {
-                        if (fp.getName().equalsIgnoreCase(args[0])) {
-                            target = fp;
-                        }
-                    }
-                    
-                    if (target == null) {
-                        player.sendMessage("&cCannot find the player " + args[0]);
-                        return true;
-                    }
-                    
-                    if (target.getMainRank().equals(player.getMainRank()) || target.getMainRank().isHigher(player.getMainRank())) {
-                        //TODO add override for Firecraft Team
-                        player.sendMessage("&cYou cannot toggle vanish for players whose rank is equal to or higher than yours.");
-                        return true;
-                    }
-                    
-                    if (target.isVanished()) {
-                        target.unVanish();
-                        for (FirecraftPlayer p : onlinePlayers.values()) {
-                            p.getPlayer().showPlayer(target.getPlayer());
-                            if (!target.isNicked()) {
-                                target.getPlayer().setPlayerListName(target.getName());
-                            } else {
-                                target.getPlayer().setPlayerListName(target.getNick().getNickProfile().getName());
-                            }
-                        }
-                        target.setActionBar(null);
-                    } else {
-                        target.vanish();
-                        for (FirecraftPlayer p : onlinePlayers.values()) {
-                            if (!p.getMainRank().equals(target.getMainRank()) || !p.getMainRank().isHigher(target.getMainRank())) {
-                                p.getPlayer().hidePlayer(target.getPlayer());
-                            }
-                            if (!target.isNicked()) {
-                                target.getPlayer().setPlayerListName(target.getName() + "§7§l[V]");
-                            } else {
-                                target.getPlayer().setPlayerListName(target.getNick().getNickProfile().getName() + "§7§l[V]");
-                            }
-                        }
-                        target.setActionBar(new ActionBar("&fYou are currently &cVANISHED"));
-                    }
-                    FPStaffChatVanishToggleOthers vanishToggleOthers = new FPStaffChatVanishToggleOthers(server, player, target);
-                    socket.sendPacket(vanishToggleOthers);
-                } else {
-                    if (!CmdUtils.checkCmdAliases(args, 0, "settings", "s")) {
-                        player.sendMessage("&cUnknown subcommand " + args[0]);
-                        return true;
-                    }
-                    
-                    if (!player.isVanished()) {
-                        player.sendMessage("&cYou are currently not vanished.");
-                        return true;
-                    }
-                    
-                    List<String> toggled = new ArrayList<>(7);
-                    for (int i = 1; i < args.length; i++) {
-                        if (interactTypes.contains(args[i].toLowerCase())) {
-                            if (!toggled.contains(args[i].toLowerCase())) {
-                                toggled.add(args[i]);
-                            } else {
-                                player.sendMessage("&d&l[Vanish] &cThe option &b" + args[i] + " &chas duplicates, ignoring them.");
-                            }
-                        }
-                    }
-                    
-                    toggled.forEach(option -> {
-                        if (option.equalsIgnoreCase("inventoryinteract")) {
-                            if (!player.getMainRank().equals(Rank.MOD) || !player.getMainRank().isHigher(Rank.MOD)) {
-                                player.sendMessage("&d&l[Vanish] &cOnly Mods or above can toggle interacting with inventories.");
-                            } else {
-                                player.getVanishInfo().toggleInventoryInteract();
-                                player.sendMessage("&d&l[Vanish] &aYou have toggled inventoryinteract to &b" + player.getVanishInfo().inventoryInteract());
-                            }
-                        } else if (option.equalsIgnoreCase("itemuse")) {
-                            if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
-                                player.sendMessage("&d&l[Vanish] &cOnly Admins or above can toggle using items.");
-                            } else {
-                                player.getVanishInfo().itemUse();
-                                player.sendMessage("&d&l[Vanish] &aYou have toggled itemuse to &b" + player.getVanishInfo().itemUse());
-                            }
-                        } else if (option.equalsIgnoreCase("itempickup")) {
-                            if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
-                                player.sendMessage("&d&l[Vanish] &cOnly Admins or above can toggle using picking up items.");
-                            } else {
-                                player.getVanishInfo().itemPickup();
-                                player.sendMessage("&d&l[Vanish] &aYou have toggled itempickup to &b" + player.getVanishInfo().itemPickup());
-                            }
-                        } else if (option.equalsIgnoreCase("blockbreak")) {
-                            if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
-                                player.sendMessage("&d&l[Vanish] &cOnly Admins or above can toggle breaking blocks.");
-                            } else {
-                                player.getVanishInfo().blockBreak();
-                                player.sendMessage("&d&l[Vanish] &aYou have toggled blockbreak to &b" + player.getVanishInfo().blockBreak());
-                            }
-                        } else if (option.equalsIgnoreCase("blockplace")) {
-                            if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
-                                player.sendMessage("&d&l[Vanish] &cOnly Admins or above can toggle using placing blocks.");
-                            } else {
-                                player.getVanishInfo().blockPlace();
-                                player.sendMessage("&d&l[Vanish] &aYou have toggled blockplace to &b" + player.getVanishInfo().blockPlace());
-                            }
-                        } else if (option.equalsIgnoreCase("entityinteract")) {
-                            if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
-                                player.sendMessage("&d&l[Vanish] &cOnly Admins or above can toggle interacting with entities.");
-                            } else {
-                                player.getVanishInfo().entityInteract();
-                                player.sendMessage("&d&l[Vanish] &aYou have toggled entityinteract to &b" + player.getVanishInfo().entityInteract());
-                            }
-                        } else if (option.equalsIgnoreCase("chat")) {
-                            player.getVanishInfo().toggleChatInteract();
-                            player.sendMessage("&d&l[Vanish] &aYou have toggled chat to " + player.getVanishInfo().canChat());
-                        } else if (option.equalsIgnoreCase("silentinventoryopen")) {
-                            if (!player.getMainRank().equals(Rank.MOD) || !player.getMainRank().isHigher(Rank.MOD)) {
-                                player.sendMessage("&d&l[Vanish] &cOnly Mods or above can toggle opening inventories silently.");
-                            } else {
-                                player.getVanishInfo().toggleSilentInventories();
-                                player.sendMessage("&d&l[Vanish] &aYou have toggled silentinventoryopen to &b" + player.getVanishInfo().canChat());
-                            }
-                        }
-                    });
-                }
-            } else {
-                player.sendMessage("&cOnly VIPS, Mods or above can vanish!");
-                return true;
-            }
-        } else if (cmd.getName().equalsIgnoreCase("viewprofile")) {
-            if (sender instanceof Player) {
-                FirecraftPlayer player = onlinePlayers.get(((Player) sender).getUniqueId());
-                if (Rank.isStaff(player.getMainRank())) {
-                    if (args.length != 1) {
-                        player.sendMessage("&cInvalid amount of arguments.");
-                        return true;
-                    }
-                    UUID uuid;
-                    FirecraftPlayer target = null;
-                    try {
-                        uuid = UUID.fromString(args[0]);
-                        target = getFirecraftPlayer(uuid);
-                    } catch (Exception e) {
-                        for (FirecraftPlayer p : onlinePlayers.values()) {
-                            if (p.getName().equalsIgnoreCase(args[0])) {
-                                target = p;
-                                break;
-                            }
-                        }
-                    }
-                    
-                    if (target == null) {
-                        player.sendMessage("&cCould not find a player with that name/uuid.");
-                        return true;
-                    }
-                    
-                    player.sendMessage("&6Displaying profile info for " + target.getName());
-                    String status = (target.getPlayer() != null) ? "&aOnline" : "&cOffline";
-                    player.sendMessage("&7Status: " + status);
-                    player.sendMessage("&7Rank: " + target.getMainRank().getPrefix());
-                    if (!player.getSubRanks().isEmpty()) {
-                        StringBuilder sb = new StringBuilder();
-                        target.getSubRanks().forEach(sr -> sb.append(sr.getPrefix()));
-                        player.sendMessage("&7Other Ranks: " + sb.toString());
-                    }
-                    player.sendMessage("&7Channel: " + target.getChannel().getColor() + target.getChannel().toString());
-                    if (target.getNick() != null) {
-                        FirecraftPlayer nickProfile = target.getNick().getNickProfile();
-                        player.sendMessage("&7Nickname: " + nickProfile.generateDisplayName());
-                    }
-                }
-            }
-        }
-        
-        return true;
-    }
-    
-    private void gamemodeShortcut(CommandSender sender, GameMode mode, String[] args) {
-        if (sender instanceof Player) {
-            FirecraftPlayer player = getFirecraftPlayer(((Player) sender).getUniqueId());
-            if (player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN)) {
-                FirecraftPlayer target = null;
-                if (args.length > 0) {
-                    for (FirecraftPlayer p : getFirecraftPlayers()) {
-                        if (p.getName().equalsIgnoreCase(args[1])) {
-                            target = p;
-                        }
-                    }
-                }
-                
-                if (target != null) {
-                    if (player.getMainRank().equals(Rank.TRIAL_ADMIN)) {
-                        player.sendMessage("&cOnly Admins and Higher can set other player's gamemodes.");
-                        return;
-                    }
-                    
-                    //TODO Add a bypass for FCT Members
-                    if (target.getMainRank().equals(player.getMainRank()) || target.getMainRank().isHigher(player.getMainRank())) {
-                        player.sendMessage("&cYou cannot set the gamemode of someone of the same rank or higher than you.");
-                        return;
-                    }
-                    
-                    target.setGamemode(mode);
-                    player.sendMessage("&aYou have set " + target.getDisplayName() + "&a's gamemode to &b" + mode.toString().toLowerCase());
-                    target.sendMessage("&aYour gamemode has been set to &b" + mode.toString().toLowerCase() + " &aby " + player.getDisplayName());
-                    return;
-                }
-                
-                player.setGamemode(mode);
-                player.sendMessage("&aYou set your own gamemode to &b" + mode.toString().toLowerCase());
-            } else {
-                player.sendMessage("&cOnly Junior Admins and above can use the gamemode command.");
-            }
-        } else if (sender instanceof ConsoleCommandSender) {
-            sender.sendMessage("§cIt is not yet implemented for console to set gamemodes.");
-        }
-    }
-    
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("vanish")) {
-            if (args.length > 1) {
-                if (CmdUtils.checkCmdAliases(args, 0, "settings", "s")) {
-                    List<String> c = new ArrayList<>();
-                    for (int i = 1; i < args.length; i++) {
-                        for (String it : interactTypes) {
-                            if (!args[i].equalsIgnoreCase(it)) {
-                                if (it.startsWith(args[i].toLowerCase())) {
-                                    c.add(it);
-                                }
-                            }
-                        }
-                    }
-                    return c;
-                }
-            }
-        }
-        
-        return null;
-    }
-    
-    private void createScoreboardTeam(Rank rank, String name) {
-        Scoreboard board = scoreboardManager.getMainScoreboard();
-        if (board.getTeam(name) == null) {
-            Team team = board.registerNewTeam(name);
-            if (rank.equals(Rank.BUILD_TEAM)) {
-                team.setPrefix(rank.getBaseColor() + "§lBT ");
-            } else if (Rank.isStaff(rank)) {
-                team.setPrefix(rank.getPrefix() + " ");
-            } else {
-                team.setPrefix(rank.getPrefix() + " §r");
-            }
-            this.teamMap.put(rank, team);
-        } else {
-            this.teamMap.put(rank, board.getTeam(name));
-        }
+    public IPlayerManager getPlayerManager() {
+        return playerManager;
     }
     
     public FirecraftServer getFirecraftServer() {
