@@ -24,19 +24,19 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
     private ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>();
     private ConcurrentHashMap<UUID, FirecraftPlayer> otherProfiles = new ConcurrentHashMap<>();
     
-    private ScoreboardManager scoreboardManager;
-    private Map<Rank, Team> teamMap = new HashMap<>();
+//    private ScoreboardManager scoreboardManager;
+//    private Map<Rank, Team> teamMap = new HashMap<>();
     
     private FirecraftCore plugin;
     
     public PlayerManager(FirecraftCore plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        this.scoreboardManager = Bukkit.getScoreboardManager();
+//        this.scoreboardManager = Bukkit.getScoreboardManager();
         
-        for (Rank r : Rank.values()) {
-            createScoreboardTeam(r, r.getTeamName());
-        }
+//        for (Rank r : Rank.values()) {
+//            createScoreboardTeam(r, r.getTeamName());
+//        }
         
         
         new BukkitRunnable() {
@@ -75,8 +75,8 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
                         }
                     }
                     
-                    Team rankTeam = teamMap.get(player.getMainRank());
-                    rankTeam.addEntry(player.getName());
+//                    Team rankTeam = teamMap.get(player.getMainRank());
+//                    rankTeam.addEntry(player.getName());
                     
                     
                     for (FirecraftPlayer p : onlinePlayers.values()) {
@@ -154,26 +154,26 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
         return null;
     }
     
-    private void createScoreboardTeam(Rank rank, String name) {
-        Scoreboard board = scoreboardManager.getMainScoreboard();
-        if (board.getTeam(name) == null) {
-            Team team = board.registerNewTeam(name);
-            if (rank.equals(Rank.BUILD_TEAM)) {
-                team.setPrefix(rank.getBaseColor() + "§lBT ");
-            } else if (Rank.isStaff(rank)) {
-                if (!rank.equals(Rank.FIRECRAFT_TEAM)) {
-                    team.setPrefix(rank.getPrefix() + " ");
-                } else {
-                    team.setPrefix("§4§lFCT " + " ");
-                }
-            } else {
-                team.setPrefix(rank.getPrefix() + " §r");
-            }
-            this.teamMap.put(rank, team);
-        } else {
-            this.teamMap.put(rank, board.getTeam(name));
-        }
-    }
+//    private void createScoreboardTeam(Rank rank, String name) {
+//        Scoreboard board = scoreboardManager.getMainScoreboard();
+//        if (board.getTeam(name) == null) {
+//            Team team = board.registerNewTeam(name);
+//            if (rank.equals(Rank.BUILD_TEAM)) {
+//                team.setPrefix(rank.getBaseColor() + "§lBT ");
+//            } else if (Rank.isStaff(rank)) {
+//                if (!rank.equals(Rank.FIRECRAFT_TEAM)) {
+//                    team.setPrefix(rank.getPrefix() + " ");
+//                } else {
+//                    team.setPrefix("§4§lFCT " + " ");
+//                }
+//            } else {
+//                team.setPrefix(rank.getPrefix() + " §r");
+//            }
+//            this.teamMap.put(rank, team);
+//        } else {
+//            this.teamMap.put(rank, board.getTeam(name));
+//        }
+//    }
     
     
     @EventHandler
@@ -189,8 +189,8 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
         FPacketServerPlayerLeave playerLeave = new FPacketServerPlayerLeave(plugin.getFirecraftServer(), player);
         plugin.getSocket().sendPacket(playerLeave);
         
-        Team rankTeam = teamMap.get(player.getMainRank());
-        rankTeam.removeEntry(player.getName());
+//        Team rankTeam = teamMap.get(player.getMainRank());
+//        rankTeam.removeEntry(player.getName());
         
         onlinePlayers.remove(player.getUniqueId());
         otherProfiles.put(player.getUniqueId(), player);
