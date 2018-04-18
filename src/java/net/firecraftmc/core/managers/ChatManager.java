@@ -16,7 +16,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import java.util.List;
 
 public class ChatManager implements TabExecutor,Listener {
-    private FirecraftCore plugin;
+    private final FirecraftCore plugin;
     
     public ChatManager(FirecraftCore plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);

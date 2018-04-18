@@ -15,14 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NickWrapper1_8_R3 extends NickWrapper {
-    private MinecraftServer minecraftServer;
+    private final MinecraftServer minecraftServer;
 
     private final PacketPlayOutPlayerInfo.EnumPlayerInfoAction action_remove = PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER;
     private final PacketPlayOutPlayerInfo.EnumPlayerInfoAction action_add = PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER;
 
     public NickWrapper1_8_R3() { this.minecraftServer = ((CraftServer) Bukkit.getServer()).getServer(); }
 
-    public void refreshOthers(FirecraftPlugin plugin, Player player, String name) {
+    public void refreshOthers(FirecraftPlugin plugin, Player player) {
         List<Player> canSee = new ArrayList<>();
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.canSee(player)) {
@@ -87,7 +87,7 @@ public class NickWrapper1_8_R3 extends NickWrapper {
     public FirecraftPlayer.NickInfo setNick(FirecraftPlugin plugin, FirecraftPlayer player, FirecraftPlayer nickProfile) {
         setProfileName(player.getPlayer(), nickProfile.getName());
         setSkinProperties(player.getPlayer(), nickProfile.getSkin());
-        refreshOthers(plugin, player.getPlayer(), nickProfile.getName());
+        refreshOthers(plugin, player.getPlayer());
         refreshSelf(plugin, player.getPlayer(), nickProfile.getName());
 
         return new FirecraftPlayer.NickInfo(nickProfile);

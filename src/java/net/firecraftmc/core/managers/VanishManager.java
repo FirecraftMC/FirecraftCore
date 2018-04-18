@@ -24,7 +24,7 @@ import java.util.*;
 
 public class VanishManager implements TabExecutor, Listener {
     
-    private FirecraftCore plugin;
+    private final FirecraftCore plugin;
     private final String prefix = "&d&l[Vanish] ";
     private final List<String> interactTypes = Arrays.asList("inventoryinteract", "itemuse", "itempickup", "blockbreak", "blockplace", "entityinteract", "chat", "silentinventoryopen");
     
@@ -276,7 +276,7 @@ public class VanishManager implements TabExecutor, Listener {
                     //https://gyazo.com/8e1b19e1ce2acc62abcc54749da97486
                     if (e.getClickedBlock().getState() instanceof Chest) {
                         Chest chest = (Chest) e.getClickedBlock().getState();
-                        int totalAmount = 0;
+                        int totalAmount;
                         if (chest.getInventory() instanceof DoubleChestInventory) {
                             inv = Bukkit.getServer().createInventory(null, 54, "Chest");
                             totalAmount = 54;

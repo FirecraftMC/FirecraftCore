@@ -1,6 +1,5 @@
 package net.firecraftmc.core.managers;
 
-import com.avaje.ebeaninternal.server.type.EscapeJson;
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.core.classes.TPRequest;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
@@ -21,10 +20,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class TeleportationManager implements TabExecutor, Listener {
-    private FirecraftCore plugin;
+    private final FirecraftCore plugin;
     
-    private Map<UUID, Location> lastLocation = new HashMap<>();
-    private TreeMap<Long, TPRequest> requests = new TreeMap<>();
+    private final Map<UUID, Location> lastLocation = new HashMap<>();
+    private final TreeMap<Long, TPRequest> requests = new TreeMap<>();
     
     public TeleportationManager(FirecraftCore plugin) {
         this.plugin = plugin;
@@ -43,7 +42,7 @@ public class TeleportationManager implements TabExecutor, Listener {
                             plugin.getLogger().log(Level.INFO, "Removed a request with a null requester or requested");
                         } else {
                             requester.sendMessage("&aYour teleport request to " + requested.getDisplayName() + " &ahas expired.");
-                            requested.sendMessage("&aThe teleport request from " + requester.getDisplayName() + " &ahas expiured.");
+                            requested.sendMessage("&aThe teleport request from " + requester.getDisplayName() + " &ahas expired.");
                         }
                     }
                 });

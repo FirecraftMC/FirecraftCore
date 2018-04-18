@@ -15,19 +15,18 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
-    private ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<UUID, FirecraftPlayer> otherProfiles = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, FirecraftPlayer> otherProfiles = new ConcurrentHashMap<>();
     
 //    private ScoreboardManager scoreboardManager;
 //    private Map<Rank, Team> teamMap = new HashMap<>();
     
-    private FirecraftCore plugin;
+    private final FirecraftCore plugin;
     
     public PlayerManager(FirecraftCore plugin) {
         this.plugin = plugin;

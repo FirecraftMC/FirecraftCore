@@ -5,24 +5,10 @@ import net.firecraftmc.core.wrapper.NickWrapper1_12_R1;
 import net.firecraftmc.core.wrapper.NickWrapper1_8_R3;
 import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.utils.ReflectionUtils;
-import net.firecraftmc.shared.enums.Rank;
-import net.firecraftmc.shared.packets.*;
-import net.firecraftmc.shared.packets.staffchat.FPStaffChatJoin;
-import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
-import org.bukkit.Bukkit;
+import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.*;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class FirecraftCore extends FirecraftPlugin implements Listener {
     

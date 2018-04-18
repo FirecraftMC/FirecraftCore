@@ -16,9 +16,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.*;
 
 public class NickManager implements TabExecutor {
-    private FirecraftCore plugin;
-    private List<UUID> settingNick = new ArrayList<>();
-    private Map<UUID, FirecraftPlayer> confirmNick = new HashMap<>();
+    private final FirecraftCore plugin;
+    private final List<UUID> settingNick = new ArrayList<>();
+    private final Map<UUID, FirecraftPlayer> confirmNick = new HashMap<>();
     
     public NickManager(FirecraftCore plugin) {
         this.plugin = plugin;

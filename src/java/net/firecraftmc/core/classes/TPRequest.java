@@ -4,9 +4,9 @@ import java.util.UUID;
 
 public class TPRequest {
     
-    private UUID requester;
-    private UUID requested;
-    private long expire;
+    private final UUID requester;
+    private final UUID requested;
+    private final long expire;
     
     public TPRequest(UUID requester, UUID requested, long expire) {
         this.requester = requester;

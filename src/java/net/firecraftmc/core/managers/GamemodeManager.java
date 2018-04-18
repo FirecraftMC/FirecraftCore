@@ -16,7 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.List;
 
 public class GamemodeManager implements TabExecutor, Listener {
-    private FirecraftCore plugin;
+    private final FirecraftCore plugin;
     
     public GamemodeManager(FirecraftCore plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -61,7 +61,7 @@ public class GamemodeManager implements TabExecutor, Listener {
                         return true;
                     }
                     
-                    gamemodeShortcut(sender, mode, args, false);
+                    gamemodeShortcut(sender, mode, args);
                 } else {
                     player.sendMessage("&cOnly Trial Admins and above can use the gamemode command.");
                     return true;
@@ -71,13 +71,13 @@ public class GamemodeManager implements TabExecutor, Listener {
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("gmc")) {
-            gamemodeShortcut(sender, GameMode.CREATIVE, args, true);
+            gamemodeShortcut(sender, GameMode.CREATIVE, args);
         } else if (cmd.getName().equalsIgnoreCase("gms")) {
-            gamemodeShortcut(sender, GameMode.SURVIVAL, args, true);
+            gamemodeShortcut(sender, GameMode.SURVIVAL, args);
         } else if (cmd.getName().equalsIgnoreCase("gmsp")) {
-            gamemodeShortcut(sender, GameMode.SPECTATOR, args, true);
+            gamemodeShortcut(sender, GameMode.SPECTATOR, args);
         } else if (cmd.getName().equalsIgnoreCase("gma")) {
-            gamemodeShortcut(sender, GameMode.ADVENTURE, args, true);
+            gamemodeShortcut(sender, GameMode.ADVENTURE, args);
         }
         
         return true;
@@ -87,7 +87,7 @@ public class GamemodeManager implements TabExecutor, Listener {
         return null;
     }
     
-    private void gamemodeShortcut(CommandSender sender, GameMode mode, String[] args, boolean gmAl) {
+    private void gamemodeShortcut(CommandSender sender, GameMode mode, String[] args) {
         if (sender instanceof Player) {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
             if (player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN)) {
