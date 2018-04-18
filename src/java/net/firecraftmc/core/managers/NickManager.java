@@ -88,7 +88,7 @@ public class NickManager implements TabExecutor {
                 FirecraftPlayer profile = plugin.getPlayerManager().getProfile(uuid);
                 player.sendMessage("&7You need to confirm the info for the nick.\nType &a/nickconfirm&7. To cancel type &c/nickcancel&7.");
                 player.sendMessage("&6Nickname Profile Info: " + profile.getName());
-                if (profile.getMainRank().equals(Rank.DEFAULT)) {
+                if (profile.getMainRank().equals(Rank.PRIVATE)) {
                     player.sendMessage("&6Rank: " + profile.getMainRank().getBaseColor() + "Default");
                 } else {
                     player.sendMessage("&6Rank: " + profile.getMainRank().getPrefix());

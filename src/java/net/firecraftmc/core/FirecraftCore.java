@@ -35,7 +35,13 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     public void onEnable() {
         instance = this;
         this.saveDefaultConfig();
-        this.socket = new FirecraftSocket(this, "127.0.0.1", getConfig().getInt("port"));
+        if (getConfig().contains("host")) {
+            getConfig().set("host", "172.18.0.2");
+            saveConfig();
+        }
+        
+        String host = getConfig().getString("host");
+        this.socket = new FirecraftSocket(this, host, getConfig().getInt("port"));
         this.socket.start();
         this.getServer().getPluginManager().registerEvents(this, this);
         this.server = new FirecraftServer(getConfig().getString("server.name"), ChatColor.valueOf(getConfig().getString("server.color")));
