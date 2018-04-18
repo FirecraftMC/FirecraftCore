@@ -5,8 +5,8 @@ import net.firecraftmc.shared.classes.ActionBar;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.utils.CmdUtils;
 import net.firecraftmc.shared.enums.Rank;
-import net.firecraftmc.shared.packets.staffchat.FPStaffChatVanishToggle;
-import net.firecraftmc.shared.packets.staffchat.FPStaffChatVanishToggleOthers;
+import net.firecraftmc.shared.packets.staffchat.FPSCVanishToggle;
+import net.firecraftmc.shared.packets.staffchat.FPSCVanishToggleOthers;
 import org.bukkit.Bukkit;
 import org.bukkit.block.*;
 import org.bukkit.command.*;
@@ -68,7 +68,7 @@ public class VanishManager implements TabExecutor, Listener {
                     
                     player.setActionBar(new ActionBar("&fYou are currently &cVANISHED"));
                 }
-                FPStaffChatVanishToggle toggleVanish = new FPStaffChatVanishToggle(plugin.getFirecraftServer(), player, player.isVanished());
+                FPSCVanishToggle toggleVanish = new FPSCVanishToggle(plugin.getFirecraftServer(), player, player.isVanished());
                 plugin.getSocket().sendPacket(toggleVanish);
             } else if (args.length == 1) {
                 if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
@@ -118,7 +118,7 @@ public class VanishManager implements TabExecutor, Listener {
                     }
                     target.setActionBar(new ActionBar("&fYou are currently &cVANISHED"));
                 }
-                FPStaffChatVanishToggleOthers vanishToggleOthers = new FPStaffChatVanishToggleOthers(plugin.getFirecraftServer(), player, target);
+                FPSCVanishToggleOthers vanishToggleOthers = new FPSCVanishToggleOthers(plugin.getFirecraftServer(), player, target);
                 plugin.getSocket().sendPacket(vanishToggleOthers);
             } else {
                 if (!CmdUtils.checkCmdAliases(args, 0, "settings", "s")) {

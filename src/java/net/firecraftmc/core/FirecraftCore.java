@@ -6,7 +6,7 @@ import net.firecraftmc.core.wrapper.NickWrapper1_8_R3;
 import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.utils.ReflectionUtils;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
-import org.bukkit.ChatColor;
+import org.bukkit.*;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -18,12 +18,26 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     private FirecraftSocket socket;
     private FirecraftServer server;
     
+    private Location serverSpawn;
+    
     public void onEnable() {
         instance = this;
         this.saveDefaultConfig();
-        if (getConfig().contains("host")) {
+        if (!getConfig().contains("host")) {
             getConfig().set("host", "172.18.0.2");
             saveConfig();
+        }
+        
+        if (getConfig().contains("spawn")) {
+            World world = Bukkit.getWorld(getConfig().getString("spawn.world"));
+            double x = getConfig().getInt("spawn.x");
+            double y = getConfig().getInt("spawn.y") + 1;
+            double z = getConfig().getInt("spawn.z");
+            float yaw = (float) getConfig().getDouble("spawn.yaw");
+            float pitch = (float) getConfig().getDouble("spawn.pitch");
+            this.serverSpawn = new Location(world, x, y, z, yaw, pitch);
+        } else {
+            this.serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
         }
         
         String host = getConfig().getString("host");
@@ -71,6 +85,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         this.getCommand("tpaccept").setExecutor(tpManager);
         this.getCommand("tpdeny").setExecutor(tpManager);
         this.getCommand("tpa").setExecutor(tpManager);
+        this.getCommand("setspawn").setExecutor(tpManager);
+        this.getCommand("spawn").setExecutor(tpManager);
         
         this.getCommand("vanish").setExecutor(new VanishManager(this));
         this.getCommand("viewprofile").setExecutor(playerManager);
@@ -81,6 +97,14 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             socket.sendPacket(new FPacketServerDisconnect(server));
             socket.close();
         }
+        
+        getConfig().set("spawn.world", serverSpawn.getWorld().toString());
+        getConfig().set("spawn.x", serverSpawn.getBlockX());
+        getConfig().set("spawn.y", serverSpawn.getBlockX());
+        getConfig().set("spawn.z", serverSpawn.getBlockX());
+        getConfig().set("spawn.yaw", serverSpawn.getYaw());
+        getConfig().set("spawn.pitch", serverSpawn.getPitch());
+        saveConfig();
     }
     
     public NickWrapper getNickWrapper() {
@@ -97,5 +121,13 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     
     public FirecraftServer getFirecraftServer() {
         return server;
+    }
+    
+    public Location getServerSpawn() {
+        return serverSpawn;
+    }
+    
+    public void setServerSpawn(Location serverSpawn) {
+        this.serverSpawn = serverSpawn;
     }
 }

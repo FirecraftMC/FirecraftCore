@@ -6,12 +6,14 @@ import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.utils.CmdUtils;
 import net.firecraftmc.shared.enums.Rank;
+import net.firecraftmc.shared.packets.staffchat.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -55,6 +57,11 @@ public class TeleportationManager implements TabExecutor, Listener {
         this.lastLocation.put(e.getPlayer().getUniqueId(), e.getFrom());
     }
     
+    @EventHandler
+    public void onPlayerDeath(PlayerRespawnEvent e) {
+        e.setRespawnLocation(plugin.getServerSpawn());
+    }
+    
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (sender instanceof ConsoleCommandSender) {
             sender.sendMessage("§cConsole is not able to teleport players.");
@@ -65,9 +72,9 @@ public class TeleportationManager implements TabExecutor, Listener {
         if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
         
         if (cmd.getName().equalsIgnoreCase("teleport")) {
-            if (!(player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN))) {
+            if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
                 //TODO Add checks for staff based ranks for SrMods and below
-                player.sendMessage("&cOnly Junior Mods and above can teleport directly.");
+                player.sendMessage("&cMods and above can teleport directly.");
                 return true;
             }
             
@@ -80,7 +87,8 @@ public class TeleportationManager implements TabExecutor, Listener {
                 }
                 
                 player.teleport(target.getLocation());
-                player.sendMessage("&aYou teleported to " + target.getDisplayName());
+                FPSCTeleport teleport = new FPSCTeleport(plugin.getFirecraftServer(), player, target);
+                plugin.getSocket().sendPacket(teleport);
                 if (target.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
                     target.sendMessage(player.getName() + " &ateleported to you.");
                     player.sendMessage("&7&oYou teleported to a Firecraft Team member, they were notified of that action.");
@@ -117,9 +125,8 @@ public class TeleportationManager implements TabExecutor, Listener {
                 }
                 
                 t1.teleport(t2.getLocation());
-                t1.sendMessage("&aYou were teleported to " + t2.getDisplayName() + " &aby " + player.getDisplayName());
-                t2.sendMessage(t1.getDisplayName() + " &awas teleported to you by " + player.getDisplayName());
-                player.sendMessage("&aYou teleported " + t1.getDisplayName() + " &ato " + t2.getDisplayName());
+                FPSCTeleportOthers teleport = new FPSCTeleportOthers(plugin.getFirecraftServer(), player, t1, t2);
+                plugin.getSocket().sendPacket(teleport);
             } else {
                 player.sendMessage("&cYou did not provide the correct number of arguments.");
                 return true;
@@ -152,8 +159,8 @@ public class TeleportationManager implements TabExecutor, Listener {
             }
             
             target.teleport(player.getLocation());
-            player.sendMessage("&aYou teleported &b" + target.getDisplayName() + " &ato you.");
-            target.sendMessage("&aYou were teleported to " + player.getDisplayName());
+            FPSCTeleportHere tpHere = new FPSCTeleportHere(plugin.getFirecraftServer(), player, target);
+            plugin.getSocket().sendPacket(tpHere);
         } else if (cmd.getName().equalsIgnoreCase("tpall")) {
             if (player.getMainRank().equals(Rank.HEAD_ADMIN) || player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
                 if (player.getMainRank().equals(Rank.HEAD_ADMIN)) {
@@ -231,6 +238,18 @@ public class TeleportationManager implements TabExecutor, Listener {
             requester.sendMessage(player.getDisplayName() + " &ahas denied your teleport request.");
             player.sendMessage("&aYou denied " + requester.getDisplayName() + "&a's teleport request.");
             this.requests.remove(entry.getKey());
+        } else if (cmd.getName().equalsIgnoreCase("setspawn")) {
+            if (player.getMainRank().isEqualToOrHigher(Rank.HEAD_ADMIN)) {
+                plugin.setServerSpawn(player.getLocation());
+                player.sendMessage("&aYou set the server spawn to your location.");
+                return true;
+            } else {
+                player.sendMessage("&cYou cannot set the spawnpoint.");
+                return true;
+            }
+        } else if (cmd.getName().equalsIgnoreCase("spawn")) {
+            player.teleport(plugin.getServerSpawn());
+            player.sendMessage("&aSent you to the server spawnpoint.");
         }
         
         return true;

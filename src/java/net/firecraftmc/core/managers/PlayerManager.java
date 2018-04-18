@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
     private final ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, FirecraftPlayer> otherProfiles = new ConcurrentHashMap<>();
-    
+
 //    private ScoreboardManager scoreboardManager;
 //    private Map<Rank, Team> teamMap = new HashMap<>();
     
@@ -32,7 +32,7 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 //        this.scoreboardManager = Bukkit.getScoreboardManager();
-        
+
 //        for (Rank r : Rank.values()) {
 //            createScoreboardTeam(r, r.getTeamName());
 //        }
@@ -68,12 +68,12 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
                         plugin.getSocket().sendPacket(staffChatJoin);
                     }
                     
-                    for (FirecraftPlayer p : onlinePlayers.values()) {
-                        if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                    if (!Rank.isStaff(player.getMainRank())) {
+                        for (FirecraftPlayer p : onlinePlayers.values()) {
                             p.sendMessage(player.getDisplayName() + " &ajoined the game.");
                         }
                     }
-                    
+
 //                    Team rankTeam = teamMap.get(player.getMainRank());
 //                    rankTeam.addEntry(player.getName());
                     
@@ -152,7 +152,7 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
     public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
         return null;
     }
-    
+
 //    private void createScoreboardTeam(Rank rank, String name) {
 //        Scoreboard board = scoreboardManager.getMainScoreboard();
 //        if (board.getTeam(name) == null) {
@@ -187,7 +187,7 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
         
         FPacketServerPlayerLeave playerLeave = new FPacketServerPlayerLeave(plugin.getFirecraftServer(), player);
         plugin.getSocket().sendPacket(playerLeave);
-        
+
 //        Team rankTeam = teamMap.get(player.getMainRank());
 //        rankTeam.removeEntry(player.getName());
         

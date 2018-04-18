@@ -5,6 +5,8 @@ import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.utils.CmdUtils;
 import net.firecraftmc.shared.enums.Rank;
+import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemode;
+import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemodeOthers;
 import org.bukkit.GameMode;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -110,13 +112,14 @@ public class GamemodeManager implements TabExecutor, Listener {
                     }
                     
                     target.setGamemode(mode);
-                    player.sendMessage("&aYou have set " + target.getDisplayName() + "&a's gamemode to &b" + mode.toString().toLowerCase());
-                    target.sendMessage("&aYour gamemode has been set to &b" + mode.toString().toLowerCase() + " &aby " + player.getDisplayName());
+                    FPSCSetGamemodeOthers setGamemode = new FPSCSetGamemodeOthers(plugin.getFirecraftServer(), player, mode, target);
+                    plugin.getSocket().sendPacket(setGamemode);
                     return;
                 }
                 
                 player.setGamemode(mode);
-                player.sendMessage("&aYou set your own gamemode to &b" + mode.toString().toLowerCase());
+                FPSCSetGamemode setGamemode = new FPSCSetGamemode(plugin.getFirecraftServer(), player, mode);
+                plugin.getSocket().sendPacket(setGamemode);
             } else {
                 player.sendMessage("&cOnly Trial Admins and above can use the gamemode command.");
             }
