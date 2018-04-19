@@ -31,7 +31,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         if (getConfig().contains("spawn")) {
             World world = Bukkit.getWorld(getConfig().getString("spawn.world"));
             double x = getConfig().getInt("spawn.x");
-            double y = getConfig().getInt("spawn.y") + 1;
+            double y = getConfig().getInt("spawn.y");
             double z = getConfig().getInt("spawn.z");
             float yaw = (float) getConfig().getDouble("spawn.yaw");
             float pitch = (float) getConfig().getDouble("spawn.pitch");
@@ -52,14 +52,6 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         } else if (versionString.equalsIgnoreCase("v1_12_R1")) {
             this.nickWrapper = new NickWrapper1_12_R1();
         }
-        
-        new BukkitRunnable() {
-            public void run() {
-                if (socket == null || !socket.isOpen()) {
-                    socket = new FirecraftSocket(instance, "127.0.0.1", getConfig().getInt("port"));
-                }
-            }
-        }.runTaskTimerAsynchronously(this, 5 * 60L, 60L);
         
         this.playerManager = new PlayerManager(this);
         

@@ -45,29 +45,23 @@ public class GamemodeManager implements TabExecutor, Listener {
                 
                 FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
                 if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
+                GameMode mode = null;
+                if (CmdUtils.checkCmdAliases(args, 0, "creative", "c", "1")) {
+                    mode = GameMode.CREATIVE;
+                } else if (CmdUtils.checkCmdAliases(args, 0, "survival", "s", "0")) {
+                    mode = GameMode.SURVIVAL;
+                } else if (CmdUtils.checkCmdAliases(args, 0, "adventure", "a", "2")) {
+                    mode = GameMode.ADVENTURE;
+                } else if (CmdUtils.checkCmdAliases(args, 0, "spectator", "sp", "spec", "3")) {
+                    mode = GameMode.SPECTATOR;
+                }
                 
-                if (player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN)) {
-                    GameMode mode = null;
-                    if (CmdUtils.checkCmdAliases(args, 0, "creative", "c", "1")) {
-                        mode = GameMode.CREATIVE;
-                    } else if (CmdUtils.checkCmdAliases(args, 0, "survival", "s", "0")) {
-                        mode = GameMode.SURVIVAL;
-                    } else if (CmdUtils.checkCmdAliases(args, 0, "adventure", "a", "2")) {
-                        mode = GameMode.ADVENTURE;
-                    } else if (CmdUtils.checkCmdAliases(args, 0, "spectator", "sp", "spec", "3")) {
-                        mode = GameMode.SPECTATOR;
-                    }
-                    
-                    if (mode == null) {
-                        player.sendMessage("&cYou did not provide a valid gamemode.");
-                        return true;
-                    }
-                    
-                    gamemodeShortcut(sender, mode, args);
-                } else {
-                    player.sendMessage("&cOnly Trial Admins and above can use the gamemode command.");
+                if (mode == null) {
+                    player.sendMessage("&cYou did not provide a valid gamemode.");
                     return true;
                 }
+                
+                gamemodeShortcut(sender, mode, args);
             } else if (sender instanceof ConsoleCommandSender) {
                 sender.sendMessage("§cIt is not yet implemented for console to set gamemodes.");
                 return true;
@@ -105,7 +99,7 @@ public class GamemodeManager implements TabExecutor, Listener {
                     }
                     
                     if (target.getMainRank().equals(player.getMainRank()) || target.getMainRank().isHigher(player.getMainRank())) {
-                        if (!target.getMainRank().equals(Rank.FIRECRAFT_TEAM) && !target.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                        if (!target.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
                             player.sendMessage("&cYou cannot set the gamemode of someone of the same rank or higher than you.");
                             return;
                         }
