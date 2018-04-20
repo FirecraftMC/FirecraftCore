@@ -78,12 +78,6 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
 //                    rankTeam.addEntry(player.getName());
                     
                     
-                    for (FirecraftPlayer p : onlinePlayers.values()) {
-                        String online = Bukkit.getServer().getOnlinePlayers().size() + "";
-                        String max = Bukkit.getServer().getMaxPlayers() + "";
-                        p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + online + "§7/§9" + max, "");
-                    }
-                    
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         player.getPlayer().hidePlayer(p);
                         player.getPlayer().showPlayer(p);
@@ -91,10 +85,28 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
                     
                     for (FirecraftPlayer p : onlinePlayers.values()) {
                         if (p.isVanished()) {
-                            if (!p.getMainRank().equals(player.getMainRank()) || !p.getMainRank().isHigher(player.getMainRank())) {
-                                player.getPlayer().hidePlayer(p.getPlayer());
+                            if (!p.isNicked()) {
+                                p.getPlayer().setPlayerListName(p.getName() + " §7§l[V]");
+                            } else {
+                                p.getPlayer().setPlayerListName(p.getNick().getNickProfile().getName() + "§7§l[V]");
+                            }
+    
+                            if (!p.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                                p.getPlayer().hidePlayer(player.getPlayer());
                             }
                         } //TODO ADD SUPPORT FOR NICKNAMES AS WELL
+    
+                        if (p.getPlayer().canSee(player.getPlayer())) {
+                            p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + Bukkit.getOnlinePlayers().size() + "§7/§9" + Bukkit.getServer().getMaxPlayers(), "");
+                        }
+                    }
+                    
+                    if (player.isVanished()) {
+                        for (FirecraftPlayer p : onlinePlayers.values()) {
+                            if (!p.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                                p.getPlayer().hidePlayer(player.getPlayer());
+                            }
+                        }
                     }
                 }
             }

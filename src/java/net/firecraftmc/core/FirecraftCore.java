@@ -13,6 +13,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class FirecraftCore extends FirecraftPlugin implements Listener {
     
     private PlayerManager playerManager;
+    
     private NickWrapper nickWrapper;
     
     private FirecraftSocket socket;
@@ -26,18 +27,6 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         if (!getConfig().contains("host")) {
             getConfig().set("host", "172.18.0.2");
             saveConfig();
-        }
-        
-        if (getConfig().contains("spawn")) {
-            World world = Bukkit.getWorld(getConfig().getString("spawn.world"));
-            double x = getConfig().getInt("spawn.x");
-            double y = getConfig().getInt("spawn.y");
-            double z = getConfig().getInt("spawn.z");
-            float yaw = (float) getConfig().getDouble("spawn.yaw");
-            float pitch = (float) getConfig().getDouble("spawn.pitch");
-            this.serverSpawn = new Location(world, x, y, z, yaw, pitch);
-        } else {
-            this.serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
         }
         
         String host = getConfig().getString("host");
@@ -80,8 +69,28 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         this.getCommand("setspawn").setExecutor(tpManager);
         this.getCommand("spawn").setExecutor(tpManager);
         
-        this.getCommand("vanish").setExecutor(new VanishManager(this));
         this.getCommand("viewprofile").setExecutor(playerManager);
+        
+        new BukkitRunnable() {
+            public void run() {
+                getCommand("vanish").setExecutor(new VanishManager(FirecraftCore.this));
+                if (getConfig().contains("spawn")) {
+                    World world = Bukkit.getWorld(getConfig().getString("spawn.world"));
+                    double x = getConfig().getInt("spawn.x");
+                    double y = getConfig().getInt("spawn.y");
+                    double z = getConfig().getInt("spawn.z");
+                    float yaw = (float) getConfig().getDouble("spawn.yaw");
+                    float pitch = (float) getConfig().getDouble("spawn.pitch");
+                    serverSpawn = new Location(world, x, y, z, yaw, pitch);
+                } else {
+                    serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
+                }
+                
+                if (serverSpawn.getWorld() == null) {
+                    serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
+                }
+            }
+        }.runTaskLater(this, 10L);
     }
     
     public void onDisable() {
@@ -90,7 +99,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             socket.close();
         }
         
-        getConfig().set("spawn.world", serverSpawn.getWorld().toString());
+        getConfig().set("spawn.world", serverSpawn.getWorld().getName());
         getConfig().set("spawn.x", serverSpawn.getBlockX());
         getConfig().set("spawn.y", serverSpawn.getBlockX());
         getConfig().set("spawn.z", serverSpawn.getBlockX());

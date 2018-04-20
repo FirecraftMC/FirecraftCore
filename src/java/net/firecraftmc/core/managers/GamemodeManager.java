@@ -86,7 +86,7 @@ public class GamemodeManager implements TabExecutor, Listener {
     private void gamemodeShortcut(CommandSender sender, GameMode mode, String[] args) {
         if (sender instanceof Player) {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
-            if (player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN)) {
+            if (player.getMainRank().equals(Rank.BUILD_TEAM) || player.getMainRank().isEqualToOrHigher(Rank.TRIAL_ADMIN)) {
                 FirecraftPlayer target = null;
                 if (args.length > 1) {
                     target = plugin.getPlayerManager().getPlayer(args[1]);
@@ -98,8 +98,8 @@ public class GamemodeManager implements TabExecutor, Listener {
                         return;
                     }
                     
-                    if (target.getMainRank().equals(player.getMainRank()) || target.getMainRank().isHigher(player.getMainRank())) {
-                        if (!target.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                    if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                        if (!(target.getMainRank().equals(Rank.FIRECRAFT_TEAM) && player.getMainRank().equals(Rank.FIRECRAFT_TEAM))) {
                             player.sendMessage("&cYou cannot set the gamemode of someone of the same rank or higher than you.");
                             return;
                         }

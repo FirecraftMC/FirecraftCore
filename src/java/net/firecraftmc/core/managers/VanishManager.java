@@ -6,9 +6,10 @@ import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.utils.CmdUtils;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.staffchat.FPSCVanishToggle;
-import net.firecraftmc.shared.packets.staffchat.FPSCVanishToggleOthers;
+import net.minecraft.server.v1_12_R1.Packet;
 import org.bukkit.Bukkit;
-import org.bukkit.block.*;
+import org.bukkit.Material;
+import org.bukkit.block.Chest;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,6 +20,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
@@ -31,6 +34,7 @@ public class VanishManager implements TabExecutor, Listener {
     public VanishManager(FirecraftCore plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
     }
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
@@ -40,10 +44,11 @@ public class VanishManager implements TabExecutor, Listener {
         }
         
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
-        if (player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.MOD) || player.getMainRank().isHigher(Rank.MOD)) {
+        if (player.getMainRank().equals(Rank.VIP) || player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
             if (args.length == 0) {
                 if (player.isVanished()) {
                     player.unVanish();
+                    
                     for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
                         p.getPlayer().showPlayer(player.getPlayer());
                         if (!player.isNicked()) {
@@ -51,18 +56,21 @@ public class VanishManager implements TabExecutor, Listener {
                         } else {
                             player.getPlayer().setPlayerListName(player.getNick().getNickProfile().getName());
                         }
+                        p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + Bukkit.getOnlinePlayers().size() + "§7/§9" + Bukkit.getServer().getMaxPlayers(), "");
                     }
                     player.setActionBar(null);
                 } else {
                     player.vanish();
                     for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
-                        if (!(p.getMainRank().equals(player.getMainRank()) || p.getMainRank().isHigher(player.getMainRank()))) {
-                            p.getPlayer().hidePlayer(player.getPlayer());
-                        }
                         if (!player.isNicked()) {
                             player.getPlayer().setPlayerListName(player.getName() + " §7§l[V]");
                         } else {
                             player.getPlayer().setPlayerListName(player.getNick().getNickProfile().getName() + "§7§l[V]");
+                        }
+                        
+                        if (!p.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                            p.getPlayer().hidePlayer(player.getPlayer());
+                            p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + (Bukkit.getOnlinePlayers().size()-1) + "§7/§9" + Bukkit.getServer().getMaxPlayers(), "");
                         }
                     }
                     
@@ -70,56 +78,6 @@ public class VanishManager implements TabExecutor, Listener {
                 }
                 FPSCVanishToggle toggleVanish = new FPSCVanishToggle(plugin.getFirecraftServer(), player, player.isVanished());
                 plugin.getSocket().sendPacket(toggleVanish);
-            } else if (args.length == 1) {
-                if (!player.getMainRank().equals(Rank.ADMIN) || !player.getMainRank().isHigher(Rank.ADMIN)) {
-                    player.sendMessage(prefix + "&cOnly Admins or higher can toggle vanish for other players.");
-                    return true;
-                }
-                
-                FirecraftPlayer target = null;
-                for (FirecraftPlayer fp : plugin.getPlayerManager().getPlayers()) {
-                    if (fp.getName().equalsIgnoreCase(args[0])) {
-                        target = fp;
-                    }
-                }
-                
-                if (target == null) {
-                    player.sendMessage(prefix + "&cCannot find the player " + args[0]);
-                    return true;
-                }
-                
-                if (target.getMainRank().equals(player.getMainRank()) || target.getMainRank().isHigher(player.getMainRank())) {
-                    player.sendMessage(prefix + "&cYou cannot toggle vanish for players whose rank is equal to or higher than yours.");
-                    return true;
-                }
-                
-                if (target.isVanished()) {
-                    target.unVanish();
-                    for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
-                        p.getPlayer().showPlayer(target.getPlayer());
-                        if (!target.isNicked()) {
-                            target.getPlayer().setPlayerListName(target.getName());
-                        } else {
-                            target.getPlayer().setPlayerListName(target.getNick().getNickProfile().getName());
-                        }
-                    }
-                    target.setActionBar(null);
-                } else {
-                    target.vanish();
-                    for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
-                        if (!(p.getMainRank().equals(target.getMainRank()) || p.getMainRank().isHigher(target.getMainRank()))) {
-                            p.getPlayer().hidePlayer(target.getPlayer());
-                        }
-                        if (!target.isNicked()) {
-                            target.getPlayer().setPlayerListName(target.getName() + "§7§l[V]");
-                        } else {
-                            target.getPlayer().setPlayerListName(target.getNick().getNickProfile().getName() + "§7§l[V]");
-                        }
-                    }
-                    target.setActionBar(new ActionBar("&fYou are currently &cVANISHED"));
-                }
-                FPSCVanishToggleOthers vanishToggleOthers = new FPSCVanishToggleOthers(plugin.getFirecraftServer(), player, target);
-                plugin.getSocket().sendPacket(vanishToggleOthers);
             } else {
                 if (!CmdUtils.checkCmdAliases(args, 0, "settings", "s")) {
                     player.sendMessage(prefix + "&cUnknown subcommand " + args[0]);
@@ -189,7 +147,7 @@ public class VanishManager implements TabExecutor, Listener {
                         }
                     } else if (option.equalsIgnoreCase("chat")) {
                         player.getVanishInfo().toggleChatInteract();
-                        player.sendMessage(prefix + "&aYou have toggled chat to " + player.getVanishInfo().canChat());
+                        player.sendMessage(prefix + "&aYou have toggled chat to &b" + player.getVanishInfo().canChat());
                     } else if (option.equalsIgnoreCase("silentinventoryopen")) {
                         if (player.getMainRank().equals(Rank.MOD) || player.getMainRank().isHigher(Rank.MOD)) {
                             player.getVanishInfo().toggleSilentInventories();
@@ -262,39 +220,41 @@ public class VanishManager implements TabExecutor, Listener {
     }
     
     @EventHandler
-    public void onPlayerOpenInventory(PlayerInteractEvent e) {
+    public void onPlayerInteract(PlayerInteractEvent e) {
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(e.getPlayer().getUniqueId());
-        if (player.isVanished()) {
-            if (!player.getVanishInfo().inventoryInteract()) {
-                e.setCancelled(true);
-                player.sendMessage("&cYou cannot open inventories while vanished.");
-            } else {
-                if (player.getVanishInfo().silentInventoryOpen()) {
+        if (e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.CHEST)) {
+            if (player.isVanished()) {
+                if (!player.getVanishInfo().inventoryInteract()) {
                     e.setCancelled(true);
-                    Inventory inv = null;
-                    //This is read only, need to use sync tasks with the copy and original to get read/write and it updating, will do in the future
-                    //https://gyazo.com/8e1b19e1ce2acc62abcc54749da97486
-                    if (e.getClickedBlock().getState() instanceof Chest) {
-                        Chest chest = (Chest) e.getClickedBlock().getState();
-                        int totalAmount;
-                        if (chest.getInventory() instanceof DoubleChestInventory) {
-                            inv = Bukkit.getServer().createInventory(null, 54, "Chest");
-                            totalAmount = 54;
-                        } else {
-                            inv = Bukkit.getServer().createInventory(null, 27, "Chest");
-                            totalAmount = 27;
-                        }
-                        
-                        for (int i=0; i<totalAmount; i++) {
-                            ItemStack item = chest.getInventory().getItem(i);
-                            if (item != null) {
-                                inv.setItem(i, item);
+                    player.sendMessage("&cYou cannot open inventories while vanished.");
+                } else {
+                    if (player.getVanishInfo().silentInventoryOpen()) {
+                        e.setCancelled(true);
+                        Inventory inv = null;
+                        //This is read only, need to use sync tasks with the copy and original to get read/write and it updating, will do in the future
+                        //https://gyazo.com/8e1b19e1ce2acc62abcc54749da97486
+                        if (e.getClickedBlock().getState() instanceof Chest) {
+                            Chest chest = (Chest) e.getClickedBlock().getState();
+                            int totalAmount;
+                            if (chest.getInventory() instanceof DoubleChestInventory) {
+                                inv = Bukkit.getServer().createInventory(null, 54, "Chest");
+                                totalAmount = 54;
+                            } else {
+                                inv = Bukkit.getServer().createInventory(null, 27, "Chest");
+                                totalAmount = 27;
+                            }
+                    
+                            for (int i = 0; i < totalAmount; i++) {
+                                ItemStack item = chest.getInventory().getItem(i);
+                                if (item != null) {
+                                    inv.setItem(i, item);
+                                }
                             }
                         }
+                
+                        player.getPlayer().openInventory(inv);
+                        player.sendMessage(prefix + "&aYou opened that inventory silently.");
                     }
-                    
-                    player.getPlayer().openInventory(inv);
-                    player.sendMessage(prefix + "&aYou opened that inventory silently.");
                 }
             }
         }
