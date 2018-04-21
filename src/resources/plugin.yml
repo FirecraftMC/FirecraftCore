@@ -33,3 +33,4 @@ commands:
     tpdeny:
     setspawn:
     spawn:
+    dev:

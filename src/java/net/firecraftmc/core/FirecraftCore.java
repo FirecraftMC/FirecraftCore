@@ -7,6 +7,8 @@ import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.utils.ReflectionUtils;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import org.bukkit.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -72,6 +74,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         this.getCommand("spawn").setExecutor(tpManager);
         
         this.getCommand("viewprofile").setExecutor(playerManager);
+        
+        this.getCommand("dev").setExecutor(new DevManager(this));
         
         new BukkitRunnable() {
             public void run() {
