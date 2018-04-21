@@ -38,8 +38,10 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         String versionString = ReflectionUtils.getVersion();
         if (versionString.equalsIgnoreCase("v1_8_R3")) {
             this.nickWrapper = new NickWrapper1_8_R3();
+            this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_8(this), this);
         } else if (versionString.equalsIgnoreCase("v1_12_R1")) {
             this.nickWrapper = new NickWrapper1_12_R1();
+            this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_12(this), this);
         }
         
         this.playerManager = new PlayerManager(this);

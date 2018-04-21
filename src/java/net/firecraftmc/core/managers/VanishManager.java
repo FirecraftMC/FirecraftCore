@@ -6,7 +6,6 @@ import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.utils.CmdUtils;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.staffchat.FPSCVanishToggle;
-import net.minecraft.server.v1_12_R1.Packet;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
@@ -17,11 +16,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
@@ -34,7 +30,6 @@ public class VanishManager implements TabExecutor, Listener {
     public VanishManager(FirecraftCore plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
     }
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
@@ -203,18 +198,6 @@ public class VanishManager implements TabExecutor, Listener {
             if (!player.getVanishInfo().blockPlace()) {
                 e.setCancelled(true);
                 player.sendMessage("&cYou cannot place blocks while vanished.");
-            }
-        }
-    }
-    
-    @EventHandler
-    public void onItemPickup(EntityPickupItemEvent e) {
-        if (e.getEntity() instanceof Player) {
-            FirecraftPlayer player = plugin.getPlayerManager().getPlayer(e.getEntity().getUniqueId());
-            if (player.isVanished()) {
-                if (!player.getVanishInfo().itemPickup()) {
-                    e.setCancelled(true);
-                }
             }
         }
     }

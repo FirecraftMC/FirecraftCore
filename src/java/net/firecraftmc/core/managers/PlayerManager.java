@@ -22,21 +22,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
     private final ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, FirecraftPlayer> otherProfiles = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, FirecraftPlayer> requestedRandomProfiles = new ConcurrentHashMap<>();
 
-//    private ScoreboardManager scoreboardManager;
-//    private Map<Rank, Team> teamMap = new HashMap<>();
-    
     private final FirecraftCore plugin;
     
     public PlayerManager(FirecraftCore plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-//        this.scoreboardManager = Bukkit.getScoreboardManager();
-
-//        for (Rank r : Rank.values()) {
-//            createScoreboardTeam(r, r.getTeamName());
-//        }
-        
         
         new BukkitRunnable() {
             public void run() {
@@ -74,10 +66,6 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
                         }
                     }
 
-//                    Team rankTeam = teamMap.get(player.getMainRank());
-//                    rankTeam.addEntry(player.getName());
-                    
-                    
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         player.getPlayer().hidePlayer(p);
                         player.getPlayer().showPlayer(p);
@@ -165,28 +153,6 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
         return null;
     }
 
-//    private void createScoreboardTeam(Rank rank, String name) {
-//        Scoreboard board = scoreboardManager.getMainScoreboard();
-//        if (board.getTeam(name) == null) {
-//            Team team = board.registerNewTeam(name);
-//            if (rank.equals(Rank.BUILD_TEAM)) {
-//                team.setPrefix(rank.getBaseColor() + "§lBT ");
-//            } else if (Rank.isStaff(rank)) {
-//                if (!rank.equals(Rank.FIRECRAFT_TEAM)) {
-//                    team.setPrefix(rank.getPrefix() + " ");
-//                } else {
-//                    team.setPrefix("§4§lFCT " + " ");
-//                }
-//            } else {
-//                team.setPrefix(rank.getPrefix() + " §r");
-//            }
-//            this.teamMap.put(rank, team);
-//        } else {
-//            this.teamMap.put(rank, board.getTeam(name));
-//        }
-//    }
-    
-    
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         e.setQuitMessage(null);
@@ -200,9 +166,6 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
         FPacketServerPlayerLeave playerLeave = new FPacketServerPlayerLeave(plugin.getFirecraftServer(), player);
         plugin.getSocket().sendPacket(playerLeave);
 
-//        Team rankTeam = teamMap.get(player.getMainRank());
-//        rankTeam.removeEntry(player.getName());
-        
         onlinePlayers.remove(player.getUniqueId());
         otherProfiles.put(player.getUniqueId(), player);
         
@@ -266,4 +229,19 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
         this.onlinePlayers.replace(target.getUniqueId(), target);
     }
     
+    public Collection<FirecraftPlayer> getProfiles() {
+        return this.otherProfiles.values();
+    }
+    
+    public void addRandomProfile(UUID requester, FirecraftPlayer profile) {
+        if (this.requestedRandomProfiles.containsKey(requester)) {
+            this.requestedRandomProfiles.replace(requester, profile);
+        } else {
+            this.requestedRandomProfiles.put(requester, profile);
+        }
+    }
+    
+    public FirecraftPlayer getRandomProfile(UUID requester) {
+        return this.requestedRandomProfiles.get(requester);
+    }
 }
