@@ -7,8 +7,6 @@ import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.utils.ReflectionUtils;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import org.bukkit.*;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 

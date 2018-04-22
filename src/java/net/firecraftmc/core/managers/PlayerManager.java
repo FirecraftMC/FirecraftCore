@@ -83,9 +83,11 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
                                 p.getPlayer().hidePlayer(player.getPlayer());
                             }
                         } //TODO ADD SUPPORT FOR NICKNAMES AS WELL
-    
-                        if (p.getPlayer().canSee(player.getPlayer())) {
-                            p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + Bukkit.getOnlinePlayers().size() + "§7/§9" + Bukkit.getServer().getMaxPlayers(), "");
+                        
+                        if (!p.getUniqueId().equals(player.getUniqueId())) {
+                            if (p.getPlayer().canSee(player.getPlayer())) {
+                                p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + Bukkit.getOnlinePlayers().size() + "§7/§9" + Bukkit.getServer().getMaxPlayers(), "");
+                            }
                         }
                     }
                     
