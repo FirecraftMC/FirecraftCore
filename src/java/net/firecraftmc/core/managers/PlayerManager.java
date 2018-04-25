@@ -56,7 +56,8 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
                     
                     FirecraftPlayer player = getPlayer(p.getUniqueId());
                     player.playerOnlineStuff();
-                    if (Rank.isStaff(player.getMainRank())) {
+                    if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
+                            player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS)) {
                         FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(plugin.getFirecraftServer(), player);
                         plugin.getSocket().sendPacket(staffChatJoin);
                     } else {
@@ -159,7 +160,8 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
         e.setQuitMessage(null);
         FirecraftPlayer player = getPlayer(e.getPlayer().getUniqueId());
         player.refreshOnlineStatus();
-        if (Rank.isStaff(player.getMainRank())) {
+        if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
+                player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS)) {
             FPStaffChatQuit staffQuit = new FPStaffChatQuit(plugin.getFirecraftServer(), player);
             plugin.getSocket().sendPacket(staffQuit);
         }
