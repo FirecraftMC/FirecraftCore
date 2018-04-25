@@ -34,3 +34,4 @@ commands:
     setspawn:
     spawn:
     dev:
+    signedit:

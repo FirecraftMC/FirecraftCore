@@ -75,6 +75,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         
         this.getCommand("dev").setExecutor(new DevManager(this));
         
+        this.getCommand("signedit").setExecutor(new SignEditManager(this));
+        
         new BukkitRunnable() {
             public void run() {
                 getCommand("vanish").setExecutor(new VanishManager(FirecraftCore.this));
