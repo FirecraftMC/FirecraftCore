@@ -1,7 +1,8 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
+import net.firecraftmc.shared.classes.FirecraftPlayer;
+import net.firecraftmc.shared.classes.IPlayerManager;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.FPacketServerPlayerJoin;
 import net.firecraftmc.shared.packets.FPacketServerPlayerLeave;
@@ -58,9 +59,7 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
                     if (Rank.isStaff(player.getMainRank())) {
                         FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(plugin.getFirecraftServer(), player);
                         plugin.getSocket().sendPacket(staffChatJoin);
-                    }
-                    
-                    if (!Rank.isStaff(player.getMainRank())) {
+                    } else {
                         for (FirecraftPlayer p : onlinePlayers.values()) {
                             p.sendMessage(player.getDisplayName() + " &ajoined the game.");
                         }
@@ -79,8 +78,8 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
                                 p.getPlayer().setPlayerListName(p.getNick().getNickProfile().getName() + "§7§l[V]");
                             }
     
-                            if (!p.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-                                p.getPlayer().hidePlayer(player.getPlayer());
+                            if (!player.getMainRank().isEqualToOrHigher(p.getMainRank())) {
+                                player.getPlayer().hidePlayer(p.getPlayer());
                             }
                         } //TODO ADD SUPPORT FOR NICKNAMES AS WELL
                         
