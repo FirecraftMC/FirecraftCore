@@ -86,6 +86,13 @@ public class TeleportationManager implements TabExecutor, Listener {
                     return true;
                 }
                 
+                if (target.getMainRank().isHigher(player.getMainRank())) {
+                    if (target.isVanished()) {
+                        player.sendMessage("&cCould not find the player " + args[0]);
+                        return true;
+                    }
+                }
+                
                 player.teleport(target.getLocation());
                 FPSCTeleport teleport = new FPSCTeleport(plugin.getFirecraftServer(), player, target);
                 plugin.getSocket().sendPacket(teleport);
@@ -119,7 +126,21 @@ public class TeleportationManager implements TabExecutor, Listener {
                     return true;
                 }
                 
-                if (t1.getMainRank().equals(player.getMainRank()) || t1.getMainRank().isHigher(player.getMainRank())) {
+                if (t1.getMainRank().isHigher(player.getMainRank())) {
+                    if (t1.isVanished()) {
+                        player.sendMessage("&cThe name provided for the first player is invalid.");
+                        return true;
+                    }
+                }
+    
+                if (t2.getMainRank().isHigher(player.getMainRank())) {
+                    if (t2.isVanished()) {
+                        player.sendMessage("&cThe name provided for the second player is invalid.");
+                        return true;
+                    }
+                }
+                
+                if (t1.getMainRank().isEqualToOrHigher(player.getMainRank())) {
                     player.sendMessage("&cYou cannot forcefully teleport players equal to or higher than your rank.");
                     return true;
                 }
@@ -157,6 +178,13 @@ public class TeleportationManager implements TabExecutor, Listener {
                 player.sendMessage("&cThe name you provided is not valid.");
                 return true;
             }
+    
+            if (target.getMainRank().isHigher(player.getMainRank())) {
+                if (target.isVanished()) {
+                    player.sendMessage("&cCould not find the player " + args[0]);
+                    return true;
+                }
+            }
             
             target.teleport(player.getLocation());
             FPSCTeleportHere tpHere = new FPSCTeleportHere(plugin.getFirecraftServer(), player, target);
@@ -193,6 +221,13 @@ public class TeleportationManager implements TabExecutor, Listener {
             if (target == null) {
                 player.sendMessage("&cCould not find a player by that name.");
                 return true;
+            }
+    
+            if (target.getMainRank().isHigher(player.getMainRank())) {
+                if (target.isVanished()) {
+                    player.sendMessage("&cCould not find a player by that name.");
+                    return true;
+                }
             }
             
             long currentTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
