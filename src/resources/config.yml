@@ -3,3 +3,9 @@ server:
     color: RED
 ip: 172.18.0.2
 port: 1235
+mysql:
+   user:
+   database:
+   password:
+   port:
+   hostname:

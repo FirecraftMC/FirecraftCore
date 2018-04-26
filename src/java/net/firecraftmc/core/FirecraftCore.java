@@ -3,6 +3,7 @@ package net.firecraftmc.core;
 import net.firecraftmc.core.managers.*;
 import net.firecraftmc.core.wrapper.NickWrapper1_12_R1;
 import net.firecraftmc.core.wrapper.NickWrapper1_8_R3;
+import net.firecraftmc.shared.MySQL;
 import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.utils.ReflectionUtils;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
@@ -21,6 +22,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     
     private Location serverSpawn;
     
+    private MySQL database;
+    
     public void onEnable() {
         instance = this;
         this.saveDefaultConfig();
@@ -34,6 +37,10 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         this.socket.start();
         this.getServer().getPluginManager().registerEvents(this, this);
         this.server = new FirecraftServer(getConfig().getString("server.name"), ChatColor.valueOf(getConfig().getString("server.color")));
+    
+        database = new MySQL(getConfig().getString("mysql.user"), getConfig().getString("mysql.database"),
+                getConfig().getString("mysql.password"), getConfig().getInt("mysql.port"), getConfig().getString("mysql.hostname"));
+        database.openConnection();
         
         String versionString = ReflectionUtils.getVersion();
         if (versionString.equalsIgnoreCase("v1_8_R3")) {
@@ -76,6 +83,17 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         this.getCommand("dev").setExecutor(new DevManager(this));
         
         this.getCommand("signedit").setExecutor(new SignEditManager(this));
+        
+        PunishmentManager punishmentManager = new PunishmentManager(this);
+        this.getCommand("ban").setExecutor(punishmentManager);
+        this.getCommand("tempban").setExecutor(punishmentManager);
+        this.getCommand("mute").setExecutor(punishmentManager);
+        this.getCommand("tempmute").setExecutor(punishmentManager);
+        this.getCommand("jail").setExecutor(punishmentManager);
+        this.getCommand("setjail").setExecutor(punishmentManager);
+        this.getCommand("kick").setExecutor(punishmentManager);
+        this.getCommand("warn").setExecutor(punishmentManager);
+        this.getCommand("ipban").setExecutor(punishmentManager);
         
         new BukkitRunnable() {
             public void run() {
@@ -136,5 +154,9 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     
     public void setServerSpawn(Location serverSpawn) {
         this.serverSpawn = serverSpawn;
+    }
+    
+    public MySQL getDatabase() {
+        return database;
     }
 }

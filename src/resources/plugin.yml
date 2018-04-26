@@ -35,3 +35,12 @@ commands:
     spawn:
     dev:
     signedit:
+    ban:
+    tempban:
+    mute:
+    tempmute:
+    jail:
+    kick:
+    warn:
+    setjail:
+    ipban:
