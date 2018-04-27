@@ -94,7 +94,7 @@ public class TeleportationManager implements TabExecutor, Listener {
                 }
                 
                 player.teleport(target.getLocation());
-                FPSCTeleport teleport = new FPSCTeleport(plugin.getFirecraftServer(), player, target);
+                FPSCTeleport teleport = new FPSCTeleport(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId());
                 plugin.getSocket().sendPacket(teleport);
                 if (target.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
                     target.sendMessage(player.getName() + " &ateleported to you.");
@@ -146,7 +146,7 @@ public class TeleportationManager implements TabExecutor, Listener {
                 }
                 
                 t1.teleport(t2.getLocation());
-                FPSCTeleportOthers teleport = new FPSCTeleportOthers(plugin.getFirecraftServer(), player, t1, t2);
+                FPSCTeleportOthers teleport = new FPSCTeleportOthers(plugin.getFirecraftServer(), player.getUniqueId(), t1.getUniqueId(), t2.getUniqueId());
                 plugin.getSocket().sendPacket(teleport);
             } else {
                 player.sendMessage("&cYou did not provide the correct number of arguments.");
@@ -187,7 +187,7 @@ public class TeleportationManager implements TabExecutor, Listener {
             }
             
             target.teleport(player.getLocation());
-            FPSCTeleportHere tpHere = new FPSCTeleportHere(plugin.getFirecraftServer(), player, target);
+            FPSCTeleportHere tpHere = new FPSCTeleportHere(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId());
             plugin.getSocket().sendPacket(tpHere);
         } else if (cmd.getName().equalsIgnoreCase("tpall")) {
             if (player.getMainRank().equals(Rank.HEAD_ADMIN) || player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {

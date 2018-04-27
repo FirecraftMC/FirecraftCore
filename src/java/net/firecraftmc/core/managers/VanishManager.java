@@ -71,7 +71,7 @@ public class VanishManager implements TabExecutor, Listener {
                     
                     player.setActionBar(new ActionBar("&fYou are currently &cVANISHED"));
                 }
-                FPSCVanishToggle toggleVanish = new FPSCVanishToggle(plugin.getFirecraftServer(), player, player.isVanished());
+                FPSCVanishToggle toggleVanish = new FPSCVanishToggle(plugin.getFirecraftServer(), player.getUniqueId());
                 plugin.getSocket().sendPacket(toggleVanish);
             } else {
                 if (!CmdUtils.checkCmdAliases(args, 0, "settings", "s")) {

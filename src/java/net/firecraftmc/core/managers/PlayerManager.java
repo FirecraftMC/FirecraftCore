@@ -1,14 +1,18 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
+import net.firecraftmc.shared.classes.FirecraftPlayer;
+import net.firecraftmc.shared.classes.IPlayerManager;
+import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.FPacketServerPlayerJoin;
 import net.firecraftmc.shared.packets.FPacketServerPlayerLeave;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatJoin;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,20 +20,22 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
+
     private final ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<UUID, FirecraftPlayer> otherProfiles = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<UUID, FirecraftPlayer> requestedRandomProfiles = new ConcurrentHashMap<>();
-    
+    private final ConcurrentHashMap<UUID, FirecraftPlayer> cachedPlayers = new ConcurrentHashMap<>();
+
     private final FirecraftCore plugin;
-    
+
     public PlayerManager(FirecraftCore plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        
+
         new BukkitRunnable() {
             public void run() {
                 for (FirecraftPlayer p : onlinePlayers.values()) {
@@ -39,7 +45,7 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
             }
         }.runTaskTimerAsynchronously(plugin, 0L, 40L);
     }
-    
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         e.setJoinMessage(null);
@@ -48,30 +54,30 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
         FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(plugin.getFirecraftServer(), p.getUniqueId());
         plugin.getSocket().sendPacket(serverPlayerJoin);
         FirecraftPlayer player = Utils.getPlayerFromDatabase(plugin.getDatabase(), plugin, p.getUniqueId());
-        
+
         if (player == null) {
             p.kickPlayer("§cThere was an error getting your data. Please contact a Firecraft Team member or Head Admin.");
             return;
         }
-        
+
         player.sendMessage("&7&oSuccessfully loading your data, you are no longer restricted.");
-        
+
         player.playerOnlineStuff();
         if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
                 player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS)) {
-            FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(plugin.getFirecraftServer(), player);
+            FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(plugin.getFirecraftServer(), player.getUniqueId());
             plugin.getSocket().sendPacket(staffChatJoin);
         } else {
             for (FirecraftPlayer p1 : onlinePlayers.values()) {
                 p1.sendMessage(player.getDisplayName() + " &ajoined the game.");
             }
         }
-        
+
         for (Player p1 : Bukkit.getOnlinePlayers()) {
             player.getPlayer().hidePlayer(p1);
             player.getPlayer().showPlayer(p1);
         }
-        
+
         if (Bukkit.getOnlinePlayers().size() > 1) {
             for (FirecraftPlayer p1 : onlinePlayers.values()) {
                 if (p1.isVanished()) {
@@ -80,12 +86,12 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
                     } else {
                         p.getPlayer().setPlayerListName(p1.getNick().getNickProfile().getName() + "§7§l[V]");
                     }
-                    
+
                     if (!player.getMainRank().isEqualToOrHigher(p1.getMainRank())) {
                         player.getPlayer().hidePlayer(p.getPlayer());
                     }
                 } //TODO Nicknames should work due to the background code.
-                
+
                 if (!p.getUniqueId().equals(player.getUniqueId())) {
                     if (p.getPlayer().canSee(player.getPlayer())) {
                         p1.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + Bukkit.getOnlinePlayers().size() + "§7/§9" + Bukkit.getServer().getMaxPlayers(), "");
@@ -93,7 +99,7 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
                 }
             }
         }
-        
+
         if (player.isVanished()) {
             for (FirecraftPlayer p1 : onlinePlayers.values()) {
                 if (!p1.getMainRank().isEqualToOrHigher(player.getMainRank())) {
@@ -101,13 +107,13 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
                 }
             }
         }
-        
+
         if (player.isNicked()) {
             //TODO NOT SUPPORTED YET, PLACEHOLDER
             System.out.println("Player is nicked, this is a placeholder when it is implemented.");
         }
     }
-    
+
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (cmd.getName().equalsIgnoreCase("viewprofile")) {
             if (sender instanceof Player) {
@@ -130,12 +136,12 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
                             }
                         }
                     }
-                    
+
                     if (target == null) {
                         player.sendMessage("&cCould not find a player with that name/uuid.");
                         return true;
                     }
-                    
+
                     player.sendMessage("&6Displaying profile info for " + target.getName());
                     String status = (target.getPlayer() != null) ? "&aOnline" : "&cOffline";
                     player.sendMessage("&7Status: " + status);
@@ -155,11 +161,11 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
         }
         return true;
     }
-    
+
     public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
         return null;
     }
-    
+
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         e.setQuitMessage(null);
@@ -167,32 +173,29 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
         player.refreshOnlineStatus();
         if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
                 player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS)) {
-            FPStaffChatQuit staffQuit = new FPStaffChatQuit(plugin.getFirecraftServer(), player);
+            FPStaffChatQuit staffQuit = new FPStaffChatQuit(plugin.getFirecraftServer(), player.getUniqueId());
             plugin.getSocket().sendPacket(staffQuit);
         }
-        
+
         FPacketServerPlayerLeave playerLeave = new FPacketServerPlayerLeave(plugin.getFirecraftServer(), player);
         plugin.getSocket().sendPacket(playerLeave);
-        
+
         onlinePlayers.remove(player.getUniqueId());
-        otherProfiles.put(player.getUniqueId(), player);
-        
-        for (FirecraftPlayer p : onlinePlayers.values()) {
-            String online = Bukkit.getServer().getOnlinePlayers().size() - 1 + "";
-            String max = Bukkit.getServer().getMaxPlayers() + "";
-            p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + online + "§7/§9" + max, "");
+        cachedPlayers.put(player.getUniqueId(), player);
+
+        if (onlinePlayers.size() > 0) {
+            for (FirecraftPlayer p : onlinePlayers.values()) {
+                String online = Bukkit.getServer().getOnlinePlayers().size() - 1 + "";
+                String max = Bukkit.getServer().getMaxPlayers() + "";
+                p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + online + "§7/§9" + max, "");
+            }
         }
     }
-    
-    public void addPlayer(FirecraftPlayer firecraftPlayer) {
-        firecraftPlayer.setPlayer(Bukkit.getPlayer(firecraftPlayer.getUniqueId()));
-        this.onlinePlayers.put(firecraftPlayer.getUniqueId(), firecraftPlayer);
-    }
-    
+
     public FirecraftPlayer getPlayer(UUID uuid) {
         return onlinePlayers.get(uuid);
     }
-    
+
     public FirecraftPlayer getPlayer(String name) {
         for (FirecraftPlayer fp : onlinePlayers.values()) {
             if (fp.getName().equalsIgnoreCase(name)) {
@@ -201,55 +204,20 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
         }
         return null;
     }
-    
+
     public Collection<FirecraftPlayer> getPlayers() {
         return onlinePlayers.values();
     }
-    
+
     public void removePlayer(UUID uuid) {
         this.onlinePlayers.remove(uuid);
     }
-    
-    public void removePlayer(FirecraftPlayer player) {
-        removePlayer(player.getUniqueId());
+
+    public FirecraftPlayer getCachedPlayer(UUID uuid) {
+        return this.cachedPlayers.get(uuid);
     }
-    
-    public void addProfile(FirecraftPlayer profile) {
-        if (!this.otherProfiles.containsKey(profile.getUniqueId())) {
-            this.otherProfiles.put(profile.getUniqueId(), profile);
-        } else {
-            this.otherProfiles.replace(profile.getUniqueId(), profile);
-        }
-    }
-    
-    public FirecraftPlayer getProfile(UUID uuid) {
-        if (this.onlinePlayers.containsKey(uuid)) {
-            return this.onlinePlayers.get(uuid);
-        } else if (this.otherProfiles.containsKey(uuid)) {
-            return this.otherProfiles.get(uuid);
-        }
-        
-        return null;
-    }
-    
-    public void updatePlayer(FirecraftPlayer target) {
-        target.setPlayer(Bukkit.getPlayer(target.getUniqueId()));
-        this.onlinePlayers.replace(target.getUniqueId(), target);
-    }
-    
-    public Collection<FirecraftPlayer> getProfiles() {
-        return this.otherProfiles.values();
-    }
-    
-    public void addRandomProfile(UUID requester, FirecraftPlayer profile) {
-        if (this.requestedRandomProfiles.containsKey(requester)) {
-            this.requestedRandomProfiles.replace(requester, profile);
-        } else {
-            this.requestedRandomProfiles.put(requester, profile);
-        }
-    }
-    
-    public FirecraftPlayer getRandomProfile(UUID requester) {
-        return this.requestedRandomProfiles.get(requester);
+
+    public void addCachedPlayer(FirecraftPlayer player) {
+        this.cachedPlayers.put(player.getUniqueId(), player);
     }
 }

@@ -5,8 +5,6 @@ import net.firecraftmc.shared.classes.FirecraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 
 public class ItemPickupEvent1_12 implements Listener {
    

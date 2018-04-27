@@ -106,13 +106,13 @@ public class GamemodeManager implements TabExecutor, Listener {
                     }
                     
                     target.setGamemode(mode);
-                    FPSCSetGamemodeOthers setGamemode = new FPSCSetGamemodeOthers(plugin.getFirecraftServer(), player, mode, target);
+                    FPSCSetGamemodeOthers setGamemode = new FPSCSetGamemodeOthers(plugin.getFirecraftServer(), player.getUniqueId(), mode, target.getUniqueId());
                     plugin.getSocket().sendPacket(setGamemode);
                     return;
                 }
                 
                 player.setGamemode(mode);
-                FPSCSetGamemode setGamemode = new FPSCSetGamemode(plugin.getFirecraftServer(), player, mode);
+                FPSCSetGamemode setGamemode = new FPSCSetGamemode(plugin.getFirecraftServer(), player.getUniqueId(), mode);
                 plugin.getSocket().sendPacket(setGamemode);
             } else {
                 player.sendMessage("&cOnly Trial Admins and above can use the gamemode command.");

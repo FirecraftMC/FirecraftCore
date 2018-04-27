@@ -42,7 +42,7 @@ public class ChatManager implements TabExecutor,Listener {
                 op.sendMessage(format);
             }
         } else if (player.getChannel().equals(Channel.STAFF)) {
-            FPStaffChatMessage msg = new FPStaffChatMessage(plugin.getFirecraftServer(), player, e.getMessage());
+            FPStaffChatMessage msg = new FPStaffChatMessage(plugin.getFirecraftServer(), player.getUniqueId(), e.getMessage());
             plugin.getSocket().sendPacket(msg);
         }
     }
