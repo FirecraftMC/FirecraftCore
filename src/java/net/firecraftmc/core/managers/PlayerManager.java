@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
+public class PlayerManager implements IPlayerManager, Listener {
 
     private final ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, FirecraftPlayer> cachedPlayers = new ConcurrentHashMap<>();
@@ -60,7 +60,7 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
             return;
         }
 
-        player.sendMessage("&7&oSuccessfully loading your data, you are no longer restricted.");
+        player.sendMessage("&7&oSuccessfully loaded your data, you are no longer restricted.");
 
         player.playerOnlineStuff();
         if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
@@ -112,54 +112,6 @@ public class PlayerManager implements IPlayerManager, TabExecutor, Listener {
             //TODO NOT SUPPORTED YET, PLACEHOLDER
             System.out.println("Player is nicked, this is a placeholder when it is implemented.");
         }
-    }
-
-    public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("viewprofile")) {
-            if (sender instanceof Player) {
-                FirecraftPlayer player = onlinePlayers.get(((Player) sender).getUniqueId());
-                if (Rank.isStaff(player.getMainRank())) {
-                    if (args.length != 1) {
-                        player.sendMessage("&cInvalid amount of arguments.");
-                        return true;
-                    }
-                    UUID uuid;
-                    FirecraftPlayer target = null;
-                    try {
-                        uuid = UUID.fromString(args[0]);
-                        target = getPlayer(uuid);
-                    } catch (Exception e) {
-                        for (FirecraftPlayer p : onlinePlayers.values()) {
-                            if (p.getName().equalsIgnoreCase(args[0])) {
-                                target = p;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (target == null) {
-                        player.sendMessage("&cCould not find a player with that name/uuid.");
-                        return true;
-                    }
-
-                    player.sendMessage("&6Displaying profile info for " + target.getName());
-                    String status = (target.getPlayer() != null) ? "&aOnline" : "&cOffline";
-                    player.sendMessage("&7Status: " + status);
-                    player.sendMessage("&7Rank: " + target.getMainRank().getPrefix());
-                    if (!player.getSubRanks().isEmpty()) {
-                        StringBuilder sb = new StringBuilder();
-                        target.getSubRanks().forEach(sr -> sb.append(sr.getPrefix()));
-                        player.sendMessage("&7Other Ranks: " + sb.toString());
-                    }
-                    player.sendMessage("&7Channel: " + target.getChannel().getColor() + target.getChannel().toString());
-                    if (target.getNick() != null) {
-                        FirecraftPlayer nickProfile = target.getNick().getNickProfile();
-                        player.sendMessage("&7Nickname: " + nickProfile.generateDisplayName());
-                    }
-                }
-            }
-        }
-        return true;
     }
 
     public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {

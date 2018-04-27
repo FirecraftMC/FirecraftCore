@@ -136,7 +136,7 @@ public class PunishmentManager implements TabExecutor {
                 }
             }
         } else {
-            sender.sendMessage("§cNot implemented yet.");
+            sender.sendMessage(prefix + "§cNot implemented yet.");
         }
         
         

@@ -19,6 +19,8 @@ import java.util.List;
 
 public class GamemodeManager implements TabExecutor, Listener {
     private final FirecraftCore plugin;
+
+    private static final String prefix = "&d&l[Gamemode] ";
     
     public GamemodeManager(FirecraftCore plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -57,13 +59,13 @@ public class GamemodeManager implements TabExecutor, Listener {
                 }
                 
                 if (mode == null) {
-                    player.sendMessage("&cYou did not provide a valid gamemode.");
+                    player.sendMessage(prefix + "&cYou did not provide a valid gamemode.");
                     return true;
                 }
                 
                 gamemodeShortcut(sender, mode, args);
             } else if (sender instanceof ConsoleCommandSender) {
-                sender.sendMessage("§cIt is not yet implemented for console to set gamemodes.");
+                sender.sendMessage(prefix + "§cIt is not yet implemented for console to set gamemodes.");
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("gmc")) {
@@ -94,13 +96,13 @@ public class GamemodeManager implements TabExecutor, Listener {
                 
                 if (target != null) {
                     if (player.getMainRank().equals(Rank.TRIAL_ADMIN)) {
-                        player.sendMessage("&cOnly Admins and Higher can set other player's gamemodes.");
+                        player.sendMessage(prefix + "&cOnly Admins and Higher can set other player's gamemodes.");
                         return;
                     }
                     
                     if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
                         if (!(target.getMainRank().equals(Rank.FIRECRAFT_TEAM) && player.getMainRank().equals(Rank.FIRECRAFT_TEAM))) {
-                            player.sendMessage("&cYou cannot set the gamemode of someone of the same rank or higher than you.");
+                            player.sendMessage(prefix + "&cYou cannot set the gamemode of someone of the same rank or higher than you.");
                             return;
                         }
                     }
@@ -115,10 +117,10 @@ public class GamemodeManager implements TabExecutor, Listener {
                 FPSCSetGamemode setGamemode = new FPSCSetGamemode(plugin.getFirecraftServer(), player.getUniqueId(), mode);
                 plugin.getSocket().sendPacket(setGamemode);
             } else {
-                player.sendMessage("&cOnly Trial Admins and above can use the gamemode command.");
+                player.sendMessage(prefix + "&cOnly Trial Admins and above can use the gamemode command.");
             }
         } else if (sender instanceof ConsoleCommandSender) {
-            sender.sendMessage("§cIt is not yet implemented for console to set gamemodes.");
+            sender.sendMessage(prefix + "§cIt is not yet implemented for console to set gamemodes.");
         }
     }
 }

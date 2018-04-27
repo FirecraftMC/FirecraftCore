@@ -78,8 +78,6 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         this.getCommand("setspawn").setExecutor(tpManager);
         this.getCommand("spawn").setExecutor(tpManager);
         
-        this.getCommand("viewprofile").setExecutor(playerManager);
-        
         this.getCommand("dev").setExecutor(new DevManager(this));
         
         this.getCommand("signedit").setExecutor(new SignEditManager(this));
