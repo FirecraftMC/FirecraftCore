@@ -121,6 +121,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             socket.close();
         }
         
+        this.database.closeConnection();
+        
         getConfig().set("spawn.world", serverSpawn.getWorld().getName());
         getConfig().set("spawn.x", serverSpawn.getBlockX());
         getConfig().set("spawn.y", serverSpawn.getBlockX());
