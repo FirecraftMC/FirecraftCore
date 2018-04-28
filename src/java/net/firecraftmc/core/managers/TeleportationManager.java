@@ -73,8 +73,7 @@ public class TeleportationManager implements TabExecutor, Listener {
         
         if (cmd.getName().equalsIgnoreCase("teleport")) {
             if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
-                //TODO Add checks for staff based ranks for SrMods and below
-                player.sendMessage("&cMods and above can teleport directly.");
+                player.sendMessage("&cOnly Mods and above can teleport directly.");
                 return true;
             }
             

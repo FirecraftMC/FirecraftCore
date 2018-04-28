@@ -86,7 +86,6 @@ public class NickManager implements TabExecutor {
             } else {
                 player.sendMessage(prefix + "&6Rank: " + nick.getMainRank().getPrefix());
             }
-            //TODO Print out stats when those are implemented
         } else if (cmd.getName().equalsIgnoreCase("nickrandom")) {
             if (sender instanceof Player) {
                 FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
