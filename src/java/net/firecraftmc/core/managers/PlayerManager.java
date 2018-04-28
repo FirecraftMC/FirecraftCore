@@ -2,6 +2,7 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.*;
+import net.firecraftmc.shared.enforcer.punishments.Punishment;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.FPacketServerPlayerJoin;
 import net.firecraftmc.shared.packets.FPacketServerPlayerLeave;
@@ -24,6 +25,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
     private final ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, FirecraftPlayer> cachedPlayers = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, Punishment> toKickForBan = new ConcurrentHashMap<>();
 
     private final FirecraftCore plugin;
 
@@ -39,6 +41,23 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
             }
         }.runTaskTimerAsynchronously(plugin, 0L, 40L);
+        
+        new BukkitRunnable() {
+            public void run() {
+                Iterator<UUID> iterator = toKickForBan.keySet().iterator();
+                while (iterator.hasNext()) {
+                    UUID uuid = iterator.next();
+                    Player p = Bukkit.getPlayer(uuid);
+                    if (p != null) {
+                        Punishment punishment = toKickForBan.get(uuid);
+                        String punisher = punishment.getPunisherName();
+                        String reason = punishment.getReason();
+                        p.kickPlayer(Utils.color("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &cPermanent".replace("{punisher}", punisher).replace("{reason}", reason)));
+                        iterator.remove();
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 5L);
     }
 
     @EventHandler
@@ -165,7 +184,11 @@ public class PlayerManager implements IPlayerManager, Listener {
     public FirecraftPlayer getCachedPlayer(UUID uuid) {
         return this.cachedPlayers.get(uuid);
     }
-
+    
+    public void addToKickForBan(Punishment punishment) {
+        this.toKickForBan.put(Utils.convertToUUID(punishment.getTarget()), punishment);
+    }
+    
     public void addCachedPlayer(FirecraftPlayer player) {
         this.cachedPlayers.put(player.getUniqueId(), player);
     }
