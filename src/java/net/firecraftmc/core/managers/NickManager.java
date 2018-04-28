@@ -34,7 +34,7 @@ public class NickManager implements TabExecutor {
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
             if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
             
-            if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN))) {
+            if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().isEqualToOrHigher(Rank.TRIAL_ADMIN))) {
                 player.sendMessage(prefix + "&cYou are not allowed to use the nickname command.");
                 return true;
             }

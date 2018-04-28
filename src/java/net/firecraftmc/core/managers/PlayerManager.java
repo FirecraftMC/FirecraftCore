@@ -1,9 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.FirecraftPlayer;
-import net.firecraftmc.shared.classes.IPlayerManager;
-import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.FPacketServerPlayerJoin;
 import net.firecraftmc.shared.packets.FPacketServerPlayerLeave;
@@ -12,7 +10,6 @@ import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,9 +17,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerManager implements IPlayerManager, Listener {
@@ -61,6 +56,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         }
 
         player.sendMessage("&7&oSuccessfully loaded your data, you are no longer restricted.");
+        this.onlinePlayers.put(player.getUniqueId(), player);
 
         player.playerOnlineStuff();
         if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
@@ -86,24 +82,16 @@ public class PlayerManager implements IPlayerManager, Listener {
                     } else {
                         p.getPlayer().setPlayerListName(p1.getNick().getNickProfile().getName() + "§7§l[V]");
                     }
-
+    
                     if (!player.getMainRank().isEqualToOrHigher(p1.getMainRank())) {
                         player.getPlayer().hidePlayer(p.getPlayer());
                     }
                 } //TODO Nicknames should work due to the background code.
-
+    
                 if (!p.getUniqueId().equals(player.getUniqueId())) {
                     if (p.getPlayer().canSee(player.getPlayer())) {
                         p1.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + Bukkit.getOnlinePlayers().size() + "§7/§9" + Bukkit.getServer().getMaxPlayers(), "");
                     }
-                }
-            }
-        }
-
-        if (player.isVanished()) {
-            for (FirecraftPlayer p1 : onlinePlayers.values()) {
-                if (!p1.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-                    p1.getPlayer().hidePlayer(player.getPlayer());
                 }
             }
         }
