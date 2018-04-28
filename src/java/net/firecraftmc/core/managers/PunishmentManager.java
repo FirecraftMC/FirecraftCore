@@ -8,19 +8,42 @@ import net.firecraftmc.shared.enforcer.punishments.PermanentBan;
 import net.firecraftmc.shared.enforcer.punishments.Punishment;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.FPacketPunish;
+import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
-public class PunishmentManager implements TabExecutor {
+public class PunishmentManager implements TabExecutor, Listener {
     private FirecraftCore plugin;
     private static final String prefix = "&d&l[ENFORCER] ";
     private final UUID firestar311 = UUID.fromString("3f7891ce-5a73-4d52-a2ba-299839053fdc");
     
     public PunishmentManager(FirecraftCore plugin) {
         this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+    
+    @EventHandler
+    public void onPreLogin(AsyncPlayerPreLoginEvent e) {
+        UUID uuid = e.getUniqueId();
+        ResultSet set = plugin.getDatabase().querySQL("SELECT * from `punishments` WHERE `target`='" + uuid.toString().replace("-", "") + "';");
+        try {
+            while (set.next()) {
+                if (set.getBoolean("active")) {
+                    FirecraftPlayer punisher = Utils.getPlayerFromDatabase(plugin.getDatabase(), plugin, Utils.convertToUUID(set.getString("punisher")));
+                    e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,  Utils.color("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &cPermanent".replace("{punisher}", punisher.getName()).replace("{reason}", set.getString("reason"))));
+                }
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
     }
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
@@ -31,19 +54,19 @@ public class PunishmentManager implements TabExecutor {
                 player.sendMessage(prefix + "&cYou must provide a name or uuid to punish.");
                 return true;
             }
-    
+            
             UUID uuid;
             try {
                 uuid = UUID.fromString(args[0]);
             } catch (Exception e) {
                 uuid = Utils.Mojang.getUUIDFromName(args[0]);
             }
-    
+            
             if (uuid == null) {
                 player.sendMessage(prefix + "&cThe name/uuid you provided is not valid.");
                 return true;
             }
-    
+            
             FirecraftPlayer t = plugin.getPlayerManager().getPlayer(uuid);
             if (t == null) {
                 t = Utils.getPlayerFromDatabase(plugin.getDatabase(), plugin, uuid);
@@ -52,7 +75,7 @@ public class PunishmentManager implements TabExecutor {
                     return true;
                 }
             }
-    
+            
             if (t.getMainRank().isEqualToOrHigher(player.getMainRank())) {
                 if (!player.getUniqueId().equals(firestar311)) {
                     player.sendMessage(prefix + "&cYou cannot punish a player that is equal to or higher than your rank.");
@@ -66,9 +89,9 @@ public class PunishmentManager implements TabExecutor {
             }
             
             StringBuilder reasonBuilder = new StringBuilder();
-            for (int i=1; i<args.length; i++) {
+            for (int i = 1; i < args.length; i++) {
                 reasonBuilder.append(args[i]);
-                if (!(i == args.length-1)) {
+                if (!(i == args.length - 1)) {
                     reasonBuilder.append(" ");
                 }
             }
@@ -83,11 +106,13 @@ public class PunishmentManager implements TabExecutor {
                     player.sendMessage(prefix + "&cOnly Admins+ can permanently ban a player.");
                     return true;
                 }
-    
+                
                 Type type = Type.BAN;
                 PermanentBan permBan = new PermanentBan(type, server.getName(), punisher, target, reason, date);
                 permBan.setActive(true);
                 Punishment permanentBan = Enforcer.addToDatabase(plugin.getDatabase(), permBan);
+                if (Bukkit.getPlayer(t.getUniqueId()) != null)
+                    t.kickPlayer("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &cPermanent".replace("{punisher}", player.getName()).replace("{reason}", reason));
                 if (permanentBan != null) {
                     FPacketPunish punish = new FPacketPunish(server, permanentBan.getId());
                     plugin.getSocket().sendPacket(punish);
