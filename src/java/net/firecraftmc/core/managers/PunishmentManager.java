@@ -1,8 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.FirecraftPlayer;
-import net.firecraftmc.shared.classes.FirecraftServer;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.utils.MojangUtils;
 import net.firecraftmc.shared.enforcer.Enforcer;
 import net.firecraftmc.shared.enforcer.Type;
@@ -48,8 +47,11 @@ public class PunishmentManager implements TabExecutor {
     
             FirecraftPlayer t = plugin.getPlayerManager().getPlayer(uuid);
             if (t == null) {
-                player.sendMessage(prefix + "&cCould not find a profile for that uuid."); //TODO Need to change the profiles thing to use the database.
-                return true;
+                t = Utils.getPlayerFromDatabase(plugin.getDatabase(), plugin, uuid);
+                if (t == null) {
+                    player.sendMessage(prefix + "&cCould not find a profile by that name, currently only players that have joined can be punished.");
+                    return true;
+                }
             }
     
             if (t.getMainRank().isEqualToOrHigher(player.getMainRank())) {
