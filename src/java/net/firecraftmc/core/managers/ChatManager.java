@@ -3,8 +3,6 @@ package net.firecraftmc.core.managers;
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Utils;
-import net.firecraftmc.shared.classes.utils.ChatUtils;
-import net.firecraftmc.shared.classes.utils.CmdUtils;
 import net.firecraftmc.shared.enums.Channel;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatMessage;
@@ -39,7 +37,7 @@ public class ChatManager implements TabExecutor,Listener {
                 player.sendMessage(prefix + "&cYou are not allowed to talk in global while vanished.");
                 return;
             }
-            String format = ChatUtils.formatGlobal(player, e.getMessage());
+            String format = Utils.Chat.formatGlobal(player, e.getMessage());
             for (FirecraftPlayer op : plugin.getPlayerManager().getPlayers()) {
                 op.sendMessage(format);
             }
@@ -57,8 +55,8 @@ public class ChatManager implements TabExecutor,Listener {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
         
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
-            if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
-            if (CmdUtils.checkCmdAliases(args, 0, "staff", "st", "s")) {
+            if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
+            if (Utils.Command.checkCmdAliases(args, 0, "staff", "st", "s")) {
                 if (!Rank.isStaff(player.getMainRank())) {
                     player.sendMessage(prefix + "&cOnly staff members may use the staff chat channel.");
                     return true;
@@ -70,7 +68,7 @@ public class ChatManager implements TabExecutor,Listener {
                 }
                 player.setChannel(Channel.STAFF);
                 player.sendMessage(prefix + "&aYou are now speaking in " + Channel.STAFF.getColor() + "&lStaff");
-            } else if (CmdUtils.checkCmdAliases(args, 0, "global", "gl", "g")) {
+            } else if (Utils.Command.checkCmdAliases(args, 0, "global", "gl", "g")) {
                 if (player.getChannel().equals(Channel.GLOBAL)) {
                     player.sendMessage(prefix + "&cYou are already speaking in that channel.");
                     return true;

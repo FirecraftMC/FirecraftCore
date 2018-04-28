@@ -4,7 +4,6 @@ import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.core.classes.TPRequest;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Utils;
-import net.firecraftmc.shared.classes.utils.CmdUtils;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.staffchat.*;
 import org.bukkit.Bukkit;
@@ -159,7 +158,7 @@ public class TeleportationManager implements TabExecutor, Listener {
                 player.sendMessage("§cYou currently do not have a last location.");
             }
         } else if (cmd.getName().equalsIgnoreCase("tphere")) {
-            if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
+            if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
             
             if (!(player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN))) {
                 player.sendMessage("&cOnly Trial Admins or above can teleport players to themselves.");
@@ -215,7 +214,7 @@ public class TeleportationManager implements TabExecutor, Listener {
                 player.sendMessage("&cOnly Head Admins or Firecraft Team members can use tpall.");
             }
         } else if (cmd.getName().equalsIgnoreCase("tpa")) {
-            if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
+            if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
             FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
             if (target == null) {
                 player.sendMessage("&cCould not find a player by that name.");

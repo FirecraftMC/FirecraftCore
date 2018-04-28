@@ -2,8 +2,6 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.*;
-import net.firecraftmc.shared.classes.utils.CmdUtils;
-import net.firecraftmc.shared.classes.utils.MojangUtils;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.exceptions.NicknameException;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatResetNick;
@@ -32,7 +30,7 @@ public class NickManager implements TabExecutor {
             
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
-            if (!CmdUtils.checkArgCountExact(sender, args, 1)) return true;
+            if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
             
             if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().isEqualToOrHigher(Rank.TRIAL_ADMIN))) {
                 player.sendMessage(prefix + "&cYou are not allowed to use the nickname command.");
@@ -41,7 +39,7 @@ public class NickManager implements TabExecutor {
             this.settingNick.add(player.getUniqueId());
             UUID uuid;
             try {
-                uuid = MojangUtils.getUUIDFromName(args[0]);
+                uuid = Utils.Mojang.getUUIDFromName(args[0]);
             } catch (Exception e) {
                 player.sendMessage(prefix + "&cCould not get the uuid for the nickname &d" + args[0]);
                 this.settingNick.remove(player.getUniqueId());

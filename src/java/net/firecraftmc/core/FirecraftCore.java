@@ -5,7 +5,6 @@ import net.firecraftmc.core.wrapper.NickWrapper1_12_R1;
 import net.firecraftmc.core.wrapper.NickWrapper1_8_R3;
 import net.firecraftmc.shared.MySQL;
 import net.firecraftmc.shared.classes.*;
-import net.firecraftmc.shared.classes.utils.ReflectionUtils;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import org.bukkit.*;
 import org.bukkit.event.Listener;
@@ -44,7 +43,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 getConfig().getString("mysql.password"), getConfig().getInt("mysql.port"), getConfig().getString("mysql.hostname"));
         database.openConnection();
         
-        String versionString = ReflectionUtils.getVersion();
+        String versionString = Utils.Reflection.getVersion();
         if (versionString.equalsIgnoreCase("v1_8_R3")) {
             this.nickWrapper = new NickWrapper1_8_R3();
             this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_8(this), this);

@@ -1,9 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.ActionBar;
-import net.firecraftmc.shared.classes.FirecraftPlayer;
-import net.firecraftmc.shared.classes.utils.CmdUtils;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.staffchat.FPSCVanishToggle;
 import org.bukkit.Bukkit;
@@ -74,7 +72,7 @@ public class VanishManager implements TabExecutor, Listener {
                 FPSCVanishToggle toggleVanish = new FPSCVanishToggle(plugin.getFirecraftServer(), player.getUniqueId());
                 plugin.getSocket().sendPacket(toggleVanish);
             } else {
-                if (!CmdUtils.checkCmdAliases(args, 0, "settings", "s")) {
+                if (!Utils.Command.checkCmdAliases(args, 0, "settings", "s")) {
                     player.sendMessage(prefix + "&cUnknown subcommand " + args[0]);
                     return true;
                 }
@@ -163,7 +161,7 @@ public class VanishManager implements TabExecutor, Listener {
     
     public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
         if (args.length > 1) {
-            if (CmdUtils.checkCmdAliases(args, 0, "settings", "s")) {
+            if (Utils.Command.checkCmdAliases(args, 0, "settings", "s")) {
                 List<String> c = new ArrayList<>();
                 for (int i = 1; i < args.length; i++) {
                     for (String it : interactTypes) {

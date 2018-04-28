@@ -3,7 +3,6 @@ package net.firecraftmc.core.managers;
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Utils;
-import net.firecraftmc.shared.classes.utils.CmdUtils;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemode;
 import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemodeOthers;
@@ -43,18 +42,18 @@ public class GamemodeManager implements TabExecutor, Listener {
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (cmd.getName().equalsIgnoreCase("gamemode")) {
             if (sender instanceof Player) {
-                if (!CmdUtils.checkArgCountGreater(sender, args, 0)) return true;
+                if (!Utils.Command.checkArgCountGreater(sender, args, 0)) return true;
                 
                 FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
                 if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
                 GameMode mode = null;
-                if (CmdUtils.checkCmdAliases(args, 0, "creative", "c", "1")) {
+                if (Utils.Command.checkCmdAliases(args, 0, "creative", "c", "1")) {
                     mode = GameMode.CREATIVE;
-                } else if (CmdUtils.checkCmdAliases(args, 0, "survival", "s", "0")) {
+                } else if (Utils.Command.checkCmdAliases(args, 0, "survival", "s", "0")) {
                     mode = GameMode.SURVIVAL;
-                } else if (CmdUtils.checkCmdAliases(args, 0, "adventure", "a", "2")) {
+                } else if (Utils.Command.checkCmdAliases(args, 0, "adventure", "a", "2")) {
                     mode = GameMode.ADVENTURE;
-                } else if (CmdUtils.checkCmdAliases(args, 0, "spectator", "sp", "spec", "3")) {
+                } else if (Utils.Command.checkCmdAliases(args, 0, "spectator", "sp", "spec", "3")) {
                     mode = GameMode.SPECTATOR;
                 }
                 

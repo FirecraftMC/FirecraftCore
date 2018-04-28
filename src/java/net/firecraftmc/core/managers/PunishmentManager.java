@@ -2,7 +2,6 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.*;
-import net.firecraftmc.shared.classes.utils.MojangUtils;
 import net.firecraftmc.shared.enforcer.Enforcer;
 import net.firecraftmc.shared.enforcer.Type;
 import net.firecraftmc.shared.enforcer.punishments.PermanentBan;
@@ -37,7 +36,7 @@ public class PunishmentManager implements TabExecutor {
             try {
                 uuid = UUID.fromString(args[0]);
             } catch (Exception e) {
-                uuid = MojangUtils.getUUIDFromName(args[0]);
+                uuid = Utils.Mojang.getUUIDFromName(args[0]);
             }
     
             if (uuid == null) {
