@@ -18,7 +18,7 @@ import java.util.List;
 public class ChatManager implements TabExecutor,Listener {
     private final FirecraftCore plugin;
 
-    private static final String prefix = "&6&l[Chat] ";
+    private static final String prefix = "&d&l[Chat] ";
     
     public ChatManager(FirecraftCore plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
