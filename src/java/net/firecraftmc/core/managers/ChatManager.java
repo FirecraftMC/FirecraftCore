@@ -6,6 +6,7 @@ import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.enums.Channel;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatMessage;
+import org.bukkit.Material;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
@@ -38,6 +39,12 @@ public class ChatManager implements TabExecutor,Listener {
                 return;
             }
             String format = Utils.Chat.formatGlobal(player, e.getMessage());
+            if (format.toLowerCase().contains("[item]")) {
+                if (player.getInventory().getItemInMainHand() != null && player.getInventory().getItemInMainHand().getType() != Material.AIR) {
+                    String itemName = player.getInventory().getItemInMainHand().getItemMeta().getDisplayName();
+                    format = format.replace("[item]", itemName);
+                }
+            }
             for (FirecraftPlayer op : plugin.getPlayerManager().getPlayers()) {
                 op.sendMessage(format);
             }
