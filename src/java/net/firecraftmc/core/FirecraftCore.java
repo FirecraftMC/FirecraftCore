@@ -92,6 +92,10 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         this.getCommand("warn").setExecutor(punishmentManager);
         this.getCommand("ipban").setExecutor(punishmentManager);
         
+        ItemManager itemManager = new ItemManager(this);
+        this.getCommand("setname").setExecutor(itemManager);
+        this.getCommand("setlore").setExecutor(itemManager);
+        
         new BukkitRunnable() {
             public void run() {
                 getCommand("vanish").setExecutor(new VanishManager(FirecraftCore.this));

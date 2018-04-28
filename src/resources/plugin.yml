@@ -43,3 +43,5 @@ commands:
     warn:
     setjail:
     ipban:
+    setlore:
+    setname:
