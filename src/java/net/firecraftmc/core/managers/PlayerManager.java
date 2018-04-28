@@ -54,13 +54,14 @@ public class PlayerManager implements IPlayerManager, Listener {
             p.kickPlayer("§cThere was an error getting your data. Please contact a Firecraft Team member or Head Admin.");
             return;
         }
-
-        player.sendMessage("&7&oSuccessfully loaded your data, you are no longer restricted.");
+        
         this.onlinePlayers.put(player.getUniqueId(), player);
-
+        plugin.getDatabase().updateSQL("UPDATE `playerdata` SET `online`='true' WHERE `uniqueid`='" + player.getUniqueId().toString().replace("-", "") + "';");
+    
         player.playerOnlineStuff();
         if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
                 player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS)) {
+            System.out.println("Sending staff chat join packet");
             FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(plugin.getFirecraftServer(), player.getUniqueId());
             plugin.getSocket().sendPacket(staffChatJoin);
         } else {
@@ -100,6 +101,8 @@ public class PlayerManager implements IPlayerManager, Listener {
             //TODO NOT SUPPORTED YET, PLACEHOLDER
             System.out.println("Player is nicked, this is a placeholder when it is implemented.");
         }
+    
+        player.sendMessage("&7&oSuccessfully loaded your data, you are no longer restricted.");
     }
 
     public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
@@ -117,7 +120,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             plugin.getSocket().sendPacket(staffQuit);
         }
 
-        FPacketServerPlayerLeave playerLeave = new FPacketServerPlayerLeave(plugin.getFirecraftServer(), player);
+        FPacketServerPlayerLeave playerLeave = new FPacketServerPlayerLeave(plugin.getFirecraftServer(), player.getUniqueId());
         plugin.getSocket().sendPacket(playerLeave);
         
         plugin.getDatabase().updateSQL("UPDATE `playerdata` SET `online`='false' WHERE `uniqueid`='" + player.getUniqueId().toString().replace("-", "") + "';");
