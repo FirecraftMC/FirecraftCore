@@ -119,6 +119,8 @@ public class PlayerManager implements IPlayerManager, Listener {
 
         FPacketServerPlayerLeave playerLeave = new FPacketServerPlayerLeave(plugin.getFirecraftServer(), player);
         plugin.getSocket().sendPacket(playerLeave);
+        
+        plugin.getDatabase().updateSQL("UPDATE `playerdata` SET `online`='false' WHERE `uniqueid`='" + player.getUniqueId().toString().replace("-", "") + "';");
 
         onlinePlayers.remove(player.getUniqueId());
         cachedPlayers.put(player.getUniqueId(), player);
