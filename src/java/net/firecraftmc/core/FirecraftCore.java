@@ -31,6 +31,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             getConfig().set("host", "172.18.0.2");
             saveConfig();
         }
+    
+        this.playerManager = new PlayerManager(this);
         
         String host = getConfig().getString("host");
         this.socket = new FirecraftSocket(this, host, getConfig().getInt("port"));
@@ -50,8 +52,6 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             this.nickWrapper = new NickWrapper1_12_R1();
             this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_12(this), this);
         }
-        
-        this.playerManager = new PlayerManager(this);
         
         this.getCommand("chat").setExecutor(new ChatManager(this));
         NickManager nickManager = new NickManager(this);
