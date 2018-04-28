@@ -148,7 +148,11 @@ public class PlayerManager implements IPlayerManager, Listener {
     public Collection<FirecraftPlayer> getPlayers() {
         return onlinePlayers.values();
     }
-
+    
+    public void addPlayer(FirecraftPlayer player) {
+        this.onlinePlayers.put(player.getUniqueId(), player);
+    }
+    
     public void removePlayer(UUID uuid) {
         this.onlinePlayers.remove(uuid);
     }
