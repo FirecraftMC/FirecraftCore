@@ -204,6 +204,21 @@ public class PunishmentManager implements TabExecutor, Listener {
                     player.sendMessage(prefix + "&cOnly Helpers+ can kick a player.");
                     return true;
                 }
+                
+                Type type = Type.KICK;
+                String reason = getReason(1, args);
+                Kick k = new Kick(type, server.getName(), punisher, target, reason, date);
+                
+                Kick kick = (Kick) Enforcer.addToDatabase(plugin.getDatabase(), k);
+                if (Bukkit.getPlayer(t.getUniqueId()) != null)
+                    t.kickPlayer("&a&lKICKED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n".replace("{punisher}", player.getName()).replace("{reason}", reason));
+                if (kick != null) {
+                    FPacketPunish punish = new FPacketPunish(server, kick.getId());
+                    plugin.getSocket().sendPacket(punish);
+                } else {
+                    player.sendMessage(prefix + "&cThere was an issue creating the punishment.");
+                    return true;
+                }
             } else if (cmd.getName().equalsIgnoreCase("warn")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
                     player.sendMessage(prefix + "&cOnly Helpers+ can warn a player.");
