@@ -4,8 +4,7 @@ import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.enforcer.Enforcer;
 import net.firecraftmc.shared.enforcer.Type;
-import net.firecraftmc.shared.enforcer.punishments.PermanentBan;
-import net.firecraftmc.shared.enforcer.punishments.Punishment;
+import net.firecraftmc.shared.enforcer.punishments.*;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.FPacketPunish;
 import org.bukkit.Bukkit;
@@ -17,6 +16,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,8 +37,10 @@ public class PunishmentManager implements TabExecutor, Listener {
         try {
             while (set.next()) {
                 if (set.getBoolean("active")) {
+                    long expire = set.getLong("expire");
+                    String expireDiff = Utils.Time.formatTime(expire - System.currentTimeMillis());
                     FirecraftPlayer punisher = Utils.getPlayerFromDatabase(plugin.getDatabase(), plugin, Utils.convertToUUID(set.getString("punisher")));
-                    e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,  Utils.color("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &cPermanent".replace("{punisher}", punisher.getName()).replace("{reason}", set.getString("reason"))));
+                    e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &c{expire}".replace("{punisher}", punisher.getName()).replace("{reason}", set.getString("reason")).replace("{expire}", (expire == 0) ? "Permanent" : expireDiff)));
                 }
             }
         } catch (SQLException e1) {
@@ -88,15 +90,6 @@ public class PunishmentManager implements TabExecutor, Listener {
                 return true;
             }
             
-            StringBuilder reasonBuilder = new StringBuilder();
-            for (int i = 1; i < args.length; i++) {
-                reasonBuilder.append(args[i]);
-                if (!(i == args.length - 1)) {
-                    reasonBuilder.append(" ");
-                }
-            }
-            
-            String reason = reasonBuilder.toString();
             long date = System.currentTimeMillis();
             String punisher = player.getUniqueId().toString().replace("-", "");
             String target = t.getUniqueId().toString().replace("-", "");
@@ -108,6 +101,9 @@ public class PunishmentManager implements TabExecutor, Listener {
                 }
                 
                 Type type = Type.BAN;
+                
+                String reason = getReason(1, args);
+                
                 PermanentBan permBan = new PermanentBan(type, server.getName(), punisher, target, reason, date);
                 permBan.setActive(true);
                 Punishment permanentBan = Enforcer.addToDatabase(plugin.getDatabase(), permBan);
@@ -125,6 +121,24 @@ public class PunishmentManager implements TabExecutor, Listener {
                     player.sendMessage(prefix + "&cOnly Mods+ can tempban a player.");
                     return true;
                 }
+                
+                String ti = "PT" + args[1].toUpperCase();
+                long expire = Duration.parse(ti).toMillis();
+                long expireDate = date + expire;
+                String reason = getReason(2, args);
+                Type type = Type.TEMP_BAN;
+                TemporaryBan tempBan = new TemporaryBan(type, server.getName(), punisher, target, reason, date, expireDate);
+                tempBan.setActive(true);
+                TemporaryPunishment temporaryBan = (TemporaryPunishment) Enforcer.addToDatabase(plugin.getDatabase(), tempBan);
+                if (temporaryBan == null) {
+                    player.sendMessage("There was an error creating that punishment.");
+                    return true;
+                }
+                if (Bukkit.getPlayer(t.getUniqueId()) != null) {
+                    t.kickPlayer("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &c{expire}".replace("{punisher}", player.getName()).replace("{reason}", reason).replace("{expire}", temporaryBan.formatExpireTime()));
+                }
+                FPacketPunish punish = new FPacketPunish(server, temporaryBan.getId());
+                plugin.getSocket().sendPacket(punish);
             } else if (cmd.getName().equalsIgnoreCase("ipban")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.HEAD_ADMIN)) {
                     player.sendMessage(prefix + "&cOnly Head Admins+ can IP-ban a player.");
@@ -136,7 +150,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                     return true;
                 }
             } else if (cmd.getName().equalsIgnoreCase("tempmute")) {
-                if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
+                if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
                     player.sendMessage(prefix + "&cOnly Helpers+ can tempmute a player.");
                     return true;
                 }
@@ -171,5 +185,17 @@ public class PunishmentManager implements TabExecutor, Listener {
     
     public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
         return null;
+    }
+    
+    private String getReason(int start, String[] args) {
+        StringBuilder reasonBuilder = new StringBuilder();
+        for (int i = start; i < args.length; i++) {
+            reasonBuilder.append(args[i]);
+            if (!(i == args.length - 1)) {
+                reasonBuilder.append(" ");
+            }
+        }
+        
+        return reasonBuilder.toString();
     }
 }
