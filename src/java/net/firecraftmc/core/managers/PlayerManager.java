@@ -52,6 +52,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                         Punishment punishment = toKickForBan.get(uuid);
                         String punisher = punishment.getPunisherName();
                         String reason = punishment.getReason();
+                        //TODO Temp stuff
                         p.kickPlayer(Utils.color("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &cPermanent".replace("{punisher}", punisher).replace("{reason}", reason)));
                         iterator.remove();
                     }
