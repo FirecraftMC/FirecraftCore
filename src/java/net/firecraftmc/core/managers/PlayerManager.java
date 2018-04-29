@@ -68,7 +68,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         p.sendMessage("§7§oWelcome to FirecraftMC, we have to get a few things before you can do anything.");
         FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(plugin.getFirecraftServer(), p.getUniqueId());
         plugin.getSocket().sendPacket(serverPlayerJoin);
-        FirecraftPlayer player = Utils.getPlayerFromDatabase(plugin.getDatabase(), plugin, p.getUniqueId());
+        FirecraftPlayer player = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), plugin, p.getUniqueId());
 
         if (player == null) {
             p.kickPlayer("§cThere was an error getting your data. Please contact a Firecraft Team member or Head Admin.");

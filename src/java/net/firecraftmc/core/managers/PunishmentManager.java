@@ -39,7 +39,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                 if (set.getBoolean("active")) {
                     long expire = set.getLong("expire");
                     String expireDiff = Utils.Time.formatTime(expire - System.currentTimeMillis());
-                    FirecraftPlayer punisher = Utils.getPlayerFromDatabase(plugin.getDatabase(), plugin, Utils.convertToUUID(set.getString("punisher")));
+                    FirecraftPlayer punisher = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), plugin, Utils.convertToUUID(set.getString("punisher")));
                     e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &c{expire}".replace("{punisher}", punisher.getName()).replace("{reason}", set.getString("reason")).replace("{expire}", (expire == 0) ? "Permanent" : expireDiff)));
                 }
             }
@@ -71,7 +71,7 @@ public class PunishmentManager implements TabExecutor, Listener {
             
             FirecraftPlayer t = plugin.getPlayerManager().getPlayer(uuid);
             if (t == null) {
-                t = Utils.getPlayerFromDatabase(plugin.getDatabase(), plugin, uuid);
+                t = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), plugin, uuid);
                 if (t == null) {
                     player.sendMessage(prefix + "&cCould not find a profile by that name, currently only players that have joined can be punished.");
                     return true;

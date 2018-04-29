@@ -51,7 +51,7 @@ public class NickManager implements TabExecutor {
                 return true;
             }
             
-            FirecraftPlayer nick = Utils.getPlayerFromDatabase(plugin.getDatabase(), plugin, uuid);
+            FirecraftPlayer nick = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), plugin, uuid);
             
             if (nick == null) {
                 player.sendMessage(prefix + "&cThere was an unforeseen error in getting that nickname.");
