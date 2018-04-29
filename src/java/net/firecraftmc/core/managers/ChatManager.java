@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
+import java.sql.ResultSet;
 import java.util.List;
 
 public class ChatManager implements TabExecutor,Listener {
@@ -31,6 +32,16 @@ public class ChatManager implements TabExecutor,Listener {
         if (player == null) {
             e.getPlayer().sendMessage(prefix + "§cYour player data has not been received yet, you are not allowed to speak.");
             return;
+        }
+    
+        ResultSet set = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE (`type`='MUTE' OR `type`='TEMP_MUTE') AND `active`='true';");
+        try {
+            if (set.next()) {
+                player.sendMessage("&cYou are currently muted.");
+                return;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         
         if (player.getChannel().equals(Channel.GLOBAL)) {

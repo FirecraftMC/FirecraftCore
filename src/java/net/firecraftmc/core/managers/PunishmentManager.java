@@ -131,7 +131,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                 tempBan.setActive(true);
                 TemporaryPunishment temporaryBan = (TemporaryPunishment) Enforcer.addToDatabase(plugin.getDatabase(), tempBan);
                 if (temporaryBan == null) {
-                    player.sendMessage("There was an error creating that punishment.");
+                    player.sendMessage(prefix + "&cThere was an error creating that punishment.");
                     return true;
                 }
                 if (Bukkit.getPlayer(t.getUniqueId()) != null) {
@@ -149,11 +149,46 @@ public class PunishmentManager implements TabExecutor, Listener {
                     player.sendMessage(prefix + "&cOnly Mods+ can permanently mute a player.");
                     return true;
                 }
+    
+                Type type = Type.MUTE;
+    
+                String reason = getReason(1, args);
+    
+                PermanentMute permMute = new PermanentMute(type, server.getName(), punisher, target, reason, date);
+                permMute.setActive(true);
+                Punishment permanentMute = Enforcer.addToDatabase(plugin.getDatabase(), permMute);
+                if (permanentMute != null) {
+                    FPacketPunish punish = new FPacketPunish(server, permanentMute.getId());
+                    plugin.getSocket().sendPacket(punish);
+                } else {
+                    player.sendMessage(prefix + "&cThere was an issue creating the punishment.");
+                    return true;
+                }
+                if (Bukkit.getPlayer(t.getUniqueId()) != null)
+                    t.sendMessage("&cYou have been permanently muted by " + player.getName());
             } else if (cmd.getName().equalsIgnoreCase("tempmute")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
                     player.sendMessage(prefix + "&cOnly Helpers+ can tempmute a player.");
                     return true;
                 }
+    
+                String ti = "PT" + args[1].toUpperCase();
+                long expire = Duration.parse(ti).toMillis();
+                long expireDate = date + expire;
+                String reason = getReason(2, args);
+                Type type = Type.TEMP_MUTE;
+                TemporaryBan tempBan = new TemporaryBan(type, server.getName(), punisher, target, reason, date, expireDate);
+                tempBan.setActive(true);
+                TemporaryPunishment temporaryMute = (TemporaryPunishment) Enforcer.addToDatabase(plugin.getDatabase(), tempBan);
+                if (temporaryMute == null) {
+                    player.sendMessage(prefix + "&cThere was an error creating that punishment.");
+                    return true;
+                }
+                if (Bukkit.getPlayer(t.getUniqueId()) != null) {
+                    t.sendMessage("&cYou have been temporarily muted by " + player.getName());
+                }
+                FPacketPunish punish = new FPacketPunish(server, temporaryMute.getId());
+                plugin.getSocket().sendPacket(punish);
             } else if (cmd.getName().equalsIgnoreCase("jail")) {
                 if (!player.getMainRank().equals(Rank.HELPER)) {
                     player.sendMessage(prefix + "&cOnly Helpers can jail a player. If you are a Mod+, use the actual punishment.");
