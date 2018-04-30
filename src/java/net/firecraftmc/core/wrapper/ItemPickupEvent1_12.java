@@ -1,4 +1,4 @@
-package net.firecraftmc.core.managers;
+package net.firecraftmc.core.wrapper;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
