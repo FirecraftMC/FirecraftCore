@@ -11,16 +11,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class FirecraftCore extends FirecraftPlugin implements Listener {
-    
     private PlayerManager playerManager;
-    
     private NickWrapper nickWrapper;
-    
     private FirecraftSocket socket;
     private FirecraftServer server;
-    
     private Location serverSpawn;
-    
     private MySQL database;
     
     public void onEnable() {
@@ -78,7 +73,6 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         this.getCommand("spawn").setExecutor(tpManager);
         
         this.getCommand("dev").setExecutor(new DevManager(this));
-        
         this.getCommand("signedit").setExecutor(new SignEditManager(this));
         
         PunishmentManager punishmentManager = new PunishmentManager(this);
