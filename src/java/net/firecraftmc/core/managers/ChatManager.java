@@ -33,6 +33,18 @@ public class ChatManager implements TabExecutor,Listener {
             e.getPlayer().sendMessage(prefix + "§cYour player data has not been received yet, you are not allowed to speak.");
             return;
         }
+        
+        if (!plugin.isWarnAcknowledged(player.getUniqueId())) {
+            System.out.println("Player has unacknowledged warning");
+            if (e.getMessage().equals(plugin.getAckCode(player.getUniqueId()))) {
+                player.sendMessage("&aYou have acknowledged your warning, you may speak and use commands now.");
+                plugin.acknowledgeWarn(player.getUniqueId(), player.getName());
+                return;
+            } else {
+                player.sendMessage("&cYou cannot speak or use commands when you have an unacknowledged warning.");
+                return;
+            }
+        }
     
         //TODO Make both of these checks in one query eventually
         ResultSet muteSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE (`type`='MUTE' OR `type`='TEMP_MUTE') AND `active`='true';");

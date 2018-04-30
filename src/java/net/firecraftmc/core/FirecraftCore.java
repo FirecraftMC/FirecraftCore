@@ -1,10 +1,10 @@
 package net.firecraftmc.core;
 
 import net.firecraftmc.core.managers.*;
-import net.firecraftmc.core.wrapper.NickWrapper1_12_R1;
-import net.firecraftmc.core.wrapper.NickWrapper1_8_R3;
+import net.firecraftmc.core.wrapper.*;
 import net.firecraftmc.shared.MySQL;
 import net.firecraftmc.shared.classes.*;
+import net.firecraftmc.shared.packets.FPacketAcknowledgeWarning;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import org.bukkit.*;
 import org.bukkit.event.EventHandler;
@@ -13,6 +13,8 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class FirecraftCore extends FirecraftPlugin implements Listener {
     private PlayerManager playerManager;
@@ -22,6 +24,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     private Location serverSpawn;
     private Location jailLocation;
     private MySQL database;
+    private final HashMap<UUID, String> ackCodes = new HashMap<>();
     
     public void onEnable() {
         instance = this;
@@ -142,12 +145,14 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         getConfig().set("spawn.yaw", serverSpawn.getYaw());
         getConfig().set("spawn.pitch", serverSpawn.getPitch());
     
-        getConfig().set("jail.world", jailLocation.getWorld().getName());
-        getConfig().set("jail.x", jailLocation.getBlockX());
-        getConfig().set("jail.y", jailLocation.getBlockX());
-        getConfig().set("jail.z", jailLocation.getBlockX());
-        getConfig().set("jail.yaw", jailLocation.getYaw());
-        getConfig().set("jail.pitch", jailLocation.getPitch());
+        if (jailLocation != null) {
+            getConfig().set("jail.world", jailLocation.getWorld().getName());
+            getConfig().set("jail.x", jailLocation.getBlockX());
+            getConfig().set("jail.y", jailLocation.getBlockX());
+            getConfig().set("jail.z", jailLocation.getBlockX());
+            getConfig().set("jail.yaw", jailLocation.getYaw());
+            getConfig().set("jail.pitch", jailLocation.getPitch());
+        }
         saveConfig();
     }
     
@@ -158,6 +163,16 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         try {
             if (jailSet.next()) {
                 player.sendMessage("&cYou cannot use commands while you are in jail.");
+                e.setCancelled(true);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    
+        ResultSet warnSet = database.querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `acknowledged`='false' AND `type`='WARN';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
+        try {
+            if (warnSet.next()) {
+                player.sendMessage("&cYou cannot use commands while you have an unacknowledged warning.");
                 e.setCancelled(true);
             }
         } catch (Exception ex) {
@@ -199,5 +214,23 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     
     public MySQL getDatabase() {
         return database;
+    }
+    
+    public boolean isWarnAcknowledged(UUID uuid) {
+        return !this.ackCodes.containsKey(uuid);
+    }
+    
+    public String getAckCode(UUID uuid) {
+        return this.ackCodes.get(uuid);
+    }
+    
+    public void acknowledgeWarn(UUID uuid, String name) {
+        this.ackCodes.remove(uuid);
+        this.database.updateSQL("UPDATE `punishments` SET `acknowledged`='true' WHERE `target`='{uuid}' AND `type`='WARN';".replace("{uuid}", uuid.toString().replace("-", "")));
+        this.socket.sendPacket(new FPacketAcknowledgeWarning(server, name));
+    }
+    
+    public void addAckCode(UUID uuid, String code) {
+        this.ackCodes.put(uuid, code);
     }
 }

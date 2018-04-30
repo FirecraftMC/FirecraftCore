@@ -26,6 +26,7 @@ public class PunishmentManager implements TabExecutor, Listener {
     private static final String prefix = "&d&l[ENFORCER] ";
     private final UUID firestar311 = UUID.fromString("3f7891ce-5a73-4d52-a2ba-299839053fdc");
     
+    
     public PunishmentManager(FirecraftCore plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -256,11 +257,28 @@ public class PunishmentManager implements TabExecutor, Listener {
                     player.sendMessage(prefix + "&cOnly Helpers+ can warn a player.");
                     return true;
                 }
+    
+                String reason = getReason(1, args);
+                Warn w = new Warn(server.getName(), punisher, target, reason, date);
+                w.setActive(true);
+                Warn warn = (Warn) Enforcer.addToDatabase(plugin.getDatabase(), w);
+                if (warn != null) {
+                    FPacketPunish punish = new FPacketPunish(server, warn.getId());
+                    plugin.getSocket().sendPacket(punish);
+                } else {
+                    player.sendMessage(prefix + "&cThere was an issue creating the punishment.");
+                    return true;
+                }
+                if (Bukkit.getPlayer(t.getUniqueId()) != null) {
+                    String code = Utils.generateAckCode(Utils.codeCharacters);
+                    plugin.addAckCode(t.getUniqueId(), code);
+                    t.sendMessage("&cYou have been warned by " + player.getName() + " for " + warn.getReason());
+                    t.sendMessage("&cYou must acknowledge this by typing in the code: " + code);
+                }
             }
         } else {
             sender.sendMessage(prefix + "§cNot implemented yet.");
         }
-        
         
         return true;
     }

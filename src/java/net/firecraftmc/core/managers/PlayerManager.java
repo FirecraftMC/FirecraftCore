@@ -135,6 +135,18 @@ public class PlayerManager implements IPlayerManager, Listener {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    
+        ResultSet warnSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `acknowledged`='false' AND `type`='WARN';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
+        try {
+            if (warnSet.next()) {
+                String code = Utils.generateAckCode(Utils.codeCharacters);
+                this.plugin.addAckCode(player.getUniqueId(), code);
+                player.sendMessage("&cYou have an unacknowledged warning. You must acknowledge this before you can speak or use commands.");
+                player.sendMessage("&cYour code is &b" + code);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         
         player.sendMessage("&7&oSuccessfully loaded your data, you are no longer restricted.");
     }
