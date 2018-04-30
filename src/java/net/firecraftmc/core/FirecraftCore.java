@@ -7,8 +7,12 @@ import net.firecraftmc.shared.MySQL;
 import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import org.bukkit.*;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.sql.ResultSet;
 
 public class FirecraftCore extends FirecraftPlugin implements Listener {
     private PlayerManager playerManager;
@@ -16,6 +20,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     private FirecraftSocket socket;
     private FirecraftServer server;
     private Location serverSpawn;
+    private Location jailLocation;
     private MySQL database;
     
     public void onEnable() {
@@ -108,6 +113,16 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 if (serverSpawn.getWorld() == null) {
                     serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
                 }
+                
+                if (getConfig().contains("jail")) {
+                    World world = Bukkit.getWorld(getConfig().getString("jail.world"));
+                    double x = getConfig().getInt("jail.x");
+                    double y = getConfig().getInt("jail.y");
+                    double z = getConfig().getInt("jail.z");
+                    float yaw = (float) getConfig().getDouble("jail.yaw");
+                    float pitch = (float) getConfig().getDouble("jail.pitch");
+                    jailLocation = new Location(world, x, y, z, yaw, pitch);
+                }
             }
         }.runTaskLater(this, 10L);
     }
@@ -126,7 +141,28 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         getConfig().set("spawn.z", serverSpawn.getBlockX());
         getConfig().set("spawn.yaw", serverSpawn.getYaw());
         getConfig().set("spawn.pitch", serverSpawn.getPitch());
+    
+        getConfig().set("jail.world", jailLocation.getWorld().getName());
+        getConfig().set("jail.x", jailLocation.getBlockX());
+        getConfig().set("jail.y", jailLocation.getBlockX());
+        getConfig().set("jail.z", jailLocation.getBlockX());
+        getConfig().set("jail.yaw", jailLocation.getYaw());
+        getConfig().set("jail.pitch", jailLocation.getPitch());
         saveConfig();
+    }
+    
+    @EventHandler
+    public void onCommandPreProcess(PlayerCommandPreprocessEvent e) {
+        FirecraftPlayer player = Utils.getPlayerFromDatabase(server, database, this, e.getPlayer().getUniqueId());
+        ResultSet jailSet = database.querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
+        try {
+            if (jailSet.next()) {
+                player.sendMessage("&cYou cannot use commands while you are in jail.");
+                e.setCancelled(true);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
     
     public NickWrapper getNickWrapper() {
@@ -151,6 +187,14 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     
     public void setServerSpawn(Location serverSpawn) {
         this.serverSpawn = serverSpawn;
+    }
+    
+    public Location getJailLocation() {
+        return jailLocation;
+    }
+    
+    public void setJailLocation(Location jailLocation) {
+        this.jailLocation = jailLocation;
     }
     
     public MySQL getDatabase() {

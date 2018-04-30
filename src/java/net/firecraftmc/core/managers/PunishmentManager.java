@@ -8,6 +8,7 @@ import net.firecraftmc.shared.enforcer.punishments.*;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.FPacketPunish;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,10 +38,13 @@ public class PunishmentManager implements TabExecutor, Listener {
         try {
             while (set.next()) {
                 if (set.getBoolean("active")) {
-                    long expire = set.getLong("expire");
-                    String expireDiff = Utils.Time.formatTime(expire - System.currentTimeMillis());
-                    FirecraftPlayer punisher = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), plugin, Utils.convertToUUID(set.getString("punisher")));
-                    e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &c{expire}".replace("{punisher}", punisher.getName()).replace("{reason}", set.getString("reason")).replace("{expire}", (expire == 0) ? "Permanent" : expireDiff)));
+                    Type type = Type.valueOf(set.getString("type"));
+                    if (type.equals(Type.BAN) || type.equals(Type.TEMP_BAN)) {
+                        long expire = set.getLong("expire");
+                        String expireDiff = Utils.Time.formatTime(expire - System.currentTimeMillis());
+                        FirecraftPlayer punisher = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), plugin, Utils.convertToUUID(set.getString("punisher")));
+                        e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &c{expire}".replace("{punisher}", punisher.getName()).replace("{reason}", set.getString("reason")).replace("{expire}", (expire == 0) ? "Permanent" : expireDiff)));
+                    }
                 }
             }
         } catch (SQLException e1) {
@@ -51,6 +55,17 @@ public class PunishmentManager implements TabExecutor, Listener {
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (sender instanceof Player) {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
+            if (cmd.getName().equalsIgnoreCase("setjail")) {
+                if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                    player.sendMessage(prefix + "&cOnly Admins+ can set the jail location.");
+                    return true;
+                }
+    
+                plugin.setJailLocation(player.getLocation());
+                player.sendMessage(prefix + "&aYou have set the jail location to your current location.");
+                return true;
+            }
+            
             //TODO The direct commands will only be available to Admin+ when the automation part is implemented.
             if (!(args.length > 0)) {
                 player.sendMessage(prefix + "&cYou must provide a name or uuid to punish.");
@@ -194,10 +209,27 @@ public class PunishmentManager implements TabExecutor, Listener {
                     player.sendMessage(prefix + "&cOnly Helpers can jail a player. If you are a Mod+, use the actual punishment.");
                     return true;
                 }
-            } else if (cmd.getName().equalsIgnoreCase("setjail")) {
-                if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                    player.sendMessage(prefix + "&cOnly Admins+ can set the jail location.");
+    
+                Location jailLocation = plugin.getJailLocation();
+                if (jailLocation == null) {
+                    player.sendMessage(prefix + "&cThe jail location is currently not set, please contact an Admin+");
                     return true;
+                }
+    
+                String reason = getReason(1, args);
+                Jail j = new Jail(server.getName(), punisher, target, reason, date);
+                j.setActive(true);
+                Punishment jail = Enforcer.addToDatabase(plugin.getDatabase(), j);
+                if (jail != null) {
+                    FPacketPunish punish = new FPacketPunish(server, jail.getId());
+                    plugin.getSocket().sendPacket(punish);
+                } else {
+                    player.sendMessage(prefix + "&cThere was an issue creating the punishment.");
+                    return true;
+                }
+                if (Bukkit.getPlayer(t.getUniqueId()) != null) {
+                    t.sendMessage("&cYou have been jailed by " + player.getName());
+                    t.teleport(jailLocation);
                 }
             } else if (cmd.getName().equalsIgnoreCase("kick")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {

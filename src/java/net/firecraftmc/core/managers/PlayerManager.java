@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.sql.ResultSet;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -124,6 +125,15 @@ public class PlayerManager implements IPlayerManager, Listener {
         if (player.isNicked()) {
             //TODO NOT SUPPORTED YET, PLACEHOLDER
             System.out.println("Player is nicked, this is a placeholder when it is implemented.");
+        }
+    
+        ResultSet jailSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
+        try {
+            if (jailSet.next()) {
+                player.teleport(plugin.getJailLocation());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         
         player.sendMessage("&7&oSuccessfully loaded your data, you are no longer restricted.");

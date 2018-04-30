@@ -34,10 +34,21 @@ public class ChatManager implements TabExecutor,Listener {
             return;
         }
     
-        ResultSet set = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE (`type`='MUTE' OR `type`='TEMP_MUTE') AND `active`='true';");
+        //TODO Make both of these checks in one query eventually
+        ResultSet muteSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE (`type`='MUTE' OR `type`='TEMP_MUTE') AND `active`='true';");
         try {
-            if (set.next()) {
+            if (muteSet.next()) {
                 player.sendMessage("&cYou are currently muted.");
+                return;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    
+        ResultSet jailSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
+        try {
+            if (jailSet.next()) {
+                player.sendMessage("&cYou cannot speak because you are currently jailed.");
                 return;
             }
         } catch (Exception ex) {
