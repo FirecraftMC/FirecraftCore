@@ -45,3 +45,6 @@ commands:
     ipban:
     setlore:
     setname:
+    unban:
+    unmute:
+    unjail:

@@ -56,47 +56,13 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         }
         
         this.getCommand("chat").setExecutor(new ChatManager(this));
-        NickManager nickManager = new NickManager(this);
-        this.getCommand("nick").setExecutor(nickManager);
-        this.getCommand("nickcancel").setExecutor(nickManager);
-        this.getCommand("nickconfirm").setExecutor(nickManager);
-        this.getCommand("nickreset").setExecutor(nickManager);
-        
-        GamemodeManager gmManager = new GamemodeManager(this);
-        this.getCommand("gamemode").setExecutor(gmManager);
-        this.getCommand("gmc").setExecutor(gmManager);
-        this.getCommand("gms").setExecutor(gmManager);
-        this.getCommand("gma").setExecutor(gmManager);
-        this.getCommand("gmsp").setExecutor(gmManager);
-        
-        TeleportationManager tpManager = new TeleportationManager(this);
-        this.getCommand("teleport").setExecutor(tpManager);
-        this.getCommand("tphere").setExecutor(tpManager);
-        this.getCommand("back").setExecutor(tpManager);
-        this.getCommand("tpall").setExecutor(tpManager);
-        this.getCommand("tpaccept").setExecutor(tpManager);
-        this.getCommand("tpdeny").setExecutor(tpManager);
-        this.getCommand("tpa").setExecutor(tpManager);
-        this.getCommand("setspawn").setExecutor(tpManager);
-        this.getCommand("spawn").setExecutor(tpManager);
-        
+        Utils.Command.registerCommands(this, new NickManager(this), "nick", "nickcancel", "nickconfirm", "unnick");
+        Utils.Command.registerCommands(this, new GamemodeManager(this), "gamemode", "gmc", "gms", "gma", "gmsp");
+        Utils.Command.registerCommands(this, new TeleportationManager(this), "teleport", "tphere", "back", "tpall", "tpaccept", "tpdeny", "tpa", "setspawn", "spawn");
         this.getCommand("dev").setExecutor(new DevManager(this));
         this.getCommand("signedit").setExecutor(new SignEditManager(this));
-        
-        PunishmentManager punishmentManager = new PunishmentManager(this);
-        this.getCommand("ban").setExecutor(punishmentManager);
-        this.getCommand("tempban").setExecutor(punishmentManager);
-        this.getCommand("mute").setExecutor(punishmentManager);
-        this.getCommand("tempmute").setExecutor(punishmentManager);
-        this.getCommand("jail").setExecutor(punishmentManager);
-        this.getCommand("setjail").setExecutor(punishmentManager);
-        this.getCommand("kick").setExecutor(punishmentManager);
-        this.getCommand("warn").setExecutor(punishmentManager);
-        this.getCommand("ipban").setExecutor(punishmentManager);
-        
-        ItemManager itemManager = new ItemManager(this);
-        this.getCommand("setname").setExecutor(itemManager);
-        this.getCommand("setlore").setExecutor(itemManager);
+        Utils.Command.registerCommands(this, new PunishmentManager(this), "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail");
+        Utils.Command.registerCommands(this, new ItemManager(this), "setname", "setlore");
         
         new BukkitRunnable() {
             public void run() {
