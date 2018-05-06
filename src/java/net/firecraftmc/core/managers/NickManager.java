@@ -24,7 +24,7 @@ public class NickManager implements TabExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (cmd.getName().equalsIgnoreCase("nick")) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage("§cOnly players may use that command.");
+                sender.sendMessage(Messages.onlyPlayers);
                 return true;
             }
             
@@ -32,8 +32,8 @@ public class NickManager implements TabExecutor {
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
             if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
             
-            if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().isEqualToOrHigher(Rank.TRIAL_ADMIN))) {
-                player.sendMessage(prefix + "&cYou are not allowed to use the nickname command.");
+            if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS) || player.getMainRank().isEqualToOrHigher(Rank.TRIAL_ADMIN))) {
+                player.sendMessage(prefix + Messages.noPermission);
                 return true;
             }
             this.settingNick.add(player.getUniqueId());
@@ -41,37 +41,37 @@ public class NickManager implements TabExecutor {
             try {
                 uuid = Utils.Mojang.getUUIDFromName(args[0]);
             } catch (Exception e) {
-                player.sendMessage(prefix + "&cCould not get the uuid for the nickname &d" + args[0]);
+                player.sendMessage(prefix + Messages.uuidErrorNickname);
                 this.settingNick.remove(player.getUniqueId());
                 return true;
             }
             
             if (uuid == null) {
-                player.sendMessage(prefix + "&cThat name cannot be linked to a valid uuid.");
+                player.sendMessage(prefix + Messages.uuidErrorNickname);
                 return true;
             }
             
             FirecraftPlayer nick = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), plugin, uuid);
             
             if (nick == null) {
-                player.sendMessage(prefix + "&cThere was an unforeseen error in getting that nickname.");
+                player.sendMessage(prefix + Messages.getProfileError);
                 return true;
             }
             
             if (nick.isOnline()) {
-                player.sendMessage(prefix + "&cThe nickname that you provided cannot be used because it is currently online.");
+                player.sendMessage(prefix + Messages.nickNameOnline);
                 settingNick.remove(player.getUniqueId());
                 return true;
             }
             
             if (nick.getMainRank().isHigher(player.getMainRank()) || nick.getMainRank().equals(player.getMainRank())) {
-                player.sendMessage(prefix + "&cYou cannot use that nickname because the nickname's rank is equal to or higher than yours.");
+                player.sendMessage(prefix + Messages.nickRankIsHigher);
                 settingNick.remove(player.getUniqueId());
                 return true;
             }
             
-            if (Rank.isStaff(nick.getMainRank())) {
-                player.sendMessage(prefix + "&cThe nickname you provided cannot be used because it is a staff member profile.");
+            if (Rank.isStaff(nick.getMainRank()) && !player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                player.sendMessage(prefix + Messages.nickIsStaff);
                 settingNick.remove(player.getUniqueId());
                 return true;
             }
@@ -88,30 +88,30 @@ public class NickManager implements TabExecutor {
             if (sender instanceof Player) {
                 FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
                 if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().isEqualToOrHigher(Rank.MOD))) {
-                    player.sendMessage(prefix + "&cYou do not have permission to use the random nick command.");
+                    player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }
                 
                 player.sendMessage(prefix + "&cDue to the need for a rewrite of how players are stored, this command is disabled temporarily.");
                 return true;
             } else {
-                sender.sendMessage(prefix + "§cOnly Players may use that command.");
+                sender.sendMessage(prefix + Messages.onlyPlayers);
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("nickcancel")) {
             if (sender instanceof Player) {
                 FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
                 if (this.confirmNick.containsKey(player.getUniqueId()) || this.settingNick.contains(player.getUniqueId())) {
-                    player.sendMessage(prefix + "&cYou have cancelled the nickname process.");
+                    player.sendMessage(prefix + Messages.nickNameCancelled);
                     this.confirmNick.remove(player.getUniqueId());
                     this.settingNick.remove(player.getUniqueId());
                     return true;
                 } else {
-                    player.sendMessage(prefix + "&cYou are not currently setting a nickname.");
+                    player.sendMessage(prefix + Messages.notSettingNick);
                     return true;
                 }
             } else {
-                sender.sendMessage("§cOnly players may use that command.");
+                sender.sendMessage(Messages.onlyPlayers);
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("nickconfirm")) {
@@ -122,47 +122,47 @@ public class NickManager implements TabExecutor {
                     try {
                         player.setNick(plugin, nick);
                     } catch (NicknameException e) {
-                        player.sendMessage(prefix + "&cThere was an error setting the nickname.");
+                        player.sendMessage(prefix + Messages.nickSettingError);
                         this.settingNick.remove(player.getUniqueId());
                         this.confirmNick.remove(player.getUniqueId());
                         return true;
                     }
                     
-                    player.sendMessage(prefix + "&aSet your nickname to &b" + nick.getName());
+                    player.sendMessage(prefix + Messages.setNick(nick.getName()));
                     this.settingNick.remove(player.getUniqueId());
                     this.confirmNick.remove(player.getUniqueId());
-                    player.setActionBar(new ActionBar("&fYou are currently &cNICKED"));
+                    player.setActionBar(new ActionBar(Messages.actionBar_Nicked));
                     FPStaffChatSetNick setNick = new FPStaffChatSetNick(plugin.getFirecraftServer(), player.getUniqueId(), nick.getName());
                     plugin.getSocket().sendPacket(setNick);
                 } else {
-                    player.sendMessage(prefix + "&cYou are not currently setting a nickname.");
+                    player.sendMessage(prefix + Messages.notSettingNick);
                     return true;
                 }
             } else {
-                sender.sendMessage("§cOnly players may use that command.");
+                sender.sendMessage(Messages.onlyPlayers);
                 return true;
             }
             
         } else if (cmd.getName().equalsIgnoreCase("unnick")) {
             if (sender instanceof ConsoleCommandSender) {
-                sender.sendMessage("§cConsole can't set nicknames, so it can't reset nicknames");
+                sender.sendMessage(Messages.onlyPlayers);
                 return true;
             }
             
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
             if (player.getNick() == null) {
-                player.sendMessage(prefix + "&cYou do not have a nick currently set.");
+                player.sendMessage(prefix + Messages.notSettingNick);
                 return true;
             }
             
             try {
                 player.resetNick(plugin);
             } catch (NicknameException e) {
-                player.sendMessage(prefix + "&cThere was an error resetting your nickname.");
+                player.sendMessage(prefix + Messages.resetNickError);
                 return true;
             }
             
-            player.sendMessage(prefix + "&aYou have reset your nickname.");
+            player.sendMessage(prefix + Messages.resetNickname);
             FPStaffChatResetNick resetNick = new FPStaffChatResetNick(plugin.getFirecraftServer(), player.getUniqueId());
             plugin.getSocket().sendPacket(resetNick);
         }

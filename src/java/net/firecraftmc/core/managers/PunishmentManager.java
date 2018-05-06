@@ -40,11 +40,14 @@ public class PunishmentManager implements TabExecutor, Listener {
             while (set.next()) {
                 if (set.getBoolean("active")) {
                     Type type = Type.valueOf(set.getString("type"));
-                    if (type.equals(Type.BAN) || type.equals(Type.TEMP_BAN)) {
+                    FirecraftPlayer punisher = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), plugin, Utils.convertToUUID(set.getString("punisher")));
+                    String reason = set.getString("reason");
+                    if (type.equals(Type.TEMP_BAN)) {
                         long expire = set.getLong("expire");
                         String expireDiff = Utils.Time.formatTime(expire - System.currentTimeMillis());
-                        FirecraftPlayer punisher = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), plugin, Utils.convertToUUID(set.getString("punisher")));
-                        e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &c{expire}".replace("{punisher}", punisher.getName()).replace("{reason}", set.getString("reason")).replace("{expire}", (expire == 0) ? "Permanent" : expireDiff)));
+                        e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color(Messages.banMessage(punisher.getName(), reason, expireDiff)));
+                    } else if (type.equals(Type.BAN)) {
+                        e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color(Messages.banMessage(punisher.getName(), reason, "Permanent")));
                     }
                 }
             }
@@ -58,12 +61,12 @@ public class PunishmentManager implements TabExecutor, Listener {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
             if (cmd.getName().equalsIgnoreCase("setjail")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                    player.sendMessage(prefix + "&cOnly Admins+ can set the jail location.");
+                    player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }
     
                 plugin.setJailLocation(player.getLocation());
-                player.sendMessage(prefix + "&aYou have set the jail location to your current location.");
+                player.sendMessage(prefix + Messages.setJail);
                 return true;
             }
             
@@ -81,7 +84,7 @@ public class PunishmentManager implements TabExecutor, Listener {
             }
             
             if (uuid == null) {
-                player.sendMessage(prefix + "&cThe name/uuid you provided is not valid.");
+                player.sendMessage(prefix + Messages.punishInvalidTarget);
                 return true;
             }
             
@@ -89,20 +92,20 @@ public class PunishmentManager implements TabExecutor, Listener {
             if (t == null) {
                 t = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), plugin, uuid);
                 if (t == null) {
-                    player.sendMessage(prefix + "&cCould not find a profile by that name, currently only players that have joined can be punished.");
+                    player.sendMessage(prefix + Messages.profileNotFound);
                     return true;
                 }
             }
             
             if (t.getMainRank().isEqualToOrHigher(player.getMainRank())) {
                 if (!player.getUniqueId().equals(firestar311)) {
-                    player.sendMessage(prefix + "&cYou cannot punish a player that is equal to or higher than your rank.");
+                    player.sendMessage(prefix + Messages.noPunishRank);
                     return true;
                 }
             }
             
             if (!(args.length > 1)) {
-                player.sendMessage(prefix + "&cYou must provide a reason for the punishment.");
+                player.sendMessage(prefix + Messages.punishNoReason);
                 return true;
             }
             
@@ -112,7 +115,7 @@ public class PunishmentManager implements TabExecutor, Listener {
             FirecraftServer server = plugin.getFirecraftServer();
             if (cmd.getName().equalsIgnoreCase("ban")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                    player.sendMessage(prefix + "&cOnly Admins+ can permanently ban a player.");
+                    player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }
                 
@@ -123,18 +126,18 @@ public class PunishmentManager implements TabExecutor, Listener {
                 PermanentBan permBan = new PermanentBan(type, server.getName(), punisher, target, reason, date);
                 permBan.setActive(true);
                 Punishment permanentBan = Enforcer.addToDatabase(plugin.getDatabase(), permBan);
-                if (Bukkit.getPlayer(t.getUniqueId()) != null)
-                    t.kickPlayer("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &cPermanent".replace("{punisher}", player.getName()).replace("{reason}", reason));
                 if (permanentBan != null) {
+                    if (Bukkit.getPlayer(t.getUniqueId()) != null)
+                        t.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, "Permanent")));
                     FPacketPunish punish = new FPacketPunish(server, permanentBan.getId());
                     plugin.getSocket().sendPacket(punish);
                 } else {
-                    player.sendMessage(prefix + "&cThere was an issue creating the punishment.");
+                    player.sendMessage(prefix + Messages.punishmentCreateIssue);
                     return true;
                 }
             } else if (cmd.getName().equalsIgnoreCase("tempban")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
-                    player.sendMessage(prefix + "&cOnly Mods+ can tempban a player.");
+                    player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }
                 
@@ -147,22 +150,22 @@ public class PunishmentManager implements TabExecutor, Listener {
                 tempBan.setActive(true);
                 TemporaryPunishment temporaryBan = (TemporaryPunishment) Enforcer.addToDatabase(plugin.getDatabase(), tempBan);
                 if (temporaryBan == null) {
-                    player.sendMessage(prefix + "&cThere was an error creating that punishment.");
+                    player.sendMessage(prefix + Messages.punishmentCreateIssue);
                     return true;
                 }
                 if (Bukkit.getPlayer(t.getUniqueId()) != null) {
-                    t.kickPlayer("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &c{expire}".replace("{punisher}", player.getName()).replace("{reason}", reason).replace("{expire}", temporaryBan.formatExpireTime()));
+                    t.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, temporaryBan.formatExpireTime())));
                 }
                 FPacketPunish punish = new FPacketPunish(server, temporaryBan.getId());
                 plugin.getSocket().sendPacket(punish);
             } else if (cmd.getName().equalsIgnoreCase("ipban")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.HEAD_ADMIN)) {
-                    player.sendMessage(prefix + "&cOnly Head Admins+ can IP-ban a player.");
+                    player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }
             } else if (cmd.getName().equalsIgnoreCase("mute")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
-                    player.sendMessage(prefix + "&cOnly Mods+ can permanently mute a player.");
+                    player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }
     
@@ -177,14 +180,14 @@ public class PunishmentManager implements TabExecutor, Listener {
                     FPacketPunish punish = new FPacketPunish(server, permanentMute.getId());
                     plugin.getSocket().sendPacket(punish);
                 } else {
-                    player.sendMessage(prefix + "&cThere was an issue creating the punishment.");
+                    player.sendMessage(prefix + Messages.punishmentCreateIssue);
                     return true;
                 }
                 if (Bukkit.getPlayer(t.getUniqueId()) != null)
-                    t.sendMessage("&cYou have been permanently muted by " + player.getName());
+                    t.sendMessage(Messages.permMuteTarget(player.getName()));
             } else if (cmd.getName().equalsIgnoreCase("tempmute")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
-                    player.sendMessage(prefix + "&cOnly Helpers+ can tempmute a player.");
+                    player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }
     
@@ -197,23 +200,23 @@ public class PunishmentManager implements TabExecutor, Listener {
                 tempBan.setActive(true);
                 TemporaryPunishment temporaryMute = (TemporaryPunishment) Enforcer.addToDatabase(plugin.getDatabase(), tempBan);
                 if (temporaryMute == null) {
-                    player.sendMessage(prefix + "&cThere was an error creating that punishment.");
+                    player.sendMessage(prefix + Messages.punishmentCreateIssue);
                     return true;
                 }
                 if (Bukkit.getPlayer(t.getUniqueId()) != null) {
-                    t.sendMessage("&cYou have been temporarily muted by " + player.getName());
+                    t.sendMessage(Messages.tempMuteTarget(player.getName()));
                 }
                 FPacketPunish punish = new FPacketPunish(server, temporaryMute.getId());
                 plugin.getSocket().sendPacket(punish);
             } else if (cmd.getName().equalsIgnoreCase("jail")) {
                 if (!player.getMainRank().equals(Rank.HELPER)) {
-                    player.sendMessage(prefix + "&cOnly Helpers can jail a player. If you are a Mod+, use the actual punishment.");
+                    player.sendMessage(prefix + Messages.onlyHelpersJail);
                     return true;
                 }
     
                 Location jailLocation = plugin.getJailLocation();
                 if (jailLocation == null) {
-                    player.sendMessage(prefix + "&cThe jail location is currently not set, please contact an Admin+");
+                    player.sendMessage(prefix + Messages.jailNotSet);
                     return true;
                 }
     
@@ -224,17 +227,17 @@ public class PunishmentManager implements TabExecutor, Listener {
                 if (jail != null) {
                     FPacketPunish punish = new FPacketPunish(server, jail.getId());
                     plugin.getSocket().sendPacket(punish);
+                    if (Bukkit.getPlayer(t.getUniqueId()) != null) {
+                        t.sendMessage(Messages.jailed(player.getName(), reason));
+                        t.teleport(jailLocation);
+                    }
                 } else {
-                    player.sendMessage(prefix + "&cThere was an issue creating the punishment.");
+                    player.sendMessage(prefix + Messages.punishmentCreateIssue);
                     return true;
-                }
-                if (Bukkit.getPlayer(t.getUniqueId()) != null) {
-                    t.sendMessage("&cYou have been jailed by " + player.getName());
-                    t.teleport(jailLocation);
                 }
             } else if (cmd.getName().equalsIgnoreCase("kick")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
-                    player.sendMessage(prefix + "&cOnly Helpers+ can kick a player.");
+                    player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }
                 
@@ -244,17 +247,17 @@ public class PunishmentManager implements TabExecutor, Listener {
                 
                 Kick kick = (Kick) Enforcer.addToDatabase(plugin.getDatabase(), k);
                 if (Bukkit.getPlayer(t.getUniqueId()) != null)
-                    t.kickPlayer("&a&lKICKED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n".replace("{punisher}", player.getName()).replace("{reason}", reason));
+                    t.kickPlayer(Messages.kickMessage(player.getName(), reason));
                 if (kick != null) {
                     FPacketPunish punish = new FPacketPunish(server, kick.getId());
                     plugin.getSocket().sendPacket(punish);
                 } else {
-                    player.sendMessage(prefix + "&cThere was an issue creating the punishment.");
+                    player.sendMessage(prefix + Messages.punishmentCreateIssue);
                     return true;
                 }
             } else if (cmd.getName().equalsIgnoreCase("warn")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
-                    player.sendMessage(prefix + "&cOnly Helpers+ can warn a player.");
+                    player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }
     
@@ -265,15 +268,14 @@ public class PunishmentManager implements TabExecutor, Listener {
                 if (warn != null) {
                     FPacketPunish punish = new FPacketPunish(server, warn.getId());
                     plugin.getSocket().sendPacket(punish);
+                    if (Bukkit.getPlayer(t.getUniqueId()) != null) {
+                        String code = Utils.generateAckCode(Utils.codeCharacters);
+                        plugin.addAckCode(t.getUniqueId(), code);
+                        t.sendMessage(Messages.warnMessage(player.getName(), reason, code));
+                    }
                 } else {
-                    player.sendMessage(prefix + "&cThere was an issue creating the punishment.");
+                    player.sendMessage(prefix + Messages.punishmentCreateIssue);
                     return true;
-                }
-                if (Bukkit.getPlayer(t.getUniqueId()) != null) {
-                    String code = Utils.generateAckCode(Utils.codeCharacters);
-                    plugin.addAckCode(t.getUniqueId(), code);
-                    t.sendMessage("&cYou have been warned by " + player.getName() + " for " + warn.getReason());
-                    t.sendMessage("&cYou must acknowledge this by typing in the code: " + code);
                 }
             }
         } else {

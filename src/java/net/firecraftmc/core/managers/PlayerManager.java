@@ -10,8 +10,7 @@ import net.firecraftmc.shared.packets.FPacketServerPlayerLeave;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatJoin;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,7 +22,7 @@ import java.sql.ResultSet;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PlayerManager implements IPlayerManager, Listener {
+public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
     
     private final ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, FirecraftPlayer> cachedPlayers = new ConcurrentHashMap<>();
@@ -70,13 +69,13 @@ public class PlayerManager implements IPlayerManager, Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         e.setJoinMessage(null);
         Player p = e.getPlayer();
-        p.sendMessage("§7§oWelcome to FirecraftMC, we have to get a few things before you can do anything.");
+        p.sendMessage(Messages.welcomeGetData);
         FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(plugin.getFirecraftServer(), p.getUniqueId());
         plugin.getSocket().sendPacket(serverPlayerJoin);
         FirecraftPlayer player = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), plugin, p.getUniqueId());
         
         if (player == null) {
-            p.kickPlayer("§cThere was an error getting your data. Please contact a Firecraft Team member or Head Admin.");
+            p.kickPlayer(Messages.getDataErrorKick);
             return;
         }
         
@@ -86,7 +85,6 @@ public class PlayerManager implements IPlayerManager, Listener {
         player.playerOnlineStuff();
         if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
                 player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS)) {
-            System.out.println("Sending staff chat join packet");
             FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(plugin.getFirecraftServer(), player.getUniqueId());
             plugin.getSocket().sendPacket(staffChatJoin);
         } else {
@@ -141,18 +139,13 @@ public class PlayerManager implements IPlayerManager, Listener {
             if (warnSet.next()) {
                 String code = Utils.generateAckCode(Utils.codeCharacters);
                 this.plugin.addAckCode(player.getUniqueId(), code);
-                player.sendMessage("&cYou have an unacknowledged warning. You must acknowledge this before you can speak or use commands.");
-                player.sendMessage("&cYour code is &b" + code);
+                player.sendMessage(Messages.joinUnAckWarning(code));
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         
-        player.sendMessage("&7&oSuccessfully loaded your data, you are no longer restricted.");
-    }
-    
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
-        return null;
+        player.sendMessage(Messages.loadDataSuccessful);
     }
     
     @EventHandler
@@ -164,6 +157,10 @@ public class PlayerManager implements IPlayerManager, Listener {
                 player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS)) {
             FPStaffChatQuit staffQuit = new FPStaffChatQuit(plugin.getFirecraftServer(), player.getUniqueId());
             plugin.getSocket().sendPacket(staffQuit);
+        } else {
+            for (FirecraftPlayer fp : onlinePlayers.values()) {
+                fp.sendMessage(player.getDisplayName() + " &eleft the game.");
+            }
         }
         
         FPacketServerPlayerLeave playerLeave = new FPacketServerPlayerLeave(plugin.getFirecraftServer(), player.getUniqueId());
@@ -219,5 +216,13 @@ public class PlayerManager implements IPlayerManager, Listener {
     
     public void addCachedPlayer(FirecraftPlayer player) {
         this.cachedPlayers.put(player.getUniqueId(), player);
+    }
+    
+    public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
+        return true;
+    }
+    
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
+        return null;
     }
 }

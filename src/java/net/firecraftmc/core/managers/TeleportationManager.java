@@ -2,8 +2,7 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.core.classes.TPRequest;
-import net.firecraftmc.shared.classes.FirecraftPlayer;
-import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.staffchat.*;
 import org.bukkit.Bukkit;
@@ -42,8 +41,8 @@ public class TeleportationManager implements TabExecutor, Listener {
                             iter.remove();
                             plugin.getLogger().log(Level.INFO, "Removed a request with a null requester or requested");
                         } else {
-                            requester.sendMessage("&aYour teleport request to " + requested.getDisplayName() + " &ahas expired.");
-                            requested.sendMessage("&aThe teleport request from " + requester.getDisplayName() + " &ahas expired.");
+                            requester.sendMessage(Messages.tpRequestExpire_Requester(requested.getDisplayName()));
+                            requested.sendMessage(Messages.tpRequestExpire_Target(requester.getDisplayName()));
                         }
                     }
                 });
@@ -63,7 +62,7 @@ public class TeleportationManager implements TabExecutor, Listener {
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (sender instanceof ConsoleCommandSender) {
-            sender.sendMessage("§cConsole is not able to teleport players.");
+            sender.sendMessage(Messages.onlyPlayers);
             return true;
         }
         
@@ -72,21 +71,20 @@ public class TeleportationManager implements TabExecutor, Listener {
         
         if (cmd.getName().equalsIgnoreCase("teleport")) {
             if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
-                player.sendMessage("&cOnly Mods and above can teleport directly.");
+                player.sendMessage(Messages.noPermission);
                 return true;
             }
             
             if (args.length == 1) {
                 FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
-                
                 if (target == null) {
-                    player.sendMessage("&cCould not find the player " + args[0]);
+                    player.sendMessage(Messages.couldNotFindPlayer(args[0]));
                     return true;
                 }
                 
                 if (target.getMainRank().isHigher(player.getMainRank())) {
                     if (target.isVanished()) {
-                        player.sendMessage("&cCould not find the player " + args[0]);
+                        player.sendMessage(Messages.couldNotFindPlayer(args[0]));
                         return true;
                     }
                 }
@@ -94,13 +92,9 @@ public class TeleportationManager implements TabExecutor, Listener {
                 player.teleport(target.getLocation());
                 FPSCTeleport teleport = new FPSCTeleport(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId());
                 plugin.getSocket().sendPacket(teleport);
-                if (target.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                    target.sendMessage(player.getName() + " &ateleported to you.");
-                    player.sendMessage("&7&oYou teleported to a Firecraft Team member, they were notified of that action.");
-                }
             } else if (args.length == 2) {
                 if (player.getMainRank().equals(Rank.MOD)) {
-                    player.sendMessage("&cOnly Trial Admins and above can teleport players to other players.");
+                    player.sendMessage(Messages.noPermission);
                     return true;
                 }
                 
@@ -115,31 +109,31 @@ public class TeleportationManager implements TabExecutor, Listener {
                 }
                 
                 if (t1 == null) {
-                    player.sendMessage("&cThe name provided for the first player is invalid.");
+                    player.sendMessage(Messages.tpTargetInvalid("first"));
                     return true;
                 }
                 
                 if (t2 == null) {
-                    player.sendMessage("&cThe name provided for the second player is invalid.");
+                    player.sendMessage(Messages.tpTargetInvalid("second"));
                     return true;
                 }
                 
                 if (t1.getMainRank().isHigher(player.getMainRank())) {
                     if (t1.isVanished()) {
-                        player.sendMessage("&cThe name provided for the first player is invalid.");
+                        player.sendMessage(Messages.tpTargetInvalid("first"));
                         return true;
                     }
                 }
     
                 if (t2.getMainRank().isHigher(player.getMainRank())) {
                     if (t2.isVanished()) {
-                        player.sendMessage("&cThe name provided for the second player is invalid.");
+                        player.sendMessage(Messages.tpTargetInvalid("second"));
                         return true;
                     }
                 }
                 
                 if (t1.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-                    player.sendMessage("&cYou cannot forcefully teleport players equal to or higher than your rank.");
+                    player.sendMessage(Messages.noPermToTpHigherRank);
                     return true;
                 }
                 
@@ -147,21 +141,21 @@ public class TeleportationManager implements TabExecutor, Listener {
                 FPSCTeleportOthers teleport = new FPSCTeleportOthers(plugin.getFirecraftServer(), player.getUniqueId(), t1.getUniqueId(), t2.getUniqueId());
                 plugin.getSocket().sendPacket(teleport);
             } else {
-                player.sendMessage("&cYou did not provide the correct number of arguments.");
+                player.sendMessage(Messages.notEnoughArgs);
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("back")) {
             if (this.lastLocation.containsKey(player.getUniqueId())) {
                 player.teleport(this.lastLocation.get(player.getUniqueId()));
-                player.sendMessage("§aTeleported you to your last location.");
+                player.sendMessage(Messages.back);
             } else {
-                player.sendMessage("§cYou currently do not have a last location.");
+                player.sendMessage(Messages.noBackLocation);
             }
         } else if (cmd.getName().equalsIgnoreCase("tphere")) {
             if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
             
             if (!(player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN))) {
-                player.sendMessage("&cOnly Trial Admins or above can teleport players to themselves.");
+                player.sendMessage(Messages.noPermission);
                 return true;
             }
             
@@ -173,13 +167,13 @@ public class TeleportationManager implements TabExecutor, Listener {
             }
             
             if (target == null) {
-                player.sendMessage("&cThe name you provided is not valid.");
+                player.sendMessage(Messages.couldNotFindPlayer(args[0]));
                 return true;
             }
     
             if (target.getMainRank().isHigher(player.getMainRank())) {
                 if (target.isVanished()) {
-                    player.sendMessage("&cCould not find the player " + args[0]);
+                    player.sendMessage(Messages.couldNotFindPlayer(args[0]));
                     return true;
                 }
             }
@@ -193,37 +187,37 @@ public class TeleportationManager implements TabExecutor, Listener {
                     for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
                         if (!p.getUniqueId().equals(player.getUniqueId())) {
                             if (p.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                                p.sendMessage(player.getDisplayName() + " &aissued a tpall but you were not teleported because of your rank.");
+                                p.sendMessage(Messages.tpAllNotTeleported(player.getDisplayName()));
                             } else {
                                 p.teleport(player.getLocation());
-                                p.sendMessage(player.getDisplayName() + " &aissued a tpall so you were teleported to them.");
+                                p.sendMessage(Messages.tpAllTeleported(player.getDisplayName()));
                             }
                         }
                     }
-                    player.sendMessage("&aYou teleported all players except Firecraft Team members to you.");
+                    player.sendMessage("&bYou teleported all players except Firecraft Team members to you.");
                 } else {
                     for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
                        if (!p.getUniqueId().equals(player.getUniqueId())) {
                            p.teleport(player.getLocation());
-                           p.sendMessage(player.getDisplayName() + " &aissued a tpall so you were teleported to them.");
+                           p.sendMessage(Messages.tpAllTeleported(player.getDisplayName()));
                        }
                     }
-                    player.sendMessage("&aYou teleported all players to you.");
+                    player.sendMessage("&bYou teleported all players to you.");
                 }
             } else {
-                player.sendMessage("&cOnly Head Admins or Firecraft Team members can use tpall.");
+                player.sendMessage(Messages.noPermission);
             }
         } else if (cmd.getName().equalsIgnoreCase("tpa")) {
             if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
             FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
             if (target == null) {
-                player.sendMessage("&cCould not find a player by that name.");
+                player.sendMessage(Messages.couldNotFindPlayer(args[0]));
                 return true;
             }
     
             if (target.getMainRank().isHigher(player.getMainRank())) {
                 if (target.isVanished()) {
-                    player.sendMessage("&cCould not find a player by that name.");
+                    player.sendMessage(Messages.couldNotFindPlayer(args[0]));
                     return true;
                 }
             }
@@ -232,57 +226,55 @@ public class TeleportationManager implements TabExecutor, Listener {
             long expire = currentTime + 60;
             
             this.requests.put(currentTime, new TPRequest(player.getUniqueId(), target.getUniqueId(), expire));
-            player.sendMessage("&aSent a teleport request to &b" + target.getDisplayName() + "&a.");
-            target.sendMessage(player.getDisplayName() + " &ahas sent a teleport request to you.");
-            target.sendMessage("&aType /tpaccept to accept or /tpdeny to deny the request.");
-            target.sendMessage("&aThe request will expire in 60 seconds.");
+            player.sendMessage(Messages.tpRequestReceive(target.getName()));
+            target.sendMessage(Messages.tpRequestSend(player.getName()));
         } else if (cmd.getName().equalsIgnoreCase("tpaccept")) {
             Map.Entry<Long, TPRequest> entry = getRequestByRequested(player.getUniqueId());
             if (entry == null) {
-                player.sendMessage("&cCould not find a request, did it expire?");
+                player.sendMessage(Messages.couldNotFindRequest);
                 return true;
             }
             TPRequest request = entry.getValue();
             Player r = Bukkit.getPlayer(request.getRequester());
             if (r == null) {
-                player.sendMessage("&aThe one you requested to teleport to you is no longer online.");
+                player.sendMessage(Messages.requesterOffline);
                 return true;
             }
             
             FirecraftPlayer requester = plugin.getPlayerManager().getPlayer(r.getUniqueId());
-            requester.sendMessage(player.getDisplayName() + " &ahas accepted your teleport request.");
-            player.sendMessage("&aYou accepted " + requester.getDisplayName() + "&a's teleport request.");
+            requester.sendMessage(Messages.requestRespondSender("accepted", player.getName()));
+            player.sendMessage(Messages.requestRespondReceiver("accepted", requester.getName()));
             requester.teleport(player.getLocation());
             this.requests.remove(entry.getKey());
         } else if (cmd.getName().equalsIgnoreCase("tpdeny")) {
             Map.Entry<Long, TPRequest> entry = getRequestByRequested(player.getUniqueId());
             if (entry == null) {
-                player.sendMessage("&cCould not find a request, did it expire?");
+                player.sendMessage(Messages.couldNotFindRequest);
                 return true;
             }
             TPRequest request = entry.getValue();
             Player r = Bukkit.getPlayer(request.getRequester());
             if (r == null) {
-                player.sendMessage("&aThe one you requested to teleport to you is no longer online.");
+                player.sendMessage(Messages.requesterOffline);
                 return true;
             }
     
             FirecraftPlayer requester = plugin.getPlayerManager().getPlayer(r.getUniqueId());
-            requester.sendMessage(player.getDisplayName() + " &ahas denied your teleport request.");
-            player.sendMessage("&aYou denied " + requester.getDisplayName() + "&a's teleport request.");
+            requester.sendMessage(Messages.requestRespondSender("denied", player.getName()));
+            player.sendMessage(Messages.requestRespondReceiver("denied", requester.getName()));
             this.requests.remove(entry.getKey());
         } else if (cmd.getName().equalsIgnoreCase("setspawn")) {
             if (player.getMainRank().isEqualToOrHigher(Rank.HEAD_ADMIN)) {
                 plugin.setServerSpawn(player.getLocation());
-                player.sendMessage("&aYou set the server spawn to your location.");
+                player.sendMessage(Messages.setSpawn);
                 return true;
             } else {
-                player.sendMessage("&cYou cannot set the spawnpoint.");
+                player.sendMessage(Messages.noPermission);
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("spawn")) {
             player.teleport(plugin.getServerSpawn());
-            player.sendMessage("&aSent you to the server spawnpoint.");
+            player.sendMessage(Messages.sendToSpawn);
         }
         
         return true;

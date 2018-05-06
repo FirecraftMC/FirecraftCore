@@ -2,6 +2,7 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
+import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.enums.Rank;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -16,18 +17,18 @@ public class DevManager implements CommandExecutor {
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§cOnly Players can use that command.");
+            sender.sendMessage(Messages.onlyPlayers);
             return true;
         }
     
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
         if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-            player.sendMessage("&cOnly Firecraft Team members can use that command.");
+            player.sendMessage(Messages.onlyFirecraftTeam);
             return true;
         }
         
         if (args.length <= 0) {
-            player.sendMessage("&cYou must provide a sub command.");
+            player.sendMessage(Messages.noSubCommand);
             return true;
         }
         
@@ -38,7 +39,7 @@ public class DevManager implements CommandExecutor {
             }
             player.sendMessage(msg.toString());
         } else {
-            player.sendMessage("&cThat is not a valid sub command.");
+            player.sendMessage(Messages.invalidSubCommand);
         }
         
         return true;

@@ -1,8 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.FirecraftPlayer;
-import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.enums.Channel;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatMessage;
@@ -30,18 +29,17 @@ public class ChatManager implements TabExecutor,Listener {
         e.setCancelled(true);
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(e.getPlayer().getUniqueId());
         if (player == null) {
-            e.getPlayer().sendMessage(prefix + "§cYour player data has not been received yet, you are not allowed to speak.");
+            e.getPlayer().sendMessage(prefix + Messages.chatNoData);
             return;
         }
         
         if (!plugin.isWarnAcknowledged(player.getUniqueId())) {
-            System.out.println("Player has unacknowledged warning");
             if (e.getMessage().equals(plugin.getAckCode(player.getUniqueId()))) {
-                player.sendMessage("&aYou have acknowledged your warning, you may speak and use commands now.");
+                player.sendMessage(Messages.acknowledgeWarning);
                 plugin.acknowledgeWarn(player.getUniqueId(), player.getName());
                 return;
             } else {
-                player.sendMessage("&cYou cannot speak or use commands when you have an unacknowledged warning.");
+                player.sendMessage(Messages.chatUnAckWarning);
                 return;
             }
         }
@@ -50,7 +48,7 @@ public class ChatManager implements TabExecutor,Listener {
         ResultSet muteSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE (`type`='MUTE' OR `type`='TEMP_MUTE') AND `active`='true';");
         try {
             if (muteSet.next()) {
-                player.sendMessage("&cYou are currently muted.");
+                player.sendMessage(Messages.chatMuted);
                 return;
             }
         } catch (Exception ex) {
@@ -60,7 +58,7 @@ public class ChatManager implements TabExecutor,Listener {
         ResultSet jailSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
         try {
             if (jailSet.next()) {
-                player.sendMessage("&cYou cannot speak because you are currently jailed.");
+                player.sendMessage(Messages.chatJailed);
                 return;
             }
         } catch (Exception ex) {
@@ -69,7 +67,7 @@ public class ChatManager implements TabExecutor,Listener {
         
         if (player.getChannel().equals(Channel.GLOBAL)) {
             if (player.isVanished()) {
-                player.sendMessage(prefix + "&cYou are not allowed to talk in global while vanished.");
+                player.sendMessage(prefix + Messages.noTalkGlobal);
                 return;
             }
             String format = Utils.Chat.formatGlobal(player, e.getMessage());
@@ -90,7 +88,7 @@ public class ChatManager implements TabExecutor,Listener {
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (sender instanceof ConsoleCommandSender) {
-            sender.sendMessage("§cConsole cannot use the chat command.");
+            sender.sendMessage(Messages.noPermission);
             return true;
         } else if (sender instanceof Player) {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
@@ -99,25 +97,25 @@ public class ChatManager implements TabExecutor,Listener {
             if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
             if (Utils.Command.checkCmdAliases(args, 0, "staff", "st", "s")) {
                 if (!Rank.isStaff(player.getMainRank())) {
-                    player.sendMessage(prefix + "&cOnly staff members may use the staff chat channel.");
+                    player.sendMessage(prefix + Messages.onlyStaff);
                     return true;
                 }
             
                 if (player.getChannel().equals(Channel.STAFF)) {
-                    player.sendMessage(prefix + "&cYou are already speaking in that channel.");
+                    player.sendMessage(prefix + Messages.alreadyInChannel);
                     return true;
                 }
                 player.setChannel(Channel.STAFF);
-                player.sendMessage(prefix + "&aYou are now speaking in " + Channel.STAFF.getColor() + "&lStaff");
+                player.sendMessage(prefix + Messages.channelSwitch(Channel.STAFF));
             } else if (Utils.Command.checkCmdAliases(args, 0, "global", "gl", "g")) {
                 if (player.getChannel().equals(Channel.GLOBAL)) {
-                    player.sendMessage(prefix + "&cYou are already speaking in that channel.");
+                    player.sendMessage(prefix + Messages.alreadyInChannel);
                     return true;
                 }
                 player.setChannel(Channel.GLOBAL);
-                player.sendMessage(prefix + "&aYou are now speaking in " + Channel.GLOBAL.getColor() + "&lGlobal");
+                player.sendMessage(prefix + Messages.channelSwitch(Channel.GLOBAL));
             } else {
-                player.sendMessage(prefix + "&cSupport for other channels is currently not implemented.");
+                player.sendMessage(prefix + Messages.noOtherChannels);
                 return true;
             }
         }

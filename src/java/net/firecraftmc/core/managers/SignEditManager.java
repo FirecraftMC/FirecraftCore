@@ -1,8 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.FirecraftPlayer;
-import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.enums.Rank;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -45,12 +44,12 @@ public class SignEditManager implements CommandExecutor,Listener {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
         
             if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
-                player.sendMessage(prefix + "&cOnly Mods+ can edit signs.");
+                player.sendMessage(prefix + Messages.noPermission);
                 return true;
             }
         
             if (!(args.length > 0)) {
-                player.sendMessage(prefix + "&cYou do not have enough arguments.");
+                player.sendMessage(prefix + Messages.notEnoughArgs);
                 return true;
             }
         
@@ -59,12 +58,12 @@ public class SignEditManager implements CommandExecutor,Listener {
             try {
                 sign = (Sign) player.getPlayer().getTargetBlock(null, 100).getState();
             } catch (Exception e) {
-                player.sendMessage(prefix + "&cYou are not looking at a sign.");
+                player.sendMessage(prefix + Messages.notLookingAtSign);
                 return true;
             }
         
             if (sign == null) {
-                player.sendMessage(prefix + "&cYou are not looking at a sign.");
+                player.sendMessage(prefix + Messages.notLookingAtSign);
                 return true;
             }
         
@@ -72,7 +71,7 @@ public class SignEditManager implements CommandExecutor,Listener {
             try {
                 line = Integer.parseInt(args[0])-1;
             } catch (NumberFormatException e) {
-                player.sendMessage(prefix + "&cYou provided an invalid number for the line to set.");
+                player.sendMessage(prefix + Messages.invalidLineNumber);
                 return true;
             }
         
@@ -88,27 +87,26 @@ public class SignEditManager implements CommandExecutor,Listener {
                 String text = sb.toString();
                 text = Utils.color(text);
                 if (text.length() > 16) {
-                    player.sendMessage(prefix + "&cSigns cannot have more than 16 characters per line.");
+                    player.sendMessage(prefix + Messages.noMoreThan16Char);
                     return true;
                 }
             
                 sign.setLine(line, text);
                 sign.update();
-                player.sendMessage(prefix + "&aSet line &b" + (line+1) + " &ato &b" + text);
+                player.sendMessage(prefix + Messages.setLine((line+1) + "", text));
                 this.signChanges.put(sign.getLocation(), sign.getLines());
             } else {
                 sign.setLine(line, "");
                 sign.update();
-                player.sendMessage(prefix + "&aSet line &b" + (line+1) + " &ato a blank line.");
+                player.sendMessage(prefix + Messages.setLine((line+1) + "", "a blank line"));
                 this.signChanges.put(sign.getLocation(), sign.getLines());
             }
         
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.sendSignChange(sign.getLocation(), sign.getLines());
             }
-        
         } else {
-            sender.sendMessage(prefix + "§cOnly players may use that command.");
+            sender.sendMessage(prefix + Messages.onlyPlayers);
             return true;
         }
         return true;

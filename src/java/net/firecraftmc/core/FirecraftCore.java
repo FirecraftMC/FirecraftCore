@@ -128,7 +128,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         ResultSet jailSet = database.querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
         try {
             if (jailSet.next()) {
-                player.sendMessage("&cYou cannot use commands while you are in jail.");
+                player.sendMessage(Messages.jailedNoCmds);
                 e.setCancelled(true);
             }
         } catch (Exception ex) {
@@ -138,7 +138,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         ResultSet warnSet = database.querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `acknowledged`='false' AND `type`='WARN';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
         try {
             if (warnSet.next()) {
-                player.sendMessage("&cYou cannot use commands while you have an unacknowledged warning.");
+                player.sendMessage(Messages.unAckWarnNoCmds);
                 e.setCancelled(true);
             }
         } catch (Exception ex) {
