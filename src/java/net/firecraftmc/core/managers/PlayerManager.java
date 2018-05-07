@@ -51,7 +51,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
                     Player p = Bukkit.getPlayer(uuid);
                     if (p != null) {
                         Punishment punishment = toKickForPunishment.get(uuid);
-                        String punisher = punishment.getPunisherName();
+                        String punisher = Utils.getPlayerName(plugin.getDatabase(), Utils.convertToUUID(punishment.getPunisher()));
                         String reason = punishment.getReason();
                         //TODO Temp stuff
                         if (punishment.getType().equals(Type.BAN))
