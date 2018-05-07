@@ -4,6 +4,7 @@ import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.enforcer.Type;
 import net.firecraftmc.shared.enforcer.punishments.Punishment;
+import net.firecraftmc.shared.enforcer.punishments.TemporaryBan;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.FPacketServerPlayerJoin;
 import net.firecraftmc.shared.packets.FPacketServerPlayerLeave;
@@ -27,6 +28,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
     private final ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, FirecraftPlayer> cachedPlayers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, Punishment> toKickForPunishment = new ConcurrentHashMap<>();
+    private final List<UUID> teleportUnjail = new ArrayList<>();
     
     private final FirecraftCore plugin;
     
@@ -53,13 +55,25 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
                         Punishment punishment = toKickForPunishment.get(uuid);
                         String punisher = Utils.getPlayerName(plugin.getDatabase(), Utils.convertToUUID(punishment.getPunisher()));
                         String reason = punishment.getReason();
-                        //TODO Temp stuff
                         if (punishment.getType().equals(Type.BAN))
-                            p.kickPlayer(Utils.color("&4&lBANNED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n&fExpires: &cPermanent".replace("{punisher}", punisher).replace("{reason}", reason)));
+                            p.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, "Permanent")));
                         else if (punishment.getType().equals(Type.KICK))
-                            p.kickPlayer(Utils.color("&a&lKICKED\n&fStaff: &c{punisher}\n&fReason: &c{reason}\n".replace("{punisher}", punisher).replace("{reason}", reason)));
+                            p.kickPlayer(Utils.color(Messages.kickMessage(punisher, reason)));
+                        else if (punishment instanceof TemporaryBan) {
+                            TemporaryBan tempPunishment = ((TemporaryBan) punishment);
+                            String expireTime = tempPunishment.formatExpireTime();
+                            p.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, expireTime)));
+                        }
                         iterator.remove();
                     }
+                }
+                
+                ListIterator<UUID> listIterator = teleportUnjail.listIterator();
+                while (listIterator.hasNext()) {
+                    UUID uuid = listIterator.next();
+                    Player p = Bukkit.getPlayer(uuid);
+                    p.teleport(plugin.getServerSpawn());
+                    listIterator.remove();
                 }
             }
         }.runTaskTimer(plugin, 0L, 5L);
@@ -124,7 +138,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
             //TODO NOT SUPPORTED YET, PLACEHOLDER
             System.out.println("Player is nicked, this is a placeholder when it is implemented.");
         }
-    
+        
         ResultSet jailSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
         try {
             if (jailSet.next()) {
@@ -133,7 +147,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    
+        
         ResultSet warnSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `acknowledged`='false' AND `type`='WARN';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
         try {
             if (warnSet.next()) {
@@ -216,6 +230,10 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
     
     public void addCachedPlayer(FirecraftPlayer player) {
         this.cachedPlayers.put(player.getUniqueId(), player);
+    }
+    
+    public void addToTeleportUnJail(UUID uuid) {
+        this.teleportUnjail.add(uuid);
     }
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
