@@ -104,64 +104,65 @@ public class PunishmentManager implements TabExecutor, Listener {
                 }
             }
     
-            ResultSet set = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{target}' AND `active`='true' AND (`type`='BAN' OR `type`='TEMP_BAN' OR `type`='MUTE' OR `type`='TEMP_MUTE' OR `type`='JAIL');".replace("{target}", t.getUniqueId().toString().replace("-", "")));
-            int puId = 0;
-            FirecraftPlayer punisher;
-            Type ty = null;
-            try {
-                if (set.next()) {
-                    puId = set.getInt("id");
-                    UUID punisherId = Utils.convertToUUID(set.getString("punisher"));
-                    punisher = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), punisherId);
-                    ty = Type.valueOf(set.getString("type"));
-                    
-                    if (punisher.getMainRank().equals(Rank.FIRECRAFT_TEAM) && !player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                        player.sendMessage(prefix + Messages.punishmentByFCT);
+            if (cmd.getName().equalsIgnoreCase("unban") || cmd.getName().equalsIgnoreCase("unmute") || cmd.getName().equalsIgnoreCase("unjail")) {
+                ResultSet set = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{target}' AND `active`='true' AND (`type`='BAN' OR `type`='TEMP_BAN' OR `type`='MUTE' OR `type`='TEMP_MUTE' OR `type`='JAIL');".replace("{target}", t.getUniqueId().toString().replace("-", "")));
+                int puId = 0;
+                FirecraftPlayer punisher;
+                Type ty = null;
+                try {
+                    if (set.next()) {
+                        puId = set.getInt("id");
+                        UUID punisherId = Utils.convertToUUID(set.getString("punisher"));
+                        punisher = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), punisherId);
+                        ty = Type.valueOf(set.getString("type"));
+            
+                        if (punisher.getMainRank().equals(Rank.FIRECRAFT_TEAM) && !player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                            player.sendMessage(prefix + Messages.punishmentByFCT);
+                            return true;
+                        }
+                    }
+                } catch (SQLException e) {
+                    player.sendMessage(prefix + Messages.punishmentsSQLError);
+                    return true;
+                }
+    
+                if (ty == null) {
+                    player.sendMessage(Messages.punishmentsSQLError);
+                    return true;
+                }
+                if (cmd.getName().equalsIgnoreCase("unban")) {
+                    if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                        player.sendMessage(prefix + Messages.noPermission);
                         return true;
                     }
-                }
-            } catch (SQLException e) {
-                player.sendMessage(prefix + Messages.punishmentsSQLError);
-                return true;
-            }
-    
-            if (ty == null) {
-                player.sendMessage(Messages.punishmentsSQLError);
-                return true;
-            }
-    
-            if (cmd.getName().equalsIgnoreCase("unban")) {
-                if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                    player.sendMessage(prefix + Messages.noPermission);
-                    return true;
-                }
-                
-                if (ty.equals(Type.BAN) || ty.equals(Type.TEMP_BAN)) {
-                    plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id};".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
-                    FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
-                    plugin.getSocket().sendPacket(punishRemove);
-                }
-            } else if (cmd.getName().equalsIgnoreCase("unmute")) {
-                if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
-                    player.sendMessage(prefix + Messages.noPermission);
-                    return true;
-                }
-    
-                if (ty.equals(Type.MUTE) || ty.equals(Type.TEMP_MUTE)) {
-                    plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id};".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
-                    FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
-                    plugin.getSocket().sendPacket(punishRemove);
-                }
-            } else if (cmd.getName().equalsIgnoreCase("unjail")) {
-                if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
-                    player.sendMessage(prefix + Messages.noPermission);
-                    return true;
-                }
-    
-                if (ty.equals(Type.JAIL)) {
-                    plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id};".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
-                    FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
-                    plugin.getSocket().sendPacket(punishRemove);
+        
+                    if (ty.equals(Type.BAN) || ty.equals(Type.TEMP_BAN)) {
+                        plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id};".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
+                        FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
+                        plugin.getSocket().sendPacket(punishRemove);
+                    }
+                } else if (cmd.getName().equalsIgnoreCase("unmute")) {
+                    if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
+                        player.sendMessage(prefix + Messages.noPermission);
+                        return true;
+                    }
+        
+                    if (ty.equals(Type.MUTE) || ty.equals(Type.TEMP_MUTE)) {
+                        plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id};".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
+                        FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
+                        plugin.getSocket().sendPacket(punishRemove);
+                    }
+                } else if (cmd.getName().equalsIgnoreCase("unjail")) {
+                    if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
+                        player.sendMessage(prefix + Messages.noPermission);
+                        return true;
+                    }
+        
+                    if (ty.equals(Type.JAIL)) {
+                        plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id};".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
+                        FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
+                        plugin.getSocket().sendPacket(punishRemove);
+                    }
                 }
             }
             
