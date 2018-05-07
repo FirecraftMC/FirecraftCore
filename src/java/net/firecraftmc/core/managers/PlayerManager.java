@@ -72,7 +72,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
         p.sendMessage(Messages.welcomeGetData);
         FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(plugin.getFirecraftServer(), p.getUniqueId());
         plugin.getSocket().sendPacket(serverPlayerJoin);
-        FirecraftPlayer player = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), plugin, p.getUniqueId());
+        FirecraftPlayer player = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), p.getUniqueId());
         
         if (player == null) {
             p.kickPlayer(Messages.getDataErrorKick);
