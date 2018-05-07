@@ -137,7 +137,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                     }
         
                     if (ty.equals(Type.BAN) || ty.equals(Type.TEMP_BAN)) {
-                        plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id};".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
+                        plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
                         FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
                         plugin.getSocket().sendPacket(punishRemove);
                     }
@@ -148,7 +148,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                     }
         
                     if (ty.equals(Type.MUTE) || ty.equals(Type.TEMP_MUTE)) {
-                        plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id};".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
+                        plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
                         FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
                         plugin.getSocket().sendPacket(punishRemove);
                     }
@@ -159,7 +159,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                     }
         
                     if (ty.equals(Type.JAIL)) {
-                        plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id};".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
+                        plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
                         FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
                         plugin.getSocket().sendPacket(punishRemove);
                     }
