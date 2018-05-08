@@ -35,6 +35,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         }
     
         this.playerManager = new PlayerManager(this);
+        this.getCommand("players").setExecutor(playerManager);
         
         String host = getConfig().getString("host");
         this.socket = new FirecraftSocket(this, host, getConfig().getInt("port"));

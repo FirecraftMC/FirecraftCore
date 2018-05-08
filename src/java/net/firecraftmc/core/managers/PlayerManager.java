@@ -237,6 +237,30 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
     }
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(Messages.onlyPlayers);
+            return true;
+        }
+        UUID sU = ((Player) sender).getUniqueId();
+        FirecraftPlayer player = getPlayer(sU);
+        if (player == null) player = getCachedPlayer(sU);
+        if (player == null) player = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), sU);
+        
+        if (!player.getMainRank().isEqualToOrHigher(Rank.HEAD_ADMIN)) {
+            player.sendMessage(Messages.noPermissionPlayerData);
+            return true;
+        }
+        
+        if (args.length > 0) {
+            player.sendMessage(Messages.notEnoughArgs);
+            return true;
+        }
+        
+        if (Utils.Command.checkCmdAliases(args, 0, "rank", "r")) {
+        
+        } else {
+            player.sendMessage("&cNo other subcommands are currently implemented.");
+        }
         return true;
     }
     
