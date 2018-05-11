@@ -335,12 +335,6 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
                             return true;
                         }
                         
-                        if (args[1].equalsIgnoreCase("reset")) {
-                            plugin.getDatabase().updateSQL("DELETE FROM `fctprefixes` WHERE `fctmember`='{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
-                            player.sendMessage("&bYou have reset your prefix.");
-                            return true;
-                        }
-                        
                         String prefix;
                         if (!player.getUniqueId().equals(firestar311)) {
                             prefix = "&4&l" + ChatColor.stripColor(args[1]);
@@ -363,6 +357,11 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
                         }
                         player.setFctPrefix(prefix);
                         player.sendMessage("&bYou have set your prefix to " + prefix);
+                    } else if (args[0].equalsIgnoreCase("resetprefix")) {
+                        plugin.getDatabase().updateSQL("DELETE FROM `fctprefixes` WHERE `fctmember`='{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
+                        player.sendMessage("&bYou have reset your prefix.");
+                        player.setFctPrefix(Rank.FIRECRAFT_TEAM.getPrefix());
+                        return true;
                     }
                 } else {
                     player.sendMessage(Messages.notEnoughArgs);
