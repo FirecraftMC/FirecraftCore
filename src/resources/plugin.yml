@@ -49,3 +49,5 @@ commands:
     unmute:
     unjail:
     players:
+    fct:
+        aliases: [firecraftteam]

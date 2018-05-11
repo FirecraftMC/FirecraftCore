@@ -10,6 +10,7 @@ import net.firecraftmc.shared.packets.*;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatJoin;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -91,6 +92,17 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
         if (player == null) {
             p.kickPlayer(Messages.getDataErrorKick);
             return;
+        }
+        
+        if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+            ResultSet fct = plugin.getDatabase().querySQL("SELECT * FROM `fctprefixes` WHERE `fctmember` = '{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
+            try {
+                if (fct.next()) {
+                    player.setFctPrefix(fct.getString("prefix"));
+                }
+            } catch (Exception ex) {
+                player.setFctPrefix(Rank.FIRECRAFT_TEAM.getPrefix());
+            }
         }
         
         this.onlinePlayers.put(player.getUniqueId(), player);
@@ -241,76 +253,125 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
             sender.sendMessage(Messages.onlyPlayers);
             return true;
         }
+        
         UUID sU = ((Player) sender).getUniqueId();
         FirecraftPlayer player = getPlayer(sU);
         
-        if (!player.getMainRank().isEqualToOrHigher(Rank.HEAD_ADMIN)) {
-            player.sendMessage(Messages.noPermissionPlayerData);
-            return true;
-        }
-        
-        if (!(args.length > 0)) {
-            player.sendMessage(Messages.notEnoughArgs);
-            return true;
-        }
-    
-        UUID t;
-        try {
-            t = UUID.fromString(args[0]);
-        } catch (Exception e) {
-            try {
-                t = Utils.Mojang.getUUIDFromName(args[0]);
-            } catch (Exception e1) {
-                player.sendMessage("&cThere was an error getting the unique id of that player from Mojang.");
+        if (cmd.getName().equals("players")) {
+            if (!player.getMainRank().isEqualToOrHigher(Rank.HEAD_ADMIN)) {
+                player.sendMessage(Messages.noPermissionPlayerData);
                 return true;
             }
-        }
     
-        if (t == null) {
-            player.sendMessage("&cThere was an error getting the unique id of that player from Mojang.");
-            return true;
-        }
-        
-        FirecraftPlayer target = getPlayer(t);
-        if (target == null) target = getCachedPlayer(t);
-        if (target == null) target = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), t);
-        if (target == null) {
-            player.sendMessage("&cThere was an error getting the profile of that player.");
-            return true;
-        }
-        
-        if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-            if (!player.getUniqueId().equals(firestar311)) {
-                player.sendMessage(Messages.noPermission);
-                return true;
-            }
-        }
-        
-        if (Utils.Command.checkCmdAliases(args, 1, "set", "s")) {
-            if (Utils.Command.checkArgCountExact(sender, args, 4)) {
-                if (Utils.Command.checkCmdAliases(args, 2, "mainrank", "mr")) {
-                    Rank rank = Rank.getRank(args[3]);
-                    if (rank == null) {
-                        player.sendMessage("&cThat is not a valid rank.");
-                        return true;
-                    }
-                    
-                    if (rank.equals(Rank.FIRECRAFT_TEAM)) {
-                        player.sendMessage("&cThe Firecraft Team rank cannot be set in game. Please contact Firestar311 to have it updated.");
-                        return true;
-                    }
-                    
-                    plugin.getDatabase().updateSQL("UPDATE `playerdata` SET `mainrank` = '" + rank.toString() + "' WHERE `uniqueid`='{uuid}';".replace("{uuid}", target.getUniqueId().toString().replace("-", "")));
-                    player.sendMessage(Messages.setMainRank(target.getName(), rank));
-                    FPacketRankUpdate rankUpdate = new FPacketRankUpdate(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId());
-                    plugin.getSocket().sendPacket(rankUpdate);
-                }
-            } else {
+            if (!(args.length > 0)) {
                 player.sendMessage(Messages.notEnoughArgs);
                 return true;
             }
-        } else {
-            player.sendMessage("&cNo other subcommands are currently implemented.");
+    
+            UUID t;
+            try {
+                t = UUID.fromString(args[0]);
+            } catch (Exception e) {
+                try {
+                    t = Utils.Mojang.getUUIDFromName(args[0]);
+                } catch (Exception e1) {
+                    player.sendMessage("&cThere was an error getting the unique id of that player from Mojang.");
+                    return true;
+                }
+            }
+    
+            if (t == null) {
+                player.sendMessage("&cThere was an error getting the unique id of that player from Mojang.");
+                return true;
+            }
+    
+            FirecraftPlayer target = getPlayer(t);
+            if (target == null) target = getCachedPlayer(t);
+            if (target == null) target = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), t);
+            if (target == null) {
+                player.sendMessage("&cThere was an error getting the profile of that player.");
+                return true;
+            }
+    
+            if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                if (!player.getUniqueId().equals(firestar311)) {
+                    player.sendMessage(Messages.noPermission);
+                    return true;
+                }
+            }
+    
+            if (Utils.Command.checkCmdAliases(args, 1, "set", "s")) {
+                if (Utils.Command.checkArgCountExact(sender, args, 4)) {
+                    if (Utils.Command.checkCmdAliases(args, 2, "mainrank", "mr")) {
+                        Rank rank = Rank.getRank(args[3]);
+                        if (rank == null) {
+                            player.sendMessage("&cThat is not a valid rank.");
+                            return true;
+                        }
+                
+                        if (rank.equals(Rank.FIRECRAFT_TEAM)) {
+                            player.sendMessage("&cThe Firecraft Team rank cannot be set in game. Please contact Firestar311 to have it updated.");
+                            return true;
+                        }
+                
+                        plugin.getDatabase().updateSQL("UPDATE `playerdata` SET `mainrank` = '" + rank.toString() + "' WHERE `uniqueid`='{uuid}';".replace("{uuid}", target.getUniqueId().toString().replace("-", "")));
+                        player.sendMessage(Messages.setMainRank(target.getName(), rank));
+                        FPacketRankUpdate rankUpdate = new FPacketRankUpdate(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId());
+                        plugin.getSocket().sendPacket(rankUpdate);
+                    }
+                } else {
+                    player.sendMessage(Messages.notEnoughArgs);
+                    return true;
+                }
+            } else {
+                player.sendMessage("&cNo other subcommands are currently implemented.");
+            }
+        } else if (cmd.getName().equalsIgnoreCase("fct")) {
+            if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                if (args.length > 1) {
+                    if (args[0].equalsIgnoreCase("setprefix")) {
+                        if (args.length > 2) {
+                            player.sendMessage("&cFirecraft Team prefixes cannot have spaces.");
+                            return true;
+                        }
+                        
+                        if (args[1].equalsIgnoreCase("reset")) {
+                            plugin.getDatabase().updateSQL("DELETE FROM `fctprefixes` WHERE `fctmember`='{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
+                            player.sendMessage("&bYou have reset your prefix.");
+                            return true;
+                        }
+                        
+                        String prefix;
+                        if (!player.getUniqueId().equals(firestar311)) {
+                            prefix = "&4&l" + ChatColor.stripColor(args[1]);
+                        } else {
+                            prefix = "&4&l" + args[1];
+                        }
+    
+                        ResultSet set = plugin.getDatabase().querySQL("SELECT * FROM `fctprefixes` WHERE `fctmember` = '{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
+                        try {
+                            String sql = "";
+                            if (set.next()) {
+                                sql = "UPDATE `fctprefixes` SET `prefix`='" + prefix + "' WHERE `fctmember` = '{uuid}';".replace("{uuid}", player.getUniqueId().toString());
+                            } else {
+                                sql = "INSERT INTO `fctprefixes`(`fctmember`, `prefix`) VALUES ('{uuid}','{prefix}');".replace("{uuid}", player.getUniqueId().toString()).replace("{prefix}", prefix);
+                            }
+                            plugin.getDatabase().updateSQL(sql);
+                        } catch (Exception e) {
+                            player.sendMessage("&cThere was an error setting your prefix.");
+                            return true;
+                        }
+                        player.setFctPrefix(prefix);
+                        player.sendMessage("&bYou have set your prefix to " + prefix);
+                    }
+                } else {
+                    player.sendMessage(Messages.notEnoughArgs);
+                    return true;
+                }
+            } else {
+                player.sendMessage(Messages.noPermission);
+                return true;
+            }
         }
         return true;
     }
