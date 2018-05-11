@@ -328,7 +328,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
             }
         } else if (cmd.getName().equalsIgnoreCase("fct")) {
             if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                if (args.length > 1) {
+                if (args.length > 0) {
                     if (args[0].equalsIgnoreCase("setprefix")) {
                         if (args.length > 2) {
                             player.sendMessage("&cFirecraft Team prefixes cannot have spaces.");
