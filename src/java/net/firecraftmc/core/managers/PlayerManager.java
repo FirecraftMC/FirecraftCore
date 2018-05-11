@@ -53,7 +53,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
                     Player p = Bukkit.getPlayer(uuid);
                     if (p != null) {
                         Punishment punishment = toKickForPunishment.get(uuid);
-                        String punisher = Utils.getPlayerName(plugin.getDatabase(), Utils.convertToUUID(punishment.getPunisher()));
+                        String punisher = Utils.Database.getPlayerName(plugin.getDatabase(), Utils.convertToUUID(punishment.getPunisher()));
                         String reason = punishment.getReason();
                         if (punishment.getType().equals(Type.BAN))
                             p.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, "Permanent")));
@@ -86,7 +86,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
         p.sendMessage(Utils.color(Messages.welcomeGetData));
         FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(plugin.getFirecraftServer(), p.getUniqueId());
         plugin.getSocket().sendPacket(serverPlayerJoin);
-        FirecraftPlayer player = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), p.getUniqueId());
+        FirecraftPlayer player = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), p.getUniqueId());
         
         if (player == null) {
             p.kickPlayer(Messages.getDataErrorKick);
@@ -273,7 +273,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
         
         FirecraftPlayer target = getPlayer(t);
         if (target == null) target = getCachedPlayer(t);
-        if (target == null) target = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), t);
+        if (target == null) target = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), t);
         if (target == null) {
             player.sendMessage("&cThere was an error getting the profile of that player.");
             return true;

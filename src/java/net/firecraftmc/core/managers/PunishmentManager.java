@@ -41,7 +41,7 @@ public class PunishmentManager implements TabExecutor, Listener {
             while (set.next()) {
                 if (set.getBoolean("active")) {
                     Type type = Type.valueOf(set.getString("type"));
-                    FirecraftPlayer punisher = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), Utils.convertToUUID(set.getString("punisher")));
+                    FirecraftPlayer punisher = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), Utils.convertToUUID(set.getString("punisher")));
                     String reason = set.getString("reason");
                     if (type.equals(Type.TEMP_BAN)) {
                         long expire = set.getLong("expire");
@@ -90,7 +90,7 @@ public class PunishmentManager implements TabExecutor, Listener {
     
             FirecraftPlayer t = plugin.getPlayerManager().getPlayer(uuid);
             if (t == null) {
-                t = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), uuid);
+                t = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), uuid);
                 if (t == null) {
                     player.sendMessage(prefix + Messages.profileNotFound);
                     return true;
@@ -113,7 +113,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                     if (set.next()) {
                         puId = set.getInt("id");
                         UUID punisherId = Utils.convertToUUID(set.getString("punisher"));
-                        punisher = Utils.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), punisherId);
+                        punisher = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), punisherId);
                         ty = Type.valueOf(set.getString("type"));
             
                         if (punisher.getMainRank().equals(Rank.FIRECRAFT_TEAM) && !player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
