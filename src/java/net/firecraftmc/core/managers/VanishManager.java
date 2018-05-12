@@ -41,6 +41,7 @@ public class VanishManager implements TabExecutor, Listener {
         if (player.getMainRank().equals(Rank.VIP) || player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
             if (args.length == 0) {
                 if (player.isVanished()) {
+                    boolean flight = player.getVanishInfo().allowFlightBeforeVanish();
                     player.unVanish();
                     
                     for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
@@ -53,6 +54,7 @@ public class VanishManager implements TabExecutor, Listener {
                         p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + Bukkit.getOnlinePlayers().size() + "§7/§9" + Bukkit.getServer().getMaxPlayers(), "");
                     }
                     player.setActionBar(null);
+                    player.getPlayer().setAllowFlight(flight);
                 } else {
                     player.vanish();
                     for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
@@ -69,6 +71,8 @@ public class VanishManager implements TabExecutor, Listener {
                     }
                     
                     player.setActionBar(new ActionBar(Messages.actionBar_Vanished));
+                    player.getVanishInfo().setAllowFlightBeforeVanish(player.getPlayer().getAllowFlight());
+                    player.getPlayer().setAllowFlight(true);
                 }
                 FPSCVanishToggle toggleVanish = new FPSCVanishToggle(plugin.getFirecraftServer(), player.getUniqueId());
                 plugin.getSocket().sendPacket(toggleVanish);
