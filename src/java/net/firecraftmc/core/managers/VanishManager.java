@@ -14,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
 
@@ -254,6 +255,16 @@ public class VanishManager implements TabExecutor, Listener {
         }
         if (e.getEntity() instanceof Player) {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(e.getEntity().getUniqueId());
+            if (player.isVanished()) {
+                e.setCancelled(true);
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onEntityTarget(EntityTargetLivingEntityEvent e) {
+        if (e.getTarget() instanceof Player) {
+            FirecraftPlayer player = plugin.getPlayerManager().getPlayer(e.getTarget().getUniqueId());
             if (player.isVanished()) {
                 e.setCancelled(true);
             }
