@@ -66,7 +66,7 @@ public class ChatManager implements TabExecutor,Listener {
         }
         
         if (player.getChannel().equals(Channel.GLOBAL)) {
-            if (player.isVanished()) {
+            if (player.isVanished() || !player.getVanishInfo().canChat()) {
                 player.sendMessage(prefix + Messages.noTalkGlobal);
                 return;
             }
