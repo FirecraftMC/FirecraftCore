@@ -6,6 +6,7 @@ import net.firecraftmc.shared.MySQL;
 import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.packets.FPacketAcknowledgeWarning;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
+import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -98,6 +99,11 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     }
     
     public void onDisable() {
+        for (FirecraftPlayer player : playerManager.getPlayers()) {
+            FPStaffChatQuit staffQuit = new FPStaffChatQuit(server, player.getUniqueId());
+            socket.sendPacket(staffQuit);
+        }
+        
         if (socket != null) {
             socket.sendPacket(new FPacketServerDisconnect(server));
             socket.close();
