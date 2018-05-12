@@ -252,6 +252,12 @@ public class VanishManager implements TabExecutor, Listener {
                 }
             }
         }
+        if (e.getEntity() instanceof Player) {
+            FirecraftPlayer player = plugin.getPlayerManager().getPlayer(e.getEntity().getUniqueId());
+            if (player.isVanished()) {
+                e.setCancelled(true);
+            }
+        }
     }
     
     @EventHandler
