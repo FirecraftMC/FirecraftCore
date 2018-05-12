@@ -40,15 +40,16 @@ public class PunishmentManager implements TabExecutor, Listener {
         try {
             while (set.next()) {
                 if (set.getBoolean("active")) {
+                    int id = set.getInt("id");
                     Type type = Type.valueOf(set.getString("type"));
                     FirecraftPlayer punisher = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), Utils.convertToUUID(set.getString("punisher")));
                     String reason = set.getString("reason");
                     if (type.equals(Type.TEMP_BAN)) {
                         long expire = set.getLong("expire");
                         String expireDiff = Utils.Time.formatTime(expire - System.currentTimeMillis());
-                        e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color(Messages.banMessage(punisher.getName(), reason, expireDiff)));
+                        e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color(Messages.banMessage(punisher.getName(), reason, expireDiff, id)));
                     } else if (type.equals(Type.BAN)) {
-                        e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color(Messages.banMessage(punisher.getName(), reason, "Permanent")));
+                        e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color(Messages.banMessage(punisher.getName(), reason, "Permanent", id)));
                     }
                 }
             }
@@ -191,7 +192,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                 Punishment permanentBan = Enforcer.addToDatabase(plugin.getDatabase(), permBan);
                 if (permanentBan != null) {
                     if (Bukkit.getPlayer(t.getUniqueId()) != null)
-                        t.kickPlayer(Utils.color(Messages.banMessage(punisherId, reason, "Permanent")));
+                        t.kickPlayer(Utils.color(Messages.banMessage(punisherId, reason, "Permanent", permanentBan.getId())));
                     FPacketPunish punish = new FPacketPunish(server, permanentBan.getId());
                     plugin.getSocket().sendPacket(punish);
                 } else {
@@ -221,7 +222,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                     return true;
                 }
                 if (Bukkit.getPlayer(t.getUniqueId()) != null) {
-                    t.kickPlayer(Utils.color(Messages.banMessage(punisherId, reason, temporaryBan.formatExpireTime())));
+                    t.kickPlayer(Utils.color(Messages.banMessage(punisherId, reason, temporaryBan.formatExpireTime(), temporaryBan.getId())));
                 }
                 FPacketPunish punish = new FPacketPunish(server, temporaryBan.getId());
                 plugin.getSocket().sendPacket(punish);

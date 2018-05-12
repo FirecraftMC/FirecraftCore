@@ -57,13 +57,13 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
                         String punisher = Utils.Database.getPlayerName(plugin.getDatabase(), Utils.convertToUUID(punishment.getPunisher()));
                         String reason = punishment.getReason();
                         if (punishment.getType().equals(Type.BAN))
-                            p.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, "Permanent")));
+                            p.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, "Permanent", punishment.getId())));
                         else if (punishment.getType().equals(Type.KICK))
                             p.kickPlayer(Utils.color(Messages.kickMessage(punisher, reason)));
                         else if (punishment instanceof TemporaryBan) {
                             TemporaryBan tempPunishment = ((TemporaryBan) punishment);
                             String expireTime = tempPunishment.formatExpireTime();
-                            p.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, expireTime)));
+                            p.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, expireTime, punishment.getId())));
                         }
                         iterator.remove();
                     }
