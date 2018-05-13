@@ -140,7 +140,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
                 
                 if (!p.getUniqueId().equals(player.getUniqueId())) {
                     if (p.getPlayer().canSee(player.getPlayer())) {
-                        p1.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + Bukkit.getOnlinePlayers().size() + "§7/§9" + Bukkit.getServer().getMaxPlayers(), "");
+                        p1.getScoreboard().updateScoreboard(p1);
                     }
                 }
             }
@@ -199,9 +199,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
         
         if (onlinePlayers.size() > 0) {
             for (FirecraftPlayer p : onlinePlayers.values()) {
-                String online = Bukkit.getServer().getOnlinePlayers().size() - 1 + "";
-                String max = Bukkit.getServer().getMaxPlayers() + "";
-                p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + online + "§7/§9" + max, "");
+                p.getScoreboard().updateScoreboard(p);
             }
         }
     }

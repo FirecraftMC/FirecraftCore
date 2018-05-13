@@ -51,7 +51,7 @@ public class VanishManager implements TabExecutor, Listener {
                         } else {
                             player.getPlayer().setPlayerListName(player.getNick().getNickProfile().getName());
                         }
-                        p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + Bukkit.getOnlinePlayers().size() + "§7/§9" + Bukkit.getServer().getMaxPlayers(), "");
+                        p.getScoreboard().updateScoreboard(p);
                     }
                     player.setActionBar(null);
                     player.getPlayer().setAllowFlight(flight);
@@ -66,7 +66,7 @@ public class VanishManager implements TabExecutor, Listener {
                         
                         if (!p.getMainRank().isEqualToOrHigher(player.getMainRank())) {
                             p.getPlayer().hidePlayer(player.getPlayer());
-                            p.getScoreboard().updateField(FirecraftPlayer.FirecraftScoreboard.SBField.PLAYER_COUNT, "§2" + (Bukkit.getOnlinePlayers().size() - 1) + "§7/§9" + Bukkit.getServer().getMaxPlayers(), "");
+                            p.getScoreboard().updateScoreboard(p);
                         }
                     }
                     
