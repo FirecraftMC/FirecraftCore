@@ -52,3 +52,6 @@ commands:
     fct:
         aliases: [firecraftteam]
     weather:
+    time:
+    day:
+    night:

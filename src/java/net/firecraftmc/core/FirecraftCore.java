@@ -66,6 +66,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         Utils.Command.registerCommands(this, new PunishmentManager(this), "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail");
         Utils.Command.registerCommands(this, new ItemManager(this), "setname", "setlore");
         this.getCommand("weather").setExecutor(new WeatherManager(this));
+        Utils.Command.registerCommands(this, new TimeManager(this), "time", "day", "night");
         
         new BukkitRunnable() {
             public void run() {
