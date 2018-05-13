@@ -88,6 +88,10 @@ public class GamemodeManager implements TabExecutor, Listener {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
             if (player.getMainRank().equals(Rank.BUILD_TEAM) || player.getMainRank().isEqualToOrHigher(Rank.TRIAL_ADMIN)) {
                 FirecraftPlayer target = null;
+                if (args.length > 0) {
+                    target = plugin.getPlayerManager().getPlayer(args[0]);
+                }
+                
                 if (args.length > 1) {
                     target = plugin.getPlayerManager().getPlayer(args[1]);
                 }
