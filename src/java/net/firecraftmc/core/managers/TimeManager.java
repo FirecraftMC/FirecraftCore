@@ -64,7 +64,7 @@ public class TimeManager implements CommandExecutor {
                     player.sendMessage(prefix + Messages.timeChange("day", world.getName()));
                 } else if (cmd.getName().equalsIgnoreCase("night")) {
                     world.setTime(14000);
-                    player.sendMessage(prefix + Messages.timeChange("day", world.getName()));
+                    player.sendMessage(prefix + Messages.timeChange("night", world.getName()));
                 }
             }
         } else {
