@@ -1,13 +1,19 @@
 package net.firecraftmc.core;
 
 import net.firecraftmc.core.managers.*;
-import net.firecraftmc.core.wrapper.*;
+import net.firecraftmc.core.wrapper.ItemPickupEvent1_12;
+import net.firecraftmc.core.wrapper.ItemPickupEvent1_8;
+import net.firecraftmc.core.wrapper.NickWrapper1_12_R1;
+import net.firecraftmc.core.wrapper.NickWrapper1_8_R3;
 import net.firecraftmc.shared.MySQL;
 import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.packets.FPacketAcknowledgeWarning;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -67,6 +73,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         Utils.Command.registerCommands(this, new ItemManager(this), "setname", "setlore");
         this.getCommand("weather").setExecutor(new WeatherManager(this));
         Utils.Command.registerCommands(this, new TimeManager(this), "time", "day", "night");
+        Utils.Command.registerCommands(this, new BroadcastManager(this), "broadcast", "socketbroadcast");
         
         new BukkitRunnable() {
             public void run() {

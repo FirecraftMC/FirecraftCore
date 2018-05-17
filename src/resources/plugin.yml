@@ -55,3 +55,7 @@ commands:
     time:
     day:
     night:
+    broadcast:
+        aliases: [bc]
+    socketbroadcast:
+        aliases: [sbc]
