@@ -59,3 +59,10 @@ commands:
         aliases: [bc]
     socketbroadcast:
         aliases: [sbc]
+    clearinventory:
+        aliases: [ci]
+    enderchest:
+        aliases: [echest, ec]
+    workbench:
+        aliases: [craft, wb]
+    invsee:
