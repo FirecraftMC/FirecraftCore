@@ -9,17 +9,34 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
-public class InventoryManager implements TabExecutor {
+public class InventoryManager implements TabExecutor, Listener {
     private FirecraftCore plugin;
 
     public InventoryManager(FirecraftCore plugin) {
         this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent e) {
+        if (e.getClickedInventory() != null) {
+            if (e.getCursor() != null) {
+                if (e.getClickedInventory().getTitle() != null) {
+                    if (e.getClickedInventory().getTitle().contains("'s Inventory") || e.getClickedInventory().getTitle().contains("'s Enderchest")) {
+                        e.setCancelled(true);
+                    }
+                }
+            }
+        }
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
@@ -69,7 +86,14 @@ public class InventoryManager implements TabExecutor {
                             player.sendMessage(Messages.noEchestOpenHigher);
                             return true;
                         } else {
-                            player.getPlayer().openInventory(target.getPlayer().getEnderChest());
+                            Inventory inventory = Bukkit.createInventory(null, 27, target.getName() + "'s Enderchest");
+                            for (int i = 0; i <27; i++) {
+                                ItemStack stack = target.getPlayer().getEnderChest().getItem(i);
+                                if (stack != null) {
+                                    inventory.setItem(i, stack);
+                                }
+                            }
+                            player.getPlayer().openInventory(inventory);
                             player.sendMessage(Messages.enderChestOthers(target.getName()));
                             return true;
                         }
