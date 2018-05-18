@@ -1,7 +1,10 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
+import net.firecraftmc.shared.classes.FirecraftPlayer;
+import net.firecraftmc.shared.classes.FirecraftServer;
+import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.enforcer.Enforcer;
 import net.firecraftmc.shared.enforcer.Type;
 import net.firecraftmc.shared.enforcer.punishments.*;
@@ -10,7 +13,9 @@ import net.firecraftmc.shared.packets.FPacketPunish;
 import net.firecraftmc.shared.packets.FPacketPunishRemove;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -204,9 +209,17 @@ public class PunishmentManager implements TabExecutor, Listener {
                     player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }
-                
-                String ti = "PT" + args[1].toUpperCase();
-                long expire = Duration.parse(ti).toMillis();
+                String expireTime = "P";
+                String time = args[1].toUpperCase();
+                String[] a = time.split("d".toUpperCase());
+
+                if (a.length == 1) {
+                    expireTime += "T";
+                } else if (a.length == 2) {
+                    expireTime = a[0] + "dT" + a[1];
+                }
+
+                long expire = Duration.parse(expireTime).toMillis();
                 long expireDate = date + expire;
                 String reason = getReason(2, args);
                 if (reason.length() == 0) {
@@ -262,9 +275,17 @@ public class PunishmentManager implements TabExecutor, Listener {
                     player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }
-    
-                String ti = "PT" + args[1].toUpperCase();
-                long expire = Duration.parse(ti).toMillis();
+                String expireTime = "P";
+                String time = args[1].toUpperCase();
+                String[] a = time.split("d".toUpperCase());
+
+                if (a.length == 1) {
+                    expireTime += "T";
+                } else if (a.length == 2) {
+                    expireTime = a[0] + "dT" + a[1];
+                }
+
+                long expire = Duration.parse(expireTime).toMillis();
                 long expireDate = date + expire;
                 String reason = getReason(2, args);
                 if (reason.length() == 0) {
