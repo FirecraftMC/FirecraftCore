@@ -199,6 +199,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
         FPacketServerPlayerLeave playerLeave = new FPacketServerPlayerLeave(plugin.getFirecraftServer(), player.getUniqueId());
         plugin.getSocket().sendPacket(playerLeave);
 
+        plugin.getHomeManager().saveHomes(player);
         plugin.getDatabase().updateSQL("UPDATE `playerdata` SET `online`='false' WHERE `uniqueid`='" + player.getUniqueId().toString().replace("-", "") + "';");
 
         onlinePlayers.remove(player.getUniqueId());
