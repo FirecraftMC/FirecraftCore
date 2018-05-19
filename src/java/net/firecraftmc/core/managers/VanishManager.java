@@ -1,13 +1,18 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
+import net.firecraftmc.shared.classes.ActionBar;
+import net.firecraftmc.shared.classes.FirecraftPlayer;
+import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.staffchat.FPSCVanishToggle;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,9 +21,13 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.*;
+import org.bukkit.inventory.DoubleChestInventory;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class VanishManager implements TabExecutor, Listener {
     
@@ -49,7 +58,7 @@ public class VanishManager implements TabExecutor, Listener {
                         if (!player.isNicked()) {
                             player.getPlayer().setPlayerListName(player.getName());
                         } else {
-                            player.getPlayer().setPlayerListName(player.getNick().getNickProfile().getName());
+                            player.getPlayer().setPlayerListName(player.getNick().getProfile().getName());
                         }
                         p.getScoreboard().updateScoreboard(p);
                     }
@@ -61,7 +70,7 @@ public class VanishManager implements TabExecutor, Listener {
                         if (!player.isNicked()) {
                             player.getPlayer().setPlayerListName(player.getName() + " §7§l[V]");
                         } else {
-                            player.getPlayer().setPlayerListName(player.getNick().getNickProfile().getName() + "§7§l[V]");
+                            player.getPlayer().setPlayerListName(player.getNick().getProfile().getName() + "§7§l[V]");
                         }
                         
                         if (!p.getMainRank().isEqualToOrHigher(player.getMainRank())) {
