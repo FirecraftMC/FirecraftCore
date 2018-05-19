@@ -211,10 +211,14 @@ public class PunishmentManager implements TabExecutor, Listener {
                 }
                 String expireTime = "P";
                 String time = args[1].toUpperCase();
-                String[] a = time.split("d".toUpperCase());
+                String[] a = time.split("D");
 
                 if (a.length == 1) {
-                    expireTime += "T";
+                    if (a[0].contains("h") || a[0].contains("m") || a[0].contains("s")) {
+                        expireTime += "T" + a[0];
+                    } else {
+                        expireTime += a[0] + "d";
+                    }
                 } else if (a.length == 2) {
                     expireTime = a[0] + "dT" + a[1];
                 }
@@ -280,7 +284,11 @@ public class PunishmentManager implements TabExecutor, Listener {
                 String[] a = time.split("d".toUpperCase());
 
                 if (a.length == 1) {
-                    expireTime += "T";
+                    if (a[0].contains("h") || a[0].contains("m") || a[0].contains("s")) {
+                        expireTime += "T" + a[0];
+                    } else {
+                        expireTime += a[0] + "d";
+                    }
                 } else if (a.length == 2) {
                     expireTime = a[0] + "dT" + a[1];
                 }
