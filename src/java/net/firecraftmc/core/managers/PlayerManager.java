@@ -137,7 +137,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
                     if (!p1.isNicked()) {
                         p.getPlayer().setPlayerListName(p.getName() + " §7§l[V]");
                     } else {
-                        p.getPlayer().setPlayerListName(p1.getNick().getNickProfile().getName() + "§7§l[V]");
+                        p.getPlayer().setPlayerListName(p1.getNick().getProfile().getName() + "§7§l[V]");
                     }
 
                     if (!player.getMainRank().isEqualToOrHigher(p1.getMainRank())) {
@@ -177,7 +177,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
+        player.setHomes(plugin.getHomeManager().loadHomes(player.getUniqueId()));
         player.sendMessage(Messages.loadDataSuccessful);
     }
 
@@ -364,7 +364,7 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
 
                         ResultSet set = plugin.getDatabase().querySQL("SELECT * FROM `fctprefixes` WHERE `fctmember` = '{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
                         try {
-                            String sql = "";
+                            String sql;
                             if (set.next()) {
                                 sql = "UPDATE `fctprefixes` SET `prefix`='" + prefix + "' WHERE `fctmember` = '{uuid}';".replace("{uuid}", player.getUniqueId().toString());
                             } else {

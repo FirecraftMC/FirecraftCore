@@ -32,7 +32,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     private Location jailLocation;
     private MySQL database;
     private final HashMap<UUID, String> ackCodes = new HashMap<>();
-    
+    private HomeManager homeManager;
+
     public void onEnable() {
         instance = this;
         this.saveDefaultConfig();
@@ -75,7 +76,9 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         Utils.Command.registerCommands(this, new TimeManager(this), "time", "day", "night");
         Utils.Command.registerCommands(this, new BroadcastManager(this), "broadcast", "socketbroadcast");
         Utils.Command.registerCommands(this, new InventoryManager(this), "clearinventory", "enderchest", "workbench", "invsee");
-        
+        this.homeManager = new HomeManager(this);
+        Utils.Command.registerCommands(this, this.homeManager, "sethome", "delhome", "home");
+
         new BukkitRunnable() {
             public void run() {
                 getCommand("vanish").setExecutor(new VanishManager(FirecraftCore.this));
@@ -90,7 +93,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                 } else {
                     serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
                 }
-                
+
                 if (serverSpawn.getWorld() == null) {
                     serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
                 }
@@ -215,5 +218,9 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     
     public void addAckCode(UUID uuid, String code) {
         this.ackCodes.put(uuid, code);
+    }
+
+    public HomeManager getHomeManager() {
+        return homeManager;
     }
 }
