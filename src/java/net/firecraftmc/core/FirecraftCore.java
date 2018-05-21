@@ -78,6 +78,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         Utils.Command.registerCommands(this, new InventoryManager(this), "clearinventory", "enderchest", "workbench", "invsee");
         this.homeManager = new HomeManager(this);
         Utils.Command.registerCommands(this, this.homeManager, "sethome", "delhome", "home");
+        Utils.Command.registerCommands(this, new WarpManager(this), "setwarp", "delwarp", "warp");
 
         new BukkitRunnable() {
             public void run() {

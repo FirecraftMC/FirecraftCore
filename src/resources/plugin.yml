@@ -72,3 +72,6 @@ commands:
         aliases: [dh]
     home:
         aliases: [h]
+    setwarp:
+    delwarp:
+    warp:
