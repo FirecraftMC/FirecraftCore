@@ -103,7 +103,7 @@ public class GamemodeManager implements TabExecutor, Listener {
                 
                 if (target != null) {
                     if (!target.getName().equalsIgnoreCase("creative") || !target.getName().equalsIgnoreCase("survival")) {
-                        if (player.getMainRank().equals(Rank.ADMIN)) {
+                        if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                             player.sendMessage(prefix + Messages.onlyAdminHigherSetOthersGamemode);
                             return;
                         }
