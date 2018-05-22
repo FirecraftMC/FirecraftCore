@@ -102,7 +102,7 @@ public class WarpManager implements CommandExecutor {
                 if (args.length == 2) {
                     Rank rank;
                     try {
-                        rank = Rank.valueOf(args[1]);
+                        rank = Rank.valueOf(args[1].toUpperCase());
                     } catch (Exception e) {
                         player.sendMessage(prefix + Messages.invalidRank);
                         return true;
