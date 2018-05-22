@@ -33,6 +33,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
     private MySQL database;
     private final HashMap<UUID, String> ackCodes = new HashMap<>();
     private HomeManager homeManager;
+    private WarpManager warpManager;
 
     public void onEnable() {
         instance = this;
@@ -78,7 +79,8 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         Utils.Command.registerCommands(this, new InventoryManager(this), "clearinventory", "enderchest", "workbench", "invsee");
         this.homeManager = new HomeManager(this);
         Utils.Command.registerCommands(this, this.homeManager, "sethome", "delhome", "home");
-        Utils.Command.registerCommands(this, new WarpManager(this), "setwarp", "delwarp", "warp");
+        this.warpManager = new WarpManager(this);
+        Utils.Command.registerCommands(this, this.warpManager, "setwarp", "delwarp", "warp");
 
         new BukkitRunnable() {
             public void run() {
@@ -140,6 +142,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             getConfig().set("jail.yaw", jailLocation.getYaw());
             getConfig().set("jail.pitch", jailLocation.getPitch());
         }
+        this.warpManager.saveWarps();
         saveConfig();
     }
     

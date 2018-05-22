@@ -68,6 +68,21 @@ public class WarpManager implements CommandExecutor {
         }
     }
 
+    public void saveWarps() {
+        for (Warp warp : warps) {
+            config.set("warps." + warp.getName() + ".world", warp.getLocation().getWorld().getName());
+            config.set("warps." + warp.getName() + ".x", warp.getLocation().getX());
+            config.set("warps." + warp.getName() + ".y", warp.getLocation().getY());
+            config.set("warps." + warp.getName() + ".z", warp.getLocation().getZ());
+            config.set("warps." + warp.getName() + ".yaw", warp.getLocation().getYaw());
+            config.set("warps." + warp.getName() + ".pitch", warp.getLocation().getPitch());
+            config.set("warps." + warp.getName() + ".minimumrank", warp.getMinimumRank().toString());
+        }
+        try {
+            config.save(file);
+        } catch (IOException e) {}
+    }
+
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage(Messages.onlyPlayers);
