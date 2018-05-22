@@ -42,24 +42,26 @@ public class PunishmentManager implements TabExecutor, Listener {
     public void onPreLogin(AsyncPlayerPreLoginEvent e) {
         UUID uuid = e.getUniqueId();
         ResultSet set = plugin.getDatabase().querySQL("SELECT * from `punishments` WHERE `target`='" + uuid.toString().replace("-", "") + "';");
-        try {
-            while (set.next()) {
-                if (set.getBoolean("active")) {
-                    int id = set.getInt("id");
-                    Type type = Type.valueOf(set.getString("type"));
-                    FirecraftPlayer punisher = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), Utils.convertToUUID(set.getString("punisher")));
-                    String reason = set.getString("reason");
-                    if (type.equals(Type.TEMP_BAN)) {
-                        long expire = set.getLong("expire");
-                        String expireDiff = Utils.Time.formatTime(expire - System.currentTimeMillis());
-                        e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color(Messages.banMessage(punisher.getName(), reason, expireDiff, id)));
-                    } else if (type.equals(Type.BAN)) {
-                        e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color(Messages.banMessage(punisher.getName(), reason, "Permanent", id)));
+        if (set != null) {
+            try {
+                while (set.next()) {
+                    if (set.getBoolean("active")) {
+                        int id = set.getInt("id");
+                        Type type = Type.valueOf(set.getString("type"));
+                        FirecraftPlayer punisher = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), Utils.convertToUUID(set.getString("punisher")));
+                        String reason = set.getString("reason");
+                        if (type.equals(Type.TEMP_BAN)) {
+                            long expire = set.getLong("expire");
+                            String expireDiff = Utils.Time.formatTime(expire - System.currentTimeMillis());
+                            e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color(Messages.banMessage(punisher.getName(), reason, expireDiff, id)));
+                        } else if (type.equals(Type.BAN)) {
+                            e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color(Messages.banMessage(punisher.getName(), reason, "Permanent", id)));
+                        }
                     }
                 }
+            } catch (SQLException e1) {
+                e1.printStackTrace();
             }
-        } catch (SQLException e1) {
-            e1.printStackTrace();
         }
     }
     
