@@ -81,10 +81,10 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         Utils.Command.registerCommands(this, this.homeManager, "sethome", "delhome", "home");
         this.warpManager = new WarpManager(this);
         Utils.Command.registerCommands(this, this.warpManager, "setwarp", "delwarp", "warp");
+        getCommand("vanish").setExecutor(new VanishManager(FirecraftCore.this));
 
         new BukkitRunnable() {
             public void run() {
-                getCommand("vanish").setExecutor(new VanishManager(FirecraftCore.this));
                 if (getConfig().contains("spawn")) {
                     World world = Bukkit.getWorld(getConfig().getString("spawn.world"));
                     double x = getConfig().getInt("spawn.x");
