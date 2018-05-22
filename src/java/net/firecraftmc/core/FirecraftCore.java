@@ -142,7 +142,13 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
             getConfig().set("jail.yaw", jailLocation.getYaw());
             getConfig().set("jail.pitch", jailLocation.getPitch());
         }
+
         this.warpManager.saveWarps();
+
+        for (FirecraftPlayer player : playerManager.getPlayers()) {
+            this.homeManager.saveHomes(player);
+        }
+
         saveConfig();
     }
     
