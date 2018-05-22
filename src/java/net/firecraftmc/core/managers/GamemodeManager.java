@@ -1,12 +1,17 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
+import net.firecraftmc.shared.classes.FirecraftPlayer;
+import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemode;
 import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemodeOthers;
 import org.bukkit.GameMode;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -97,22 +102,24 @@ public class GamemodeManager implements TabExecutor, Listener {
                 }
                 
                 if (target != null) {
-                    if (player.getMainRank().equals(Rank.ADMIN)) {
-                        player.sendMessage(prefix + Messages.onlyAdminHigherSetOthersGamemode);
-                        return;
-                    }
-                    
-                    if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-                        if (!(target.getMainRank().equals(Rank.FIRECRAFT_TEAM) && player.getMainRank().equals(Rank.FIRECRAFT_TEAM))) {
-                            player.sendMessage(prefix + Messages.cannotSetGmOfSameRankOrHigher);
+                    if (!target.getName().equalsIgnoreCase("creative") || !target.getName().equalsIgnoreCase("survival")) {
+                        if (player.getMainRank().equals(Rank.ADMIN)) {
+                            player.sendMessage(prefix + Messages.onlyAdminHigherSetOthersGamemode);
                             return;
                         }
+
+                        if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                            if (!(target.getMainRank().equals(Rank.FIRECRAFT_TEAM) && player.getMainRank().equals(Rank.FIRECRAFT_TEAM))) {
+                                player.sendMessage(prefix + Messages.cannotSetGmOfSameRankOrHigher);
+                                return;
+                            }
+                        }
+
+                        target.setGamemode(mode);
+                        FPSCSetGamemodeOthers setGamemode = new FPSCSetGamemodeOthers(plugin.getFirecraftServer(), player.getUniqueId(), mode, target.getUniqueId());
+                        plugin.getSocket().sendPacket(setGamemode);
+                        return;
                     }
-                    
-                    target.setGamemode(mode);
-                    FPSCSetGamemodeOthers setGamemode = new FPSCSetGamemodeOthers(plugin.getFirecraftServer(), player.getUniqueId(), mode, target.getUniqueId());
-                    plugin.getSocket().sendPacket(setGamemode);
-                    return;
                 }
                 
                 player.setGamemode(mode);
