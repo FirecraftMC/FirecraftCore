@@ -58,17 +58,23 @@ public class WarpManager implements CommandExecutor {
                 double z = config.getInt(basePath + ".z");
                 float yaw = (float) config.getDouble(basePath + ".yaw");
                 float pitch = (float) config.getDouble(basePath + ".pitch");
+                Location location = new Location(world, x, y, z, yaw, pitch);
+                System.out.println(location);
                 Warp warp;
                 if (config.contains(basePath + ".minimumrank")) {
                     Rank rank = Rank.valueOf(config.getString(basePath + ".minimumrank"));
-                    warp = new Warp(w, new Location(world, x, y, z, yaw, pitch), rank);
-                } else warp = new Warp(w, new Location(world, x, y, z, yaw, pitch));
+                    warp = new Warp(w, location, rank);
+                } else warp = new Warp(w, location);
                 this.warps.add(warp);
             }
         }
     }
 
     public void saveWarps() {
+        config.set("warps", null);
+        try {
+            config.save(file);
+        } catch (IOException e) {}
         for (Warp warp : warps) {
             config.set("warps." + warp.getName() + ".world", warp.getLocation().getWorld().getName());
             config.set("warps." + warp.getName() + ".x", warp.getLocation().getX());
