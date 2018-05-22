@@ -48,6 +48,10 @@ public class HomeManager implements TabExecutor, IHomeManager {
     }
 
     public void saveHomes(FirecraftPlayer player) {
+        config.set("homes." + player.getUniqueId().toString(), null);
+        try {
+            config.save(file);
+        } catch (IOException e) {}
         for (Home home : player.getHomes()) {
             config.set("homes." + player.getUniqueId().toString() + "." + home.getName() + ".world", home.getLocation().getWorld().getName());
             config.set("homes." + player.getUniqueId().toString() + "." + home.getName() + ".x", home.getLocation().getX());
