@@ -20,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -62,6 +63,30 @@ public class PunishmentManager implements TabExecutor, Listener {
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
+        }
+    }
+
+    @EventHandler
+    public void onCommandPreProcess(PlayerCommandPreprocessEvent e) {
+        FirecraftPlayer player = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), e.getPlayer().getUniqueId());
+        ResultSet jailSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
+        try {
+            if (jailSet.next()) {
+                player.sendMessage(Messages.jailedNoCmds);
+                e.setCancelled(true);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        ResultSet warnSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `acknowledged`='false' AND `type`='WARN';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
+        try {
+            if (warnSet.next()) {
+                player.sendMessage(Messages.unAckWarnNoCmds);
+                e.setCancelled(true);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
     

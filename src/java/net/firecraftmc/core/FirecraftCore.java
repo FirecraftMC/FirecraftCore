@@ -13,12 +13,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.sql.ResultSet;
 
 public class FirecraftCore extends FirecraftPlugin implements Listener {
 
@@ -148,27 +144,5 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         saveConfig();
     }
     
-    @EventHandler
-    public void onCommandPreProcess(PlayerCommandPreprocessEvent e) {
-        FirecraftPlayer player = Utils.Database.getPlayerFromDatabase(server, database, e.getPlayer().getUniqueId());
-        ResultSet jailSet = database.querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
-        try {
-            if (jailSet.next()) {
-                player.sendMessage(Messages.jailedNoCmds);
-                e.setCancelled(true);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    
-        ResultSet warnSet = database.querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `acknowledged`='false' AND `type`='WARN';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
-        try {
-            if (warnSet.next()) {
-                player.sendMessage(Messages.unAckWarnNoCmds);
-                e.setCancelled(true);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
+
 }
