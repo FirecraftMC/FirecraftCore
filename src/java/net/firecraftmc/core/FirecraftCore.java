@@ -11,8 +11,6 @@ import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class FirecraftCore extends FirecraftPlugin {
@@ -26,10 +24,7 @@ public class FirecraftCore extends FirecraftPlugin {
             getConfig().set("host", "172.18.0.2");
             saveConfig();
         }
-    
-        this.playerManager = new PlayerManager(this);
-        Utils.Command.registerCommands(this, playerManager, "players", "fct");
-        
+
         String host = getConfig().getString("host");
         this.socket = new FirecraftSocket(this, host, getConfig().getInt("port"));
         this.socket.start();
@@ -42,47 +37,20 @@ public class FirecraftCore extends FirecraftPlugin {
             }
         }.runTaskTimerAsynchronously(this, 0L, 20L);
 
+        this.registerAllCommands();
+
         database = new MySQL(getConfig().getString("mysql.user"), getConfig().getString("mysql.database"),
                 getConfig().getString("mysql.password"), getConfig().getInt("mysql.port"), getConfig().getString("mysql.hostname"));
         database.openConnection();
         
-        String versionString = Utils.Reflection.getVersion();
-        if (versionString.equalsIgnoreCase("v1_8_R3")) {
-            this.nickWrapper = new NickWrapper1_8_R3();
-            this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_8(this), this);
-        } else if (versionString.equalsIgnoreCase("v1_12_R1")) {
-            this.nickWrapper = new NickWrapper1_12_R1();
-            this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_12(this), this);
-        }
-        
-        this.getCommand("chat").setExecutor(new ChatManager(this));
-        Utils.Command.registerCommands(this, new NickManager(this), "nick", "nickcancel", "nickconfirm", "unnick");
-        Utils.Command.registerCommands(this, new GamemodeManager(this), "gamemode", "gmc", "gms", "gma", "gmsp");
-        Utils.Command.registerCommands(this, new TeleportationManager(this), "teleport", "tphere", "back", "tpall", "tpaccept", "tpdeny", "tpa", "setspawn", "spawn");
-        this.getCommand("dev").setExecutor(new DevManager(this));
-        this.getCommand("signedit").setExecutor(new SignEditManager(this));
-        Utils.Command.registerCommands(this, new PunishmentManager(this), "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail");
-        Utils.Command.registerCommands(this, new ItemManager(this), "setname", "setlore");
-        this.getCommand("weather").setExecutor(new WeatherManager(this));
-        Utils.Command.registerCommands(this, new TimeManager(this), "time", "day", "night");
-        Utils.Command.registerCommands(this, new BroadcastManager(this), "broadcast", "socketbroadcast");
-        Utils.Command.registerCommands(this, new InventoryManager(this), "clearinventory", "enderchest", "workbench", "invsee");
-        this.homeManager = new HomeManager(this);
-        Utils.Command.registerCommands(this, this.homeManager, "sethome", "delhome", "home");
-        getCommand("vanish").setExecutor(new VanishManager(this));
+        this.versionSpecificTasks();
 
         new BukkitRunnable() {
             public void run() {
                 warpManager = new WarpManager(FirecraftCore.this);
                 Utils.Command.registerCommands(FirecraftCore.this, warpManager, "setwarp", "delwarp", "warp");
                 if (getConfig().contains("spawn")) {
-                    World world = Bukkit.getWorld(getConfig().getString("spawn.world"));
-                    double x = getConfig().getInt("spawn.x");
-                    double y = getConfig().getInt("spawn.y");
-                    double z = getConfig().getInt("spawn.z");
-                    float yaw = (float) getConfig().getDouble("spawn.yaw");
-                    float pitch = (float) getConfig().getDouble("spawn.pitch");
-                    serverSpawn = new Location(world, x, y, z, yaw, pitch);
+                    serverSpawn = Utils.getLocationFromString(getConfig().getString("spawn"));
                 } else {
                     serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
                 }
@@ -92,13 +60,7 @@ public class FirecraftCore extends FirecraftPlugin {
                 }
                 
                 if (getConfig().contains("jail")) {
-                    World world = Bukkit.getWorld(getConfig().getString("jail.world"));
-                    double x = getConfig().getInt("jail.x");
-                    double y = getConfig().getInt("jail.y");
-                    double z = getConfig().getInt("jail.z");
-                    float yaw = (float) getConfig().getDouble("jail.yaw");
-                    float pitch = (float) getConfig().getDouble("jail.pitch");
-                    jailLocation = new Location(world, x, y, z, yaw, pitch);
+                    jailLocation = Utils.getLocationFromString(getConfig().getString("jail"));
                 }
             }
         }.runTaskLater(this, 10L);
@@ -117,20 +79,10 @@ public class FirecraftCore extends FirecraftPlugin {
         
         this.database.closeConnection();
         
-        getConfig().set("spawn.world", serverSpawn.getWorld().getName());
-        getConfig().set("spawn.x", serverSpawn.getBlockX());
-        getConfig().set("spawn.y", serverSpawn.getBlockX());
-        getConfig().set("spawn.z", serverSpawn.getBlockX());
-        getConfig().set("spawn.yaw", serverSpawn.getYaw());
-        getConfig().set("spawn.pitch", serverSpawn.getPitch());
+        getConfig().set("spawn", Utils.convertLocationToString(serverSpawn));
     
         if (jailLocation != null) {
-            getConfig().set("jail.world", jailLocation.getWorld().getName());
-            getConfig().set("jail.x", jailLocation.getBlockX());
-            getConfig().set("jail.y", jailLocation.getBlockX());
-            getConfig().set("jail.z", jailLocation.getBlockX());
-            getConfig().set("jail.yaw", jailLocation.getYaw());
-            getConfig().set("jail.pitch", jailLocation.getPitch());
+            getConfig().set("jail", Utils.convertLocationToString(jailLocation));
         }
 
         this.warpManager.saveWarps();
@@ -142,5 +94,34 @@ public class FirecraftCore extends FirecraftPlugin {
         saveConfig();
     }
     
+    private void registerAllCommands() {
+        this.playerManager = new PlayerManager(this);
+        Utils.Command.registerCommands(this, playerManager, "players", "fct");
+        this.getCommand("chat").setExecutor(new ChatManager(this));
+        Utils.Command.registerCommands(this, new NickManager(this), "nick", "nickcancel", "nickconfirm", "unnick");
+        Utils.Command.registerCommands(this, new GamemodeManager(this), "gamemode", "gmc", "gms", "gma", "gmsp");
+        Utils.Command.registerCommands(this, new TeleportationManager(this), "teleport", "tphere", "back", "tpall", "tpaccept", "tpdeny", "tpa", "setspawn", "spawn");
+        this.getCommand("dev").setExecutor(new DevManager(this));
+        this.getCommand("signedit").setExecutor(new SignEditManager(this));
+        Utils.Command.registerCommands(this, new PunishmentManager(this), "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail");
+        Utils.Command.registerCommands(this, new ItemManager(this), "setname", "setlore");
+        this.getCommand("weather").setExecutor(new WeatherManager(this));
+        Utils.Command.registerCommands(this, new TimeManager(this), "time", "day", "night");
+        Utils.Command.registerCommands(this, new BroadcastManager(this), "broadcast", "socketbroadcast");
+        Utils.Command.registerCommands(this, new InventoryManager(this), "clearinventory", "enderchest", "workbench", "invsee");
+        this.homeManager = new HomeManager(this);
+        Utils.Command.registerCommands(this, this.homeManager, "sethome", "delhome", "home");
+        getCommand("vanish").setExecutor(new VanishManager(this));
+    }
 
+    private void versionSpecificTasks() {
+        String versionString = Utils.Reflection.getVersion();
+        if (versionString.equalsIgnoreCase("v1_8_R3")) {
+            this.nickWrapper = new NickWrapper1_8_R3();
+            this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_8(this), this);
+        } else if (versionString.equalsIgnoreCase("v1_12_R1")) {
+            this.nickWrapper = new NickWrapper1_12_R1();
+            this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_12(this), this);
+        }
+    }
 }

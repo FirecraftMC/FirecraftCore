@@ -1,13 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.FirecraftPlayer;
-import net.firecraftmc.shared.classes.Home;
-import net.firecraftmc.shared.classes.IHomeManager;
-import net.firecraftmc.shared.classes.Messages;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
+import net.firecraftmc.shared.classes.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -52,12 +46,7 @@ public class HomeManager implements IHomeManager {
             config.save(file);
         } catch (IOException e) {}
         for (Home home : player.getHomes()) {
-            config.set("homes." + player.getUniqueId().toString() + "." + home.getName() + ".world", home.getLocation().getWorld().getName());
-            config.set("homes." + player.getUniqueId().toString() + "." + home.getName() + ".x", home.getLocation().getX());
-            config.set("homes." + player.getUniqueId().toString() + "." + home.getName() + ".y", home.getLocation().getY());
-            config.set("homes." + player.getUniqueId().toString() + "." + home.getName() + ".z", home.getLocation().getZ());
-            config.set("homes." + player.getUniqueId().toString() + "." + home.getName() + ".yaw", home.getLocation().getYaw());
-            config.set("homes." + player.getUniqueId().toString() + "." + home.getName() + ".pitch", home.getLocation().getPitch());
+            config.set("homes." + player.getUniqueId().toString() + "." + home.getName(), Utils.convertLocationToString(home.getLocation()));
         }
         try {
             config.save(file);
@@ -69,13 +58,7 @@ public class HomeManager implements IHomeManager {
         if (config.contains("homes." + uuid.toString())) {
             for (String h : config.getConfigurationSection("homes." + uuid.toString()).getKeys(false)) {
                 String basePath = "homes.{uuid}.{name}".replace("{uuid}", uuid.toString()).replace("{name}", h);
-                World world = Bukkit.getWorld(config.getString(basePath + ".world"));
-                double x = config.getInt(basePath + ".x");
-                double y = config.getInt(basePath + ".y");
-                double z = config.getInt(basePath + ".z");
-                float yaw = (float) config.getDouble(basePath + ".yaw");
-                float pitch = (float) config.getDouble(basePath + ".pitch");
-                Home home = new Home(h, new Location(world, x, y, z, yaw, pitch));
+                Home home = new Home(h, Utils.getLocationFromString(basePath));
                 homes.add(home);
             }
         }

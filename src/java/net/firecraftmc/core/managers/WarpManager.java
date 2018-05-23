@@ -3,11 +3,10 @@ package net.firecraftmc.core.managers;
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.Warp;
 import net.firecraftmc.shared.enums.Rank;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -52,13 +51,7 @@ public class WarpManager implements CommandExecutor {
         if (section != null && !section.getKeys(false).isEmpty()) {
             for (String w : section.getKeys(false)) {
                 String basePath = "warps.{name}".replace("{name}", w);
-                World world = Bukkit.getWorld(config.getString(basePath + ".world"));
-                double x = config.getInt(basePath + ".x");
-                double y = config.getInt(basePath + ".y");
-                double z = config.getInt(basePath + ".z");
-                float yaw = (float) config.getDouble(basePath + ".yaw");
-                float pitch = (float) config.getDouble(basePath + ".pitch");
-                Location location = new Location(world, x, y, z, yaw, pitch);
+                Location location = Utils.getLocationFromString(basePath + ".location");
                 Warp warp;
                 if (config.contains(basePath + ".minimumrank")) {
                     Rank rank = Rank.valueOf(config.getString(basePath + ".minimumrank"));
@@ -75,13 +68,8 @@ public class WarpManager implements CommandExecutor {
             config.save(file);
         } catch (IOException e) {}
         for (Warp warp : warps) {
-            config.set("warps." + warp.getName() + ".world", warp.getLocation().getWorld().getName());
-            config.set("warps." + warp.getName() + ".x", warp.getLocation().getX());
-            config.set("warps." + warp.getName() + ".y", warp.getLocation().getY());
-            config.set("warps." + warp.getName() + ".z", warp.getLocation().getZ());
-            config.set("warps." + warp.getName() + ".yaw", warp.getLocation().getYaw());
-            config.set("warps." + warp.getName() + ".pitch", warp.getLocation().getPitch());
             config.set("warps." + warp.getName() + ".minimumrank", warp.getMinimumRank().toString());
+            config.set("warps." + warp.getName() + ".location", Utils.convertLocationToString(warp.getLocation()));
         }
         try {
             config.save(file);
