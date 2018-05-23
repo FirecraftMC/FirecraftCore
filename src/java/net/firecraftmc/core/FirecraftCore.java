@@ -57,7 +57,7 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
                     socket = new FirecraftSocket(FirecraftCore.this, host, getConfig().getInt("port"));
                 }
             }
-        }.runTaskTimerAsynchronously(this, 20*60*10L, 20L);
+        }.runTaskTimerAsynchronously(this, 20*60, 20L);
 
         database = new MySQL(getConfig().getString("mysql.user"), getConfig().getString("mysql.database"),
                 getConfig().getString("mysql.password"), getConfig().getInt("mysql.port"), getConfig().getString("mysql.hostname"));
