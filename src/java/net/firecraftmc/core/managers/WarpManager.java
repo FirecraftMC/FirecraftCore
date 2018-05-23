@@ -59,7 +59,6 @@ public class WarpManager implements CommandExecutor {
                 float yaw = (float) config.getDouble(basePath + ".yaw");
                 float pitch = (float) config.getDouble(basePath + ".pitch");
                 Location location = new Location(world, x, y, z, yaw, pitch);
-                System.out.println(location);
                 Warp warp;
                 if (config.contains(basePath + ".minimumrank")) {
                     Rank rank = Rank.valueOf(config.getString(basePath + ".minimumrank"));
