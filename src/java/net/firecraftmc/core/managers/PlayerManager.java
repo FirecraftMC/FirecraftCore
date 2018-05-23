@@ -2,12 +2,12 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
-import net.firecraftmc.shared.classes.IPlayerManager;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.enums.Rank;
+import net.firecraftmc.shared.classes.interfaces.IPlayerManager;
 import net.firecraftmc.shared.enforcer.punishments.Punishment;
 import net.firecraftmc.shared.enforcer.punishments.TemporaryBan;
-import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.FPacketRankUpdate;
 import net.firecraftmc.shared.packets.FPacketServerPlayerJoin;
 import net.firecraftmc.shared.packets.FPacketServerPlayerLeave;

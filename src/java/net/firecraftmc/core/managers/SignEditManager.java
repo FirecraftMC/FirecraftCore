@@ -1,12 +1,16 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
-import net.firecraftmc.shared.enums.Rank;
+import net.firecraftmc.shared.classes.FirecraftPlayer;
+import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.enums.Rank;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

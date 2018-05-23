@@ -1,7 +1,10 @@
 package net.firecraftmc.core.wrapper;
 
 import com.mojang.authlib.properties.Property;
-import net.firecraftmc.shared.classes.*;
+import net.firecraftmc.shared.classes.FirecraftPlayer;
+import net.firecraftmc.shared.classes.abstraction.FirecraftPlugin;
+import net.firecraftmc.shared.classes.interfaces.NickWrapper;
+import net.firecraftmc.shared.classes.model.Skin;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -14,7 +17,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NickWrapper1_8_R3 extends NickWrapper {
+public class NickWrapper1_8_R3 implements NickWrapper {
     private final MinecraftServer minecraftServer;
 
     private final PacketPlayOutPlayerInfo.EnumPlayerInfoAction action_remove = PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER;

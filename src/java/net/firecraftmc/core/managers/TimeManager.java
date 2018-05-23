@@ -3,9 +3,11 @@ package net.firecraftmc.core.managers;
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.enums.Rank;
+import net.firecraftmc.shared.classes.enums.Rank;
 import org.bukkit.World;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class TimeManager implements CommandExecutor {

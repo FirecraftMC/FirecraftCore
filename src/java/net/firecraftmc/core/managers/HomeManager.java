@@ -1,7 +1,11 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
+import net.firecraftmc.shared.classes.FirecraftPlayer;
+import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.interfaces.IHomeManager;
+import net.firecraftmc.shared.classes.model.Home;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;

@@ -4,7 +4,7 @@ import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
-import net.firecraftmc.shared.enums.Rank;
+import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemode;
 import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemodeOthers;
 import org.bukkit.GameMode;
