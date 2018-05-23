@@ -13,10 +13,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class FirecraftCore extends FirecraftPlugin implements Listener {
+public class FirecraftCore extends FirecraftPlugin {
 
     private WarpManager warpManager;
 
@@ -34,7 +33,6 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         String host = getConfig().getString("host");
         this.socket = new FirecraftSocket(this, host, getConfig().getInt("port"));
         this.socket.start();
-        this.getServer().getPluginManager().registerEvents(this, this);
         this.server = new FirecraftServer(getConfig().getString("server.name"), ChatColor.valueOf(getConfig().getString("server.color")));
         new BukkitRunnable() {
             public void run() {
