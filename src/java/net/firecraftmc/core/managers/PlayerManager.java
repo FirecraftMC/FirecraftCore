@@ -210,6 +210,11 @@ public class PlayerManager implements IPlayerManager, Listener {
         }
     }
 
+    /**
+     * Gets the FirecraftPlayer given the UUID
+     * @param uuid The Unique Id of the player
+     * @return The FirecraftPlayer object from memory or the database
+     */
     public FirecraftPlayer getPlayer(UUID uuid) {
         FirecraftPlayer player = onlinePlayers.get(uuid);
         if (player == null) player = cachedPlayers.get(uuid);
@@ -217,6 +222,11 @@ public class PlayerManager implements IPlayerManager, Listener {
         return player;
     }
 
+    /**
+     * Gets the FirecraftPlayer given the name
+     * @param name The name of the player
+     * @return The FirecraftPlayer object from memory or the database
+     */
     public FirecraftPlayer getPlayer(String name) {
         for (FirecraftPlayer fp : onlinePlayers.values()) {
             if (fp.getName().equalsIgnoreCase(name)) {
@@ -237,31 +247,59 @@ public class PlayerManager implements IPlayerManager, Listener {
         return Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), uuid);
     }
 
+    /**
+     * @return List of all online players with the FirecraftPlayer object
+     */
     public Collection<FirecraftPlayer> getPlayers() {
         return onlinePlayers.values();
     }
 
+    /**
+     * Adds a player to the onlinePlayers list
+     * @param player The player to add
+     */
     public void addPlayer(FirecraftPlayer player) {
         this.onlinePlayers.put(player.getUniqueId(), player);
     }
 
+    /**
+     * Removes a player from the online list
+     * @param uuid The Unique ID of the player to remove
+     */
     public void removePlayer(UUID uuid) {
         this.onlinePlayers.remove(uuid);
     }
 
+    /**
+     * Gets a Player Profile from the cache
+     * @param uuid The UUID of the player to get
+     * @return The profile of the player
+     */
     public FirecraftPlayer getCachedPlayer(UUID uuid) {
         return this.cachedPlayers.get(uuid);
     }
 
+    /**
+     * Adds a punishment so that the player can be kicked if they are online, supports cross server kicking/banning
+     * @param punishment The Punishment received from the socket
+     */
     public void addToKickForPunishment(Punishment punishment) {
         if (!punishment.getServer().equalsIgnoreCase(plugin.getFirecraftServer().getName()))
             this.toKickForPunishment.put(Utils.convertToUUID(punishment.getTarget()), punishment);
     }
 
+    /**
+     * Adds a player to the cache, which is used if a player profile is used when not online or they go offline.
+     * @param player The player to add to the cache
+     */
     public void addCachedPlayer(FirecraftPlayer player) {
         this.cachedPlayers.put(player.getUniqueId(), player);
     }
 
+    /**
+     * Add a player to the queue to be teleport to the jail location
+     * @param uuid The UUID of the player to be jailed
+     */
     public void addToTeleportUnJail(UUID uuid) {
         this.teleportUnjail.add(uuid);
     }

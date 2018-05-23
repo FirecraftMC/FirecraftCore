@@ -9,18 +9,16 @@ import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemode;
 import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemodeOthers;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.List;
-
-public class GamemodeManager implements TabExecutor, Listener {
+public class GamemodeManager implements CommandExecutor, Listener {
     private final FirecraftCore plugin;
 
     private static final String prefix = "&d&l[Gamemode] ";
@@ -83,11 +81,13 @@ public class GamemodeManager implements TabExecutor, Listener {
         
         return true;
     }
-    
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
-        return null;
-    }
-    
+
+    /**
+     * Just a little utility method to prevent repeat code
+     * @param sender The CommandSender from the command
+     * @param mode The target Gamemode
+     * @param args The command arguments
+     */
     private void gamemodeShortcut(CommandSender sender, GameMode mode, String[] args) {
         if (sender instanceof Player) {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());

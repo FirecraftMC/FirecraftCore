@@ -13,8 +13,8 @@ import net.firecraftmc.shared.packets.FPacketPunishRemove;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -24,15 +24,13 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.util.List;
 import java.util.UUID;
 
-public class PunishmentManager implements TabExecutor, Listener {
+public class PunishmentManager implements CommandExecutor, Listener {
     private FirecraftCore plugin;
     private static final String prefix = "&d&l[ENFORCER] ";
     private final UUID firestar311 = UUID.fromString("3f7891ce-5a73-4d52-a2ba-299839053fdc");
-    
-    
+
     public PunishmentManager(FirecraftCore plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -426,10 +424,6 @@ public class PunishmentManager implements TabExecutor, Listener {
         }
         
         return true;
-    }
-    
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
-        return null;
     }
     
     private String getReason(int start, String[] args) {

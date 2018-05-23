@@ -40,6 +40,10 @@ public class HomeManager implements IHomeManager {
         }
     }
 
+    /**
+     * Saves all homes given the player
+     * @param player The player to save the homes of.
+     */
     public void saveHomes(FirecraftPlayer player) {
         config.set("homes." + player.getUniqueId().toString(), null);
         try {
@@ -53,6 +57,11 @@ public class HomeManager implements IHomeManager {
         } catch (IOException e) {}
     }
 
+    /**
+     * Loads the homes given the UUID of the player
+     * @param uuid The uuid of the player to load the homes of
+     * @return The list of homes that the Player has set
+     */
     public List<Home> loadHomes(UUID uuid) {
         List<Home> homes = new ArrayList<>();
         if (config.contains("homes." + uuid.toString())) {

@@ -6,13 +6,11 @@ import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.FPacketSocketBroadcast;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
-import java.util.List;
-
-public class BroadcastManager implements TabExecutor {
+public class BroadcastManager implements CommandExecutor {
     private FirecraftCore plugin;
 
     private static String prefix = "&d&l[Broadcast] ";
@@ -62,9 +60,5 @@ public class BroadcastManager implements TabExecutor {
         }
 
         return true;
-    }
-
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
-        return null;
     }
 }

@@ -6,8 +6,8 @@ import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.enums.Rank;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,9 +16,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-
-public class InventoryManager implements TabExecutor, Listener {
+public class InventoryManager implements CommandExecutor, Listener {
     private FirecraftCore plugin;
 
     public InventoryManager(FirecraftCore plugin) {
@@ -175,9 +173,5 @@ public class InventoryManager implements TabExecutor, Listener {
         }
 
         return true;
-    }
-
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
-        return null;
     }
 }

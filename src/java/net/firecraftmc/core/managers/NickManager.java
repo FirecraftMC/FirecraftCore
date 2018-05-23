@@ -1,17 +1,23 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
+import net.firecraftmc.shared.classes.ActionBar;
+import net.firecraftmc.shared.classes.FirecraftPlayer;
+import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.exceptions.NicknameException;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatResetNick;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatSetNick;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 
-public class NickManager implements TabExecutor {
+public class NickManager implements CommandExecutor {
     private final FirecraftCore plugin;
     private final List<UUID> settingNick = new ArrayList<>();
     private final Map<UUID, FirecraftPlayer> confirmNick = new HashMap<>();
@@ -167,9 +173,5 @@ public class NickManager implements TabExecutor {
             plugin.getSocket().sendPacket(resetNick);
         }
         return true;
-    }
-    
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
-        return null;
     }
 }

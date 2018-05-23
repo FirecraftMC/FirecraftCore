@@ -13,10 +13,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.scheduler.BukkitRunnable;
 
+/**
+ * The main plugin class for the core and where a lot of the implementation for FirecraftPlugin and other FirecraftShared stuff is.
+ */
 public class FirecraftCore extends FirecraftPlugin {
 
     private WarpManager warpManager;
 
+    /**
+     * This is where all of the stuff is loaded into memory and the task methods are called.
+     */
     public void onEnable() {
         instance = this;
         this.saveDefaultConfig();
@@ -48,6 +54,9 @@ public class FirecraftCore extends FirecraftPlugin {
         this.postWorldTasks();
     }
 
+    /**
+     * All close methods are called here and stuff is saved to the database/files where needed.
+     */
     public void onDisable() {
         for (FirecraftPlayer player : playerManager.getPlayers()) {
             FPStaffChatQuit staffQuit = new FPStaffChatQuit(server, player.getUniqueId());
@@ -76,6 +85,9 @@ public class FirecraftCore extends FirecraftPlugin {
         saveConfig();
     }
 
+    /**
+     * This method handles the registration of all commands and their managers.
+     */
     private void registerAllCommands() {
         this.playerManager = new PlayerManager(this);
         Utils.Command.registerCommands(this, playerManager, "players", "fct");
@@ -96,6 +108,9 @@ public class FirecraftCore extends FirecraftPlugin {
         getCommand("vanish").setExecutor(new VanishManager(this));
     }
 
+    /**
+     * Handles the Version Specific classes needed for proper operation.
+     */
     private void versionSpecificTasks() {
         String versionString = Utils.Reflection.getVersion();
         if (versionString.equalsIgnoreCase("v1_8_R3")) {
@@ -107,6 +122,9 @@ public class FirecraftCore extends FirecraftPlugin {
         }
     }
 
+    /**
+     * Handles Post-World Tasks that can only be done when the world is loaded into memory (Plugin is enabled on Startup)
+     */
     private void postWorldTasks() {
         new BukkitRunnable() {
             public void run() {

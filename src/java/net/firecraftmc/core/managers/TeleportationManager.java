@@ -2,12 +2,19 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.core.classes.TPRequest;
-import net.firecraftmc.shared.classes.*;
+import net.firecraftmc.shared.classes.FirecraftPlayer;
+import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.enums.Rank;
-import net.firecraftmc.shared.packets.staffchat.*;
+import net.firecraftmc.shared.packets.staffchat.FPSCTeleport;
+import net.firecraftmc.shared.packets.staffchat.FPSCTeleportHere;
+import net.firecraftmc.shared.packets.staffchat.FPSCTeleportOthers;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,7 +26,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-public class TeleportationManager implements TabExecutor, Listener {
+public class TeleportationManager implements CommandExecutor, Listener {
     private final FirecraftCore plugin;
     
     private final Map<UUID, Location> lastLocation = new HashMap<>();
@@ -278,10 +285,6 @@ public class TeleportationManager implements TabExecutor, Listener {
         }
         
         return true;
-    }
-    
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
-        return null;
     }
     
     private Map.Entry<Long, TPRequest> getRequestByRequested(UUID id) {
