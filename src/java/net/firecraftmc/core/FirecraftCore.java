@@ -31,7 +31,7 @@ public class FirecraftCore extends FirecraftPlugin {
         this.server = new FirecraftServer(getConfig().getString("server.name"), ChatColor.valueOf(getConfig().getString("server.color")));
         new BukkitRunnable() {
             public void run() {
-                if (socket == null || socket.getState().equals(Thread.State.TERMINATED)|| !socket.isOpen()) {
+                if (socket == null || socket.getState().equals(Thread.State.TERMINATED) || !socket.isOpen()) {
                     socket = new FirecraftSocket(FirecraftCore.this, host, getConfig().getInt("port"));
                 }
             }
@@ -42,45 +42,27 @@ public class FirecraftCore extends FirecraftPlugin {
         database = new MySQL(getConfig().getString("mysql.user"), getConfig().getString("mysql.database"),
                 getConfig().getString("mysql.password"), getConfig().getInt("mysql.port"), getConfig().getString("mysql.hostname"));
         database.openConnection();
-        
+
         this.versionSpecificTasks();
 
-        new BukkitRunnable() {
-            public void run() {
-                warpManager = new WarpManager(FirecraftCore.this);
-                Utils.Command.registerCommands(FirecraftCore.this, warpManager, "setwarp", "delwarp", "warp");
-                if (getConfig().contains("spawn")) {
-                    serverSpawn = Utils.getLocationFromString(getConfig().getString("spawn"));
-                } else {
-                    serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
-                }
-
-                if (serverSpawn.getWorld() == null) {
-                    serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
-                }
-                
-                if (getConfig().contains("jail")) {
-                    jailLocation = Utils.getLocationFromString(getConfig().getString("jail"));
-                }
-            }
-        }.runTaskLater(this, 10L);
+        this.postWorldTasks();
     }
-    
+
     public void onDisable() {
         for (FirecraftPlayer player : playerManager.getPlayers()) {
             FPStaffChatQuit staffQuit = new FPStaffChatQuit(server, player.getUniqueId());
             socket.sendPacket(staffQuit);
         }
-        
+
         if (socket != null) {
             socket.sendPacket(new FPacketServerDisconnect(server));
             socket.close();
         }
-        
+
         this.database.closeConnection();
-        
+
         getConfig().set("spawn", Utils.convertLocationToString(serverSpawn));
-    
+
         if (jailLocation != null) {
             getConfig().set("jail", Utils.convertLocationToString(jailLocation));
         }
@@ -93,7 +75,7 @@ public class FirecraftCore extends FirecraftPlugin {
 
         saveConfig();
     }
-    
+
     private void registerAllCommands() {
         this.playerManager = new PlayerManager(this);
         Utils.Command.registerCommands(this, playerManager, "players", "fct");
@@ -123,5 +105,27 @@ public class FirecraftCore extends FirecraftPlugin {
             this.nickWrapper = new NickWrapper1_12_R1();
             this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_12(this), this);
         }
+    }
+
+    private void postWorldTasks() {
+        new BukkitRunnable() {
+            public void run() {
+                warpManager = new WarpManager(FirecraftCore.this);
+                Utils.Command.registerCommands(FirecraftCore.this, warpManager, "setwarp", "delwarp", "warp");
+                if (getConfig().contains("spawn")) {
+                    serverSpawn = Utils.getLocationFromString(getConfig().getString("spawn"));
+                } else {
+                    serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
+                }
+
+                if (serverSpawn.getWorld() == null) {
+                    serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
+                }
+
+                if (getConfig().contains("jail")) {
+                    jailLocation = Utils.getLocationFromString(getConfig().getString("jail"));
+                }
+            }
+        }.runTaskLater(this, 10L);
     }
 }
