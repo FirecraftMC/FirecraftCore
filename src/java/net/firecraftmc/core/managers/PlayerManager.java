@@ -18,7 +18,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -30,7 +29,7 @@ import java.sql.ResultSet;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
+public class PlayerManager implements IPlayerManager, Listener {
 
     private final ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, FirecraftPlayer> cachedPlayers = new ConcurrentHashMap<>();
@@ -394,9 +393,5 @@ public class PlayerManager implements IPlayerManager, Listener, TabExecutor {
             }
         }
         return true;
-    }
-
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
-        return null;
     }
 }

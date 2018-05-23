@@ -7,7 +7,6 @@ import net.firecraftmc.core.wrapper.NickWrapper1_12_R1;
 import net.firecraftmc.core.wrapper.NickWrapper1_8_R3;
 import net.firecraftmc.shared.MySQL;
 import net.firecraftmc.shared.classes.*;
-import net.firecraftmc.shared.packets.FPacketAcknowledgeWarning;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
@@ -20,19 +19,9 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.ResultSet;
-import java.util.HashMap;
-import java.util.UUID;
 
 public class FirecraftCore extends FirecraftPlugin implements Listener {
-    private PlayerManager playerManager;
-    private NickWrapper nickWrapper;
-    private FirecraftSocket socket;
-    private FirecraftServer server;
-    private Location serverSpawn;
-    private Location jailLocation;
-    private MySQL database;
-    private final HashMap<UUID, String> ackCodes = new HashMap<>();
-    private HomeManager homeManager;
+
     private WarpManager warpManager;
 
     public void onEnable() {
@@ -181,63 +170,5 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-    
-    public NickWrapper getNickWrapper() {
-        return nickWrapper;
-    }
-    
-    public FirecraftSocket getSocket() {
-        return socket;
-    }
-    
-    public IPlayerManager getPlayerManager() {
-        return playerManager;
-    }
-    
-    public FirecraftServer getFirecraftServer() {
-        return server;
-    }
-    
-    public Location getServerSpawn() {
-        return serverSpawn;
-    }
-    
-    public void setServerSpawn(Location serverSpawn) {
-        this.serverSpawn = serverSpawn;
-    }
-    
-    public Location getJailLocation() {
-        return jailLocation;
-    }
-    
-    public void setJailLocation(Location jailLocation) {
-        this.jailLocation = jailLocation;
-    }
-    
-    public MySQL getDatabase() {
-        return database;
-    }
-    
-    public boolean isWarnAcknowledged(UUID uuid) {
-        return !this.ackCodes.containsKey(uuid);
-    }
-    
-    public String getAckCode(UUID uuid) {
-        return this.ackCodes.get(uuid);
-    }
-    
-    public void acknowledgeWarn(UUID uuid, String name) {
-        this.ackCodes.remove(uuid);
-        this.database.updateSQL("UPDATE `punishments` SET `acknowledged`='true' WHERE `target`='{uuid}' AND `type`='WARN';".replace("{uuid}", uuid.toString().replace("-", "")));
-        this.socket.sendPacket(new FPacketAcknowledgeWarning(server, name));
-    }
-    
-    public void addAckCode(UUID uuid, String code) {
-        this.ackCodes.put(uuid, code);
-    }
-
-    public HomeManager getHomeManager() {
-        return homeManager;
     }
 }

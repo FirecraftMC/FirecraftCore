@@ -10,7 +10,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -21,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class HomeManager implements TabExecutor, IHomeManager {
+public class HomeManager implements IHomeManager {
 
     private File file;
     private FileConfiguration config;
@@ -135,9 +134,5 @@ public class HomeManager implements TabExecutor, IHomeManager {
         }
 
         return true;
-    }
-
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
-        return null;
     }
 }
