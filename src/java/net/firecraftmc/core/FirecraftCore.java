@@ -53,11 +53,11 @@ public class FirecraftCore extends FirecraftPlugin implements Listener {
         this.server = new FirecraftServer(getConfig().getString("server.name"), ChatColor.valueOf(getConfig().getString("server.color")));
         new BukkitRunnable() {
             public void run() {
-                if (socket == null || !socket.isAlive() || !socket.isOpen()) {
+                if (socket == null || socket.getState().equals(Thread.State.TERMINATED)|| !socket.isOpen()) {
                     socket = new FirecraftSocket(FirecraftCore.this, host, getConfig().getInt("port"));
                 }
             }
-        }.runTaskTimerAsynchronously(this, 20*60, 20L);
+        }.runTaskTimerAsynchronously(this, 0L, 20L);
 
         database = new MySQL(getConfig().getString("mysql.user"), getConfig().getString("mysql.database"),
                 getConfig().getString("mysql.password"), getConfig().getInt("mysql.port"), getConfig().getString("mysql.hostname"));
