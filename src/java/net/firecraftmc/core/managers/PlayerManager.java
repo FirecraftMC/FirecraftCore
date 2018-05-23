@@ -5,7 +5,6 @@ import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.IPlayerManager;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
-import net.firecraftmc.shared.enforcer.Type;
 import net.firecraftmc.shared.enforcer.punishments.Punishment;
 import net.firecraftmc.shared.enforcer.punishments.TemporaryBan;
 import net.firecraftmc.shared.enums.Rank;
@@ -62,9 +61,9 @@ public class PlayerManager implements IPlayerManager, Listener {
                         Punishment punishment = toKickForPunishment.get(uuid);
                         String punisher = Utils.Database.getPlayerName(plugin.getDatabase(), Utils.convertToUUID(punishment.getPunisher()));
                         String reason = punishment.getReason();
-                        if (punishment.getType().equals(Type.BAN))
+                        if (punishment.getType().equals(Punishment.Type.BAN))
                             p.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, "Permanent", punishment.getId())));
-                        else if (punishment.getType().equals(Type.KICK))
+                        else if (punishment.getType().equals(Punishment.Type.KICK))
                             p.kickPlayer(Utils.color(Messages.kickMessage(punisher, reason)));
                         else if (punishment instanceof TemporaryBan) {
                             TemporaryBan tempPunishment = ((TemporaryBan) punishment);

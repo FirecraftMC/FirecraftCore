@@ -6,7 +6,6 @@ import net.firecraftmc.shared.classes.FirecraftServer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.enforcer.Enforcer;
-import net.firecraftmc.shared.enforcer.Type;
 import net.firecraftmc.shared.enforcer.punishments.*;
 import net.firecraftmc.shared.enums.Rank;
 import net.firecraftmc.shared.packets.FPacketPunish;
@@ -48,14 +47,14 @@ public class PunishmentManager implements TabExecutor, Listener {
                 while (set.next()) {
                     if (set.getBoolean("active")) {
                         int id = set.getInt("id");
-                        Type type = Type.valueOf(set.getString("type"));
+                        Punishment.Type type = Punishment.Type.valueOf(set.getString("type"));
                         FirecraftPlayer punisher = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), Utils.convertToUUID(set.getString("punisher")));
                         String reason = set.getString("reason");
-                        if (type.equals(Type.TEMP_BAN)) {
+                        if (type.equals(Punishment.Type.TEMP_BAN)) {
                             long expire = set.getLong("expire");
                             String expireDiff = Utils.Time.formatTime(expire - System.currentTimeMillis());
                             e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color(Messages.banMessage(punisher.getName(), reason, expireDiff, id)));
-                        } else if (type.equals(Type.BAN)) {
+                        } else if (type.equals(Punishment.Type.BAN)) {
                             e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Utils.color(Messages.banMessage(punisher.getName(), reason, "Permanent", id)));
                         }
                     }
@@ -141,13 +140,13 @@ public class PunishmentManager implements TabExecutor, Listener {
                 ResultSet set = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{target}' AND `active`='true' AND (`type`='BAN' OR `type`='TEMP_BAN' OR `type`='MUTE' OR `type`='TEMP_MUTE' OR `type`='JAIL');".replace("{target}", t.getUniqueId().toString().replace("-", "")));
                 int puId = 0;
                 FirecraftPlayer punisher;
-                Type ty = null;
+                Punishment.Type ty = null;
                 try {
                     if (set.next()) {
                         puId = set.getInt("id");
                         UUID punisherId = Utils.convertToUUID(set.getString("punisher"));
                         punisher = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), punisherId);
-                        ty = Type.valueOf(set.getString("type"));
+                        ty = Punishment.Type.valueOf(set.getString("type"));
             
                         if (punisher.getMainRank().equals(Rank.FIRECRAFT_TEAM) && !player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
                             player.sendMessage(prefix + Messages.punishmentByFCT);
@@ -169,7 +168,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                         return true;
                     }
         
-                    if (ty.equals(Type.BAN) || ty.equals(Type.TEMP_BAN)) {
+                    if (ty.equals(Punishment.Type.BAN) || ty.equals(Punishment.Type.TEMP_BAN)) {
                         plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
                         FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
                         plugin.getSocket().sendPacket(punishRemove);
@@ -180,7 +179,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                         return true;
                     }
         
-                    if (ty.equals(Type.MUTE) || ty.equals(Type.TEMP_MUTE)) {
+                    if (ty.equals(Punishment.Type.MUTE) || ty.equals(Punishment.Type.TEMP_MUTE)) {
                         plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
                         FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
                         plugin.getSocket().sendPacket(punishRemove);
@@ -191,7 +190,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                         return true;
                     }
         
-                    if (ty.equals(Type.JAIL)) {
+                    if (ty.equals(Punishment.Type.JAIL)) {
                         plugin.getDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString().replace("-", "")).replace("{id}", puId + ""));
                         FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
                         plugin.getSocket().sendPacket(punishRemove);
@@ -210,7 +209,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                     return true;
                 }
                 
-                Type type = Type.BAN;
+                Punishment.Type type = Punishment.Type.BAN;
                 
                 String reason = getReason(1, args);
                 
@@ -257,7 +256,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                     player.sendMessage(prefix + Messages.punishNoReason);
                     return true;
                 }
-                Type type = Type.TEMP_BAN;
+                Punishment.Type type = Punishment.Type.TEMP_BAN;
                 TemporaryBan tempBan = new TemporaryBan(type, server.getName(), punisherId, targetId, reason, date, expireDate);
                 tempBan.setActive(true);
                 TemporaryPunishment temporaryBan = (TemporaryPunishment) Enforcer.addToDatabase(plugin.getDatabase(), tempBan);
@@ -281,7 +280,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                     return true;
                 }
     
-                Type type = Type.MUTE;
+                Punishment.Type type = Punishment.Type.MUTE;
     
                 String reason = getReason(1, args);
                 if (reason.length() == 0) {
@@ -327,7 +326,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                     player.sendMessage(prefix + Messages.punishNoReason);
                     return true;
                 }
-                Type type = Type.TEMP_MUTE;
+                Punishment.Type type = Punishment.Type.TEMP_MUTE;
                 TemporaryBan tempBan = new TemporaryBan(type, server.getName(), punisherId, targetId, reason, date, expireDate);
                 tempBan.setActive(true);
                 TemporaryPunishment temporaryMute = (TemporaryPunishment) Enforcer.addToDatabase(plugin.getDatabase(), tempBan);
@@ -377,7 +376,7 @@ public class PunishmentManager implements TabExecutor, Listener {
                     return true;
                 }
                 
-                Type type = Type.KICK;
+                Punishment.Type type = Punishment.Type.KICK;
                 String reason = getReason(1, args);
                 if (reason.length() == 0) {
                     player.sendMessage(prefix + Messages.punishNoReason);
