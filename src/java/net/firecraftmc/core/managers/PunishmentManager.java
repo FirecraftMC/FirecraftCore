@@ -209,7 +209,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 
                 Punishment.Type type = Punishment.Type.BAN;
                 
-                String reason = getReason(1, args);
+                String reason = Utils.getReason(1, args);
                 
                 if (reason.length() == 0) {
                     player.sendMessage(prefix + Messages.punishNoReason);
@@ -249,7 +249,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
 
                 long expire = Duration.parse(expireTime).toMillis();
                 long expireDate = date + expire;
-                String reason = getReason(2, args);
+                String reason = Utils.getReason(2, args);
                 if (reason.length() == 0) {
                     player.sendMessage(prefix + Messages.punishNoReason);
                     return true;
@@ -280,7 +280,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
     
                 Punishment.Type type = Punishment.Type.MUTE;
     
-                String reason = getReason(1, args);
+                String reason = Utils.getReason(1, args);
                 if (reason.length() == 0) {
                     player.sendMessage(prefix + Messages.punishNoReason);
                     return true;
@@ -319,7 +319,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
 
                 long expire = Duration.parse(expireTime).toMillis();
                 long expireDate = date + expire;
-                String reason = getReason(2, args);
+                String reason = Utils.getReason(2, args);
                 if (reason.length() == 0) {
                     player.sendMessage(prefix + Messages.punishNoReason);
                     return true;
@@ -349,7 +349,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                     return true;
                 }
     
-                String reason = getReason(1, args);
+                String reason = Utils.getReason(1, args);
                 if (reason.length() == 0) {
                     player.sendMessage(prefix + Messages.punishNoReason);
                     return true;
@@ -375,7 +375,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 }
                 
                 Punishment.Type type = Punishment.Type.KICK;
-                String reason = getReason(1, args);
+                String reason = Utils.getReason(1, args);
                 if (reason.length() == 0) {
                     player.sendMessage(prefix + Messages.punishNoReason);
                     return true;
@@ -398,7 +398,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                     return true;
                 }
     
-                String reason = getReason(1, args);
+                String reason = Utils.getReason(1, args);
                 if (reason.length() == 0) {
                     player.sendMessage(prefix + Messages.punishNoReason);
                     return true;
@@ -424,17 +424,5 @@ public class PunishmentManager implements CommandExecutor, Listener {
         }
         
         return true;
-    }
-    
-    private String getReason(int start, String[] args) {
-        StringBuilder reasonBuilder = new StringBuilder();
-        for (int i = start; i < args.length; i++) {
-            reasonBuilder.append(args[i]);
-            if (!(i == args.length - 1)) {
-                reasonBuilder.append(" ");
-            }
-        }
-        
-        return reasonBuilder.toString();
     }
 }
