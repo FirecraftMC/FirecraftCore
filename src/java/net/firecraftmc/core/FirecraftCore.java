@@ -110,6 +110,7 @@ public class FirecraftCore extends FirecraftPlugin {
         this.homeManager = new HomeManager(this);
         Utils.Command.registerCommands(this, this.homeManager, "sethome", "delhome", "home");
         getCommand("vanish").setExecutor(new VanishManager(this));
+        Utils.Command.registerCommands(this, new ReportManager(this), "report", "reportadmin");
     }
 
     /**

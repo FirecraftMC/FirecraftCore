@@ -1,6 +1,6 @@
 name: FirecraftCore
 main: net.firecraftmc.core.FirecraftCore
-version: 1.1-ALPHA
+version: 1.6-ALPHA
 load: STARTUP
 author: Firestar311
 commands:
@@ -75,3 +75,6 @@ commands:
     setwarp:
     delwarp:
     warp:
+    report:
+    reportadmin:
+        aliases: [ra]
