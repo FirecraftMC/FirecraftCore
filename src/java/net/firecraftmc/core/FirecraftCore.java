@@ -141,7 +141,7 @@ public class FirecraftCore extends FirecraftPlugin {
                     serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
                 }
 
-                if (serverSpawn.getWorld() == null) {
+                if (serverSpawn == null) {
                     serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
                 }
 
