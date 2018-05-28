@@ -7,22 +7,27 @@ import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.Report;
 import net.firecraftmc.shared.packets.FPacketReport;
+import net.firecraftmc.shared.paginator.Paginator;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
+import java.util.HashMap;
 import java.util.UUID;
 
-public class ReportManager implements CommandExecutor, Listener {
+/**
+ * The Class for managing the report command.
+ */
+public class ReportManager implements CommandExecutor {
 
     private FirecraftCore plugin;
     private final String prefix = "&d&l[Report] ";
 
+    private HashMap<UUID, Paginator<Report>> paginators = new HashMap<>();
+
     public ReportManager(FirecraftCore plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
@@ -42,7 +47,8 @@ public class ReportManager implements CommandExecutor, Listener {
             UUID uuid = null;
             try {
                 uuid = UUID.fromString(args[0]);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
 
             if (uuid != null) {
                 target = plugin.getPlayerManager().getPlayer(uuid);
@@ -77,6 +83,11 @@ public class ReportManager implements CommandExecutor, Listener {
             }
 
             if (Utils.Command.checkCmdAliases(args, 0, "list", "l")) {
+            /*
+            /reportadmin list|l (STATUS|ALL) (OUTCOME|ALL)
+            In order to provide an outcome, you need a status or provide all
+            Status and outcome arguments are optional and are not case sensitive
+             */
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "view", "v")) {
 
@@ -85,6 +96,10 @@ public class ReportManager implements CommandExecutor, Listener {
             } else if (Utils.Command.checkCmdAliases(args, 0, "setstatus", "ss")) {
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "setoutcome", "so")) {
+
+            } else if (Utils.Command.checkCmdAliases(args, 0, "page", "p")) {
+
+            } else if (Utils.Command.checkCmdAliases(args, 0, "refresh", "r")) {
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "help", "h")) {
 
