@@ -4,6 +4,7 @@ import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.Report;
 import net.firecraftmc.shared.packets.FPacketReport;
 import org.bukkit.command.Command;
@@ -56,7 +57,7 @@ public class ReportManager implements CommandExecutor, Listener {
 
             String reason = Utils.getReason(1, args);
 
-            Report report = Utils.Database.saveReportToDatabase(plugin.getDatabase(), new Report(player.getUniqueId(), target.getUniqueId(), reason, System.currentTimeMillis()));
+            Report report = Utils.Database.saveReportToDatabase(plugin.getDatabase(), new Report(player.getUniqueId(), target.getUniqueId(), reason, player.getLocation(), System.currentTimeMillis()));
             if (report.getId() == 0) {
                 player.sendMessage(prefix + Messages.reportDatabaseError);
                 return true;
@@ -65,7 +66,29 @@ public class ReportManager implements CommandExecutor, Listener {
             plugin.getSocket().sendPacket(packetReport);
             player.sendMessage(prefix + Messages.successfulReportFile);
         } else if (cmd.getName().equalsIgnoreCase("reportadmin")) {
+            if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
+                player.sendMessage(prefix + Messages.noPermission);
+                return true;
+            }
 
+            if (args.length > 0) {
+                player.sendMessage(prefix + Messages.noPermission);
+                return true;
+            }
+
+            if (Utils.Command.checkCmdAliases(args, 0, "list", "l")) {
+
+            } else if (Utils.Command.checkCmdAliases(args, 0, "view", "v")) {
+
+            } else if (Utils.Command.checkCmdAliases(args, 0, "teleport", "tp")) {
+
+            } else if (Utils.Command.checkCmdAliases(args, 0, "setstatus", "ss")) {
+
+            } else if (Utils.Command.checkCmdAliases(args, 0, "setoutcome", "so")) {
+
+            } else if (Utils.Command.checkCmdAliases(args, 0, "help", "h")) {
+
+            }
         }
 
         return true;
