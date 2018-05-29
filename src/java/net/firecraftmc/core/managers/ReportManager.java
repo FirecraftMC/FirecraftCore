@@ -8,12 +8,16 @@ import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.Report;
 import net.firecraftmc.shared.packets.FPacketReport;
 import net.firecraftmc.shared.paginator.Paginator;
+import net.firecraftmc.shared.paginator.PaginatorFactory;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -77,18 +81,34 @@ public class ReportManager implements CommandExecutor {
                 return true;
             }
 
-            if (args.length > 0) {
+            if (!(args.length > 0)) {
                 player.sendMessage(prefix + Messages.noPermission);
                 return true;
             }
 
             if (Utils.Command.checkCmdAliases(args, 0, "list", "l")) {
-            /*
-            /reportadmin list|l (STATUS|ALL) (OUTCOME|ALL)
-            In order to provide an outcome, you need a status or provide all
-            Status and outcome arguments are optional and are not case sensitive
-             */
+                List<Report> reports = new ArrayList<>();
+                if (!(args.length > 1)) {
+                    ResultSet set = plugin.getDatabase().querySQL("SELECT * FROM `reports` WHERE `status` <> 'CLOSED';");
+                    try {
+                        while (set.next()) {
+                            Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), set.getInt("id"));
+                            reports.add(report);
+                        }
+                    } catch (Exception e) {}
+                }
 
+                PaginatorFactory<Report> paginatorFactory = new PaginatorFactory<>();
+                paginatorFactory.setMaxElements(10).setHeader("§aReports page {pagenumber} out of {totalpages}").setFooter("§aUse /reportadmin page {nextpage} to view the next page.");
+                reports.forEach(report -> paginatorFactory.addElement(report, reports.size()));
+                if (paginatorFactory.getPages().isEmpty()) {
+                    player.sendMessage(prefix + "&cThere are no reports to display.");
+                    return true;
+                } else {
+                    Paginator<Report> paginator = paginatorFactory.build();
+                    paginators.put(player.getUniqueId(), paginator);
+                    paginator.display(player.getPlayer(), 1);
+                }
             } else if (Utils.Command.checkCmdAliases(args, 0, "view", "v")) {
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "teleport", "tp")) {
@@ -100,6 +120,8 @@ public class ReportManager implements CommandExecutor {
             } else if (Utils.Command.checkCmdAliases(args, 0, "page", "p")) {
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "refresh", "r")) {
+
+            } else if (Utils.Command.checkCmdAliases(args, 0, "assign", "a")) {
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "help", "h")) {
 
