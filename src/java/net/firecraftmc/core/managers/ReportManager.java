@@ -219,8 +219,29 @@ public class ReportManager implements CommandExecutor {
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "assign", "a")) {
                 Report report = getReport(args, 3, player);
-                if (report == null) return true;
+                if (report == null) {
+                    player.sendMessage(prefix + "&cThe report could not be found with that id.");
+                    return true;
+                }
 
+                if (args[2].equalsIgnoreCase("self")) {
+                    report.setAssignee(player.getUniqueId());
+                    player.sendMessage(report + "&bYou self-assigned the report with the id &e" + report.getId());
+                } else {
+                    FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[2]);
+                    if (target == null) {
+                        player.sendMessage(prefix + "The player name you provided is not valid.");
+                        return true;
+                    }
+                    if (!target.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
+                        player.sendMessage(prefix + "&cOnly staff can be assigned to report.");
+                        return true;
+                    }
+
+                    report.setAssignee(target.getUniqueId());
+                    player.sendMessage(prefix + "&bYou assigned " + target.getNameNoPrefix() + " &bto the report with the id &e" + report.getId());
+                }
+                Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
             } else if (Utils.Command.checkCmdAliases(args, 0, "help", "h")) {
 
             }
