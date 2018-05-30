@@ -269,7 +269,7 @@ public class ReportManager implements CommandExecutor {
                     }
 
                     report.setAssignee(target.getUniqueId());
-                    FPReportAssignOthers assignOthers = new FPReportAssignOthers(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), report.getAssigneeName());
+                    FPReportAssignOthers assignOthers = new FPReportAssignOthers(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), target.getName());
                     plugin.getSocket().sendPacket(assignOthers);
                 }
                 Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
