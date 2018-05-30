@@ -97,51 +97,62 @@ public class ReportManager implements CommandExecutor {
                         }
                     } catch (Exception e) {}
                 } else {
-                    UUID target = null;
-                    UUID reporter = null;
-                    Report.Status status = null;
-                    Report.Outcome outcome = null;
-                    UUID assignee = null;
-                    for (String a : args) {
-                        if (a.startsWith("t:")) {
-                            target = plugin.getPlayerManager().getPlayer(a).getUniqueId();
-                        } else if (a.startsWith("r:")) {
-                            reporter = plugin.getPlayerManager().getPlayer(a).getUniqueId();
-                        } else if (a.startsWith("s:")) {
-                            try {
-                                status = Report.Status.valueOf(a.toUpperCase());
-                            } catch (Exception e) {
-                                player.sendMessage(prefix + "The status you provided was invalid.");
+                    if (args[1].equalsIgnoreCase("all")) {
+                        ResultSet set = plugin.getDatabase().querySQL("SELECT * FROM `reports`;");
+                        try {
+                            while (set.next()) {
+                                Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), set.getInt("id"));
+                                reports.add(report);
                             }
-                        } else if (a.startsWith("o:")) {
-                            try {
-                                outcome = Report.Outcome.valueOf(a.toUpperCase());
-                            } catch (Exception e) {
-                                player.sendMessage(prefix + "The outcome you provided was invalid.");
+                        } catch (Exception e) {}
+                    } else {
+                        UUID target = null;
+                        UUID reporter = null;
+                        Report.Status status = null;
+                        Report.Outcome outcome = null;
+                        UUID assignee = null;
+                        for (String a : args) {
+                            if (a.startsWith("t:")) {
+                                target = plugin.getPlayerManager().getPlayer(a).getUniqueId();
+                            } else if (a.startsWith("r:")) {
+                                reporter = plugin.getPlayerManager().getPlayer(a).getUniqueId();
+                            } else if (a.startsWith("s:")) {
+                                try {
+                                    status = Report.Status.valueOf(a.toUpperCase());
+                                } catch (Exception e) {
+                                    player.sendMessage(prefix + "The status you provided was invalid.");
+                                }
+                            } else if (a.startsWith("o:")) {
+                                try {
+                                    outcome = Report.Outcome.valueOf(a.toUpperCase());
+                                } catch (Exception e) {
+                                    player.sendMessage(prefix + "The outcome you provided was invalid.");
+                                }
+                            } else if (a.startsWith("a:")) {
+                                assignee = plugin.getPlayerManager().getPlayer(a).getUniqueId();
                             }
-                        } else if (a.startsWith("a:")) {
-                            assignee = plugin.getPlayerManager().getPlayer(a).getUniqueId();
+                        }
+
+                        String sql = "SELECT * from `reports` WHERE `reporter`='{reporter}' AND `target`='{target}' AND `status`='{status}' AND `outcome`='{outcome}' AND `assignee`='{assignee}';";
+                        if (target == null) sql = sql.replace("{target}", "");
+                        else sql = sql.replace("{target}", target.toString());
+                        if (reporter == null) sql = sql.replace("{reporter}", "");
+                        else sql = sql.replace("{reporter}", reporter.toString());
+                        if (status == null) sql = sql.replace("{status}", "");
+                        else sql = sql.replace("{status}", status.toString());
+                        if (outcome == null) sql = sql.replace("{outcome}", "");
+                        else sql = sql.replace("{outcome}", outcome.toString());
+                        if (assignee == null) sql = sql.replace("{assignee}", "");
+                        else sql = sql.replace("{assignee}", assignee.toString());
+                        ResultSet set = plugin.getDatabase().querySQL(sql);
+                        try {
+                            while (set.next()) {
+                                Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), set.getInt("id"));
+                                reports.add(report);
+                            }
+                        } catch (Exception e) {
                         }
                     }
-
-                    String sql = "SELECT * from `reports` WHERE `reporter`='{reporter}' AND `target`='{target}' AND `status`='{status}' AND `outcome`='{outcome}' AND `assignee`='{assignee}';";
-                    if (target == null) sql = sql.replace("{target}", "");
-                    else sql = sql.replace("{target}", target.toString());
-                    if (reporter == null) sql = sql.replace("{reporter}", "");
-                    else sql = sql.replace("{reporter}", reporter.toString());
-                    if (status == null) sql = sql.replace("{status}", "");
-                    else sql = sql.replace("{status}", status.toString());
-                    if (outcome == null) sql = sql.replace("{outcome}", "");
-                    else sql = sql.replace("{outcome}", outcome.toString());
-                    if (assignee == null) sql = sql.replace("{assignee}", "");
-                    else sql = sql.replace("{assignee}", assignee.toString());
-                    ResultSet set = plugin.getDatabase().querySQL(sql);
-                    try {
-                        while (set.next()) {
-                            Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), set.getInt("id"));
-                            reports.add(report);
-                        }
-                    } catch (Exception e) {}
                 }
 
                 PaginatorFactory<Report> paginatorFactory = new PaginatorFactory<>();
