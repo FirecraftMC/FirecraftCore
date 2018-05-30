@@ -240,6 +240,7 @@ public class ReportManager implements CommandExecutor {
                     outcome = Report.Outcome.valueOf(args[2].toUpperCase());
                 } catch (Exception e) {
                     player.sendMessage(prefix + "&cThe outcome you provided is invalid.");
+                    return true;
                 }
                 report.setOutcome(outcome);
                 Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
