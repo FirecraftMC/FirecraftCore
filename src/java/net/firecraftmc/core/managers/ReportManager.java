@@ -164,47 +164,57 @@ public class ReportManager implements CommandExecutor {
                     paginator.display(player.getPlayer(), 1);
                 }
             } else if (Utils.Command.checkCmdAliases(args, 0, "view", "v")) {
-                if (args.length != 2) {
-                    player.sendMessage(prefix + Messages.notEnoughArgs);
-                    return true;
-                }
-
-                int rId;
-                try {
-                    rId = Integer.parseInt(args[1]);
-                } catch (NumberFormatException e) {
-                    player.sendMessage(prefix + "&cThe number for the report id is invalid.");
-                    return true;
-                }
-
-                Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), rId);
-                if (report == null) {
-                    player.sendMessage(prefix + "&cThe report could not be found with that id.");
-                    return true;
-                }
-
-                player.sendMessage("&eViewing details for the report id &4" + rId);
+                Report report = getReport(args, 2, player);
+                if (report == null) return true;
+                player.sendMessage("&eViewing details for the report id &4" + report.getId());
                 player.sendMessage("&eReporter: &5" + report.getReporterName());
                 player.sendMessage("&eTarget: &d" + report.getTargetName());
                 player.sendMessage("&eAssignee: &1" + ((report.getAssignee() != null) ? report.getAssigneeName() : "None"));
                 player.sendMessage("&eReason: &3" + report.getReason());
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeInMillis(report.getDate());
-                SimpleDateFormat format = new SimpleDateFormat("MM-dd-yyyy h:mm:ss a");
-                player.sendMessage("&eData: &7" + format.format(calendar));
+                SimpleDateFormat format = new SimpleDateFormat("MM-dd-yyyy h:mm:ss a, z");
+                player.sendMessage("&eDate: &7" + format.format(calendar.getTime()));
                 player.sendMessage("&eStatus: " + report.getStatus().getColor() + report.getStatus().toString());
                 player.sendMessage("&eOutcome: " + ((report.getOutcome() != null) ? report.getOutcome().getColor() + report.getOutcome().toString() : "None"));
             } else if (Utils.Command.checkCmdAliases(args, 0, "teleport", "tp")) {
-
+                Report report = getReport(args, 2, player);
+                if (report == null) return true;
+                player.teleport(report.getLocation());
+                player.sendMessage(prefix + "&bYou teleported to the location of the report with the id &e" + report.getId());
             } else if (Utils.Command.checkCmdAliases(args, 0, "setstatus", "ss")) {
-
+                Report report = getReport(args, 3, player);
+                if (report == null) return true;
+                Report.Status status;
+                try {
+                    status = Report.Status.valueOf(args[2]);
+                } catch (Exception e) {
+                    player.sendMessage(prefix + "&cThe status you provided is invalid.");
+                    return true;
+                }
+                report.setStatus(status);
+                Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
+                player.sendMessage(prefix + "&bYou set the status of the report &4" + report.getId() + " &bto " + status.getColor() + status.toString());
             } else if (Utils.Command.checkCmdAliases(args, 0, "setoutcome", "so")) {
-
+                Report report = getReport(args, 3, player);
+                if (report == null) return true;
+                Report.Outcome outcome;
+                try {
+                    outcome = Report.Outcome.valueOf(args[2]);
+                } catch (Exception e) {
+                    player.sendMessage(prefix + "&cThe status you provided is invalid.");
+                    return true;
+                }
+                report.setOutcome(outcome);
+                Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
+                player.sendMessage(prefix + "&bYou set the outcome of the report &4" + report.getId() + " &bto " + outcome.getColor() + outcome.toString());
             } else if (Utils.Command.checkCmdAliases(args, 0, "page", "p")) {
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "refresh", "r")) {
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "assign", "a")) {
+                Report report = getReport(args, 3, player);
+                if (report == null) return true;
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "help", "h")) {
 
@@ -212,5 +222,27 @@ public class ReportManager implements CommandExecutor {
         }
 
         return true;
+    }
+
+    private Report getReport(String[] args, int length, FirecraftPlayer player) {
+        if (args.length != length) {
+            player.sendMessage(prefix + Messages.notEnoughArgs);
+            return null;
+        }
+
+        int rId;
+        try {
+            rId = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            player.sendMessage(prefix + "&cThe number for the report id is invalid.");
+            return null;
+        }
+
+        Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), rId);
+        if (report == null) {
+            player.sendMessage(prefix + "&cThe report could not be found with that id.");
+            return null;
+        }
+        return report;
     }
 }
