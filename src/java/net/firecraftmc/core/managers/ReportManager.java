@@ -113,45 +113,44 @@ public class ReportManager implements CommandExecutor {
                         UUID assignee = null;
                         for (String a : args) {
                             if (a.startsWith("t:")) {
-                                target = plugin.getPlayerManager().getPlayer(a).getUniqueId();
-                            } else if (a.startsWith("r:")) {
-                                reporter = plugin.getPlayerManager().getPlayer(a).getUniqueId();
-                            } else if (a.startsWith("s:")) {
+                                target = plugin.getPlayerManager().getPlayer(a.replace("t:", "")).getUniqueId();
+                            }
+                            if (a.startsWith("r:")) {
+                                reporter = plugin.getPlayerManager().getPlayer(a.replace("r:", "")).getUniqueId();
+                            }
+                            if (a.startsWith("s:")) {
                                 try {
-                                    status = Report.Status.valueOf(a.toUpperCase());
+                                    status = Report.Status.valueOf(a.replace("s:", "").toUpperCase());
                                 } catch (Exception e) {
                                     player.sendMessage(prefix + "The status you provided was invalid.");
                                 }
-                            } else if (a.startsWith("o:")) {
+                            }
+                            if (a.startsWith("o:")) {
                                 try {
-                                    outcome = Report.Outcome.valueOf(a.toUpperCase());
+                                    outcome = Report.Outcome.valueOf(a.replace("o:", "").toUpperCase());
                                 } catch (Exception e) {
                                     player.sendMessage(prefix + "The outcome you provided was invalid.");
                                 }
-                            } else if (a.startsWith("a:")) {
-                                assignee = plugin.getPlayerManager().getPlayer(a).getUniqueId();
+                            }
+                            if (a.startsWith("a:")) {
+                                assignee = plugin.getPlayerManager().getPlayer(a.replace("a:", "")).getUniqueId();
                             }
                         }
 
-                        String sql = "SELECT * from `reports` WHERE `reporter`='{reporter}' AND `target`='{target}' AND `status`='{status}' AND `outcome`='{outcome}' AND `assignee`='{assignee}';";
-                        if (target == null) sql = sql.replace("{target}", "");
-                        else sql = sql.replace("{target}", target.toString());
-                        if (reporter == null) sql = sql.replace("{reporter}", "");
-                        else sql = sql.replace("{reporter}", reporter.toString());
-                        if (status == null) sql = sql.replace("{status}", "");
-                        else sql = sql.replace("{status}", status.toString());
-                        if (outcome == null) sql = sql.replace("{outcome}", "");
-                        else sql = sql.replace("{outcome}", outcome.toString());
-                        if (assignee == null) sql = sql.replace("{assignee}", "");
-                        else sql = sql.replace("{assignee}", assignee.toString());
+                        String sql = "SELECT * from `reports`;";
                         ResultSet set = plugin.getDatabase().querySQL(sql);
                         try {
                             while (set.next()) {
                                 Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), set.getInt("id"));
+                                if (report == null) continue;
+                                if (target != null) if (!report.getTarget().equals(target)) continue;
+                                if (reporter != null) if (!report.getReporter().equals(reporter)) continue;
+                                if (status != null) if (report.getStatus() != status) continue;
+                                if (outcome != null) if (report.getOutcome() != outcome) continue;
+                                if (assignee != null) if (!report.getAssignee().equals(assignee)) continue;
                                 reports.add(report);
                             }
-                        } catch (Exception e) {
-                        }
+                        } catch (Exception e) {}
                     }
                 }
 
