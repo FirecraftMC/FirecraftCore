@@ -192,6 +192,20 @@ public class ReportManager implements CommandExecutor {
             } else if (Utils.Command.checkCmdAliases(args, 0, "setstatus", "ss")) {
                 Report report = getReport(args, 3, player);
                 if (report == null) return true;
+                if (report.getAssignee() == null) {
+                    if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                        player.sendMessage(prefix + "&cThat report is not assigned to anyone. Assign yourself or someone else.");
+                        return true;
+                    }
+                }
+
+                if (!report.getAssignee().equals(player.getUniqueId())) {
+                    if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                        player.sendMessage(prefix + "&cThat report is not assigned to you, so you cannot change anything.");
+                        return true;
+                    }
+                }
+
                 Report.Status status;
                 try {
                     status = Report.Status.valueOf(args[2].toUpperCase());
@@ -206,6 +220,21 @@ public class ReportManager implements CommandExecutor {
             } else if (Utils.Command.checkCmdAliases(args, 0, "setoutcome", "so")) {
                 Report report = getReport(args, 3, player);
                 if (report == null) return true;
+
+                if (report.getAssignee() == null) {
+                    if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                        player.sendMessage(prefix + "&cThat report is not assigned to anyone. Assign yourself or someone else.");
+                        return true;
+                    }
+                }
+
+                if (!report.getAssignee().equals(player.getUniqueId())) {
+                    if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                        player.sendMessage(prefix + "&cThat report is not assigned to you, so you cannot change anything.");
+                        return true;
+                    }
+                }
+
                 Report.Outcome outcome = null;
                 try {
                     outcome = Report.Outcome.valueOf(args[2].toUpperCase());
@@ -239,6 +268,14 @@ public class ReportManager implements CommandExecutor {
                 if (report == null) {
                     player.sendMessage(prefix + "&cThe report could not be found with that id.");
                     return true;
+                }
+
+                if (!report.getAssignee().equals(player.getUniqueId())) {
+                    FirecraftPlayer assignee = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), report.getAssignee());
+                    if (!player.getMainRank().isEqualToOrHigher(assignee.getMainRank())) {
+                        player.sendMessage(prefix + "&cThat report is not assigned to you, so you cannot change anything.");
+                        return true;
+                    }
                 }
 
                 if (args[2].equalsIgnoreCase("self")) {
