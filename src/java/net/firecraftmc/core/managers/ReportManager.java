@@ -194,7 +194,7 @@ public class ReportManager implements CommandExecutor {
                 }
                 report.setStatus(status);
                 Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
-                player.sendMessage(prefix + "&bYou set the status of the report &4" + report.getId() + " &bto " + status.getColor() + status.toString());
+                player.sendMessage(prefix + "&bYou set the status of the report id &4" + report.getId() + " &bto " + status.getColor() + status.toString());
             } else if (Utils.Command.checkCmdAliases(args, 0, "setoutcome", "so")) {
                 Report report = getReport(args, 3, player);
                 if (report == null) return true;
@@ -206,7 +206,7 @@ public class ReportManager implements CommandExecutor {
                 }
                 report.setOutcome(outcome);
                 Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
-                player.sendMessage(prefix + "&bYou set the outcome of the report &4" + report.getId() + " &bto " + outcome.getColor() + outcome.toString());
+                player.sendMessage(prefix + "&bYou set the outcome of the report id &4" + report.getId() + " &bto " + outcome.getColor() + outcome.toString());
             } else if (Utils.Command.checkCmdAliases(args, 0, "page", "p")) {
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "refresh", "r")) {
