@@ -7,6 +7,10 @@ import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.Report;
 import net.firecraftmc.shared.packets.FPacketReport;
+import net.firecraftmc.shared.packets.staffchat.FPReportAssignOthers;
+import net.firecraftmc.shared.packets.staffchat.FPReportAssignSelf;
+import net.firecraftmc.shared.packets.staffchat.FPReportSetOutcome;
+import net.firecraftmc.shared.packets.staffchat.FPReportSetStatus;
 import net.firecraftmc.shared.paginator.Paginator;
 import net.firecraftmc.shared.paginator.PaginatorFactory;
 import org.bukkit.command.Command;
@@ -197,7 +201,8 @@ public class ReportManager implements CommandExecutor {
                 }
                 report.setStatus(status);
                 Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
-                player.sendMessage(prefix + "&bYou set the status of the report id &4" + report.getId() + " &bto " + status.getColor() + status.toString());
+                FPReportSetStatus setStatus = new FPReportSetStatus(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), report.getStatus());
+                plugin.getSocket().sendPacket(setStatus);
             } else if (Utils.Command.checkCmdAliases(args, 0, "setoutcome", "so")) {
                 Report report = getReport(args, 3, player);
                 if (report == null) return true;
@@ -209,10 +214,8 @@ public class ReportManager implements CommandExecutor {
                 }
                 report.setOutcome(outcome);
                 Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
-                if (outcome != null)
-                    player.sendMessage(prefix + "&bYou set the outcome of the report id &4" + report.getId() + " &bto " + outcome.getColor() + outcome.toString());
-                else
-                    player.sendMessage(prefix + "&bYou set the outcome of the report id &4" + report.getId() + " &bto NONE");
+                FPReportSetOutcome setOutcome = new FPReportSetOutcome(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), report.getOutcome());
+                plugin.getSocket().sendPacket(setOutcome);
             } else if (Utils.Command.checkCmdAliases(args, 0, "page", "p")) {
                 Paginator<Report> paginator = this.paginators.get(player.getUniqueId());
                 if (paginator == null) {
@@ -246,7 +249,8 @@ public class ReportManager implements CommandExecutor {
                         }
                     }
                     report.setAssignee(player.getUniqueId());
-                    player.sendMessage(prefix + "&bYou self-assigned the report with the id &e" + report.getId());
+                    FPReportAssignSelf selfAssign = new FPReportAssignSelf(plugin.getFirecraftServer(), player.getUniqueId(), report.getId());
+                    plugin.getSocket().sendPacket(selfAssign);
                 } else {
                     FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[2]);
                     if (target == null) {
@@ -265,7 +269,8 @@ public class ReportManager implements CommandExecutor {
                     }
 
                     report.setAssignee(target.getUniqueId());
-                    player.sendMessage(prefix + "&bYou assigned " + target.getNameNoPrefix() + " &bto the report with the id &e" + report.getId());
+                    FPReportAssignOthers assignOthers = new FPReportAssignOthers(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), report.getAssigneeName());
+                    plugin.getSocket().sendPacket(assignOthers);
                 }
                 Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
             }
