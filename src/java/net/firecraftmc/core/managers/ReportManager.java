@@ -274,6 +274,13 @@ public class ReportManager implements CommandExecutor {
         return true;
     }
 
+    /**
+     * A private method to reduce code
+     * @param args The command arguments
+     * @param length The length the args should be
+     * @param player The player to send messages to (CommandSender
+     * @return The report based on the id
+     */
     private Report getReport(String[] args, int length, FirecraftPlayer player) {
         if (args.length != length) {
             player.sendMessage(prefix + Messages.notEnoughArgs);
