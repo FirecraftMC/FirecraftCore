@@ -225,8 +225,14 @@ public class ReportManager implements CommandExecutor {
                 }
 
                 if (args[2].equalsIgnoreCase("self")) {
+                    if (report.isInvolved(player.getUniqueId())) {
+                        if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                            player.sendMessage(prefix + "&cYou cannot self-assign a report that you are involved in.");
+                            return true;
+                        }
+                    }
                     report.setAssignee(player.getUniqueId());
-                    player.sendMessage(report + "&bYou self-assigned the report with the id &e" + report.getId());
+                    player.sendMessage(prefix + "&bYou self-assigned the report with the id &e" + report.getId());
                 } else {
                     FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[2]);
                     if (target == null) {
@@ -236,6 +242,12 @@ public class ReportManager implements CommandExecutor {
                     if (!target.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
                         player.sendMessage(prefix + "&cOnly staff can be assigned to report.");
                         return true;
+                    }
+                    if (report.isInvolved(player.getUniqueId())) {
+                        if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                            player.sendMessage(prefix + "&cYou cannot assign a report to a staff member involved with the report.");
+                            return true;
+                        }
                     }
 
                     report.setAssignee(target.getUniqueId());
