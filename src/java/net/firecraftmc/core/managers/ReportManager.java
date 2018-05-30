@@ -187,7 +187,7 @@ public class ReportManager implements CommandExecutor {
                 if (report == null) return true;
                 Report.Status status;
                 try {
-                    status = Report.Status.valueOf(args[2]);
+                    status = Report.Status.valueOf(args[2].toUpperCase());
                 } catch (Exception e) {
                     player.sendMessage(prefix + "&cThe status you provided is invalid.");
                     return true;
@@ -198,12 +198,11 @@ public class ReportManager implements CommandExecutor {
             } else if (Utils.Command.checkCmdAliases(args, 0, "setoutcome", "so")) {
                 Report report = getReport(args, 3, player);
                 if (report == null) return true;
-                Report.Outcome outcome;
+                Report.Outcome outcome = null;
                 try {
-                    outcome = Report.Outcome.valueOf(args[2]);
+                    outcome = Report.Outcome.valueOf(args[2].toUpperCase());
                 } catch (Exception e) {
-                    player.sendMessage(prefix + "&cThe status you provided is invalid.");
-                    return true;
+                    player.sendMessage(prefix + "&cThe outcome you provided is invalid.");
                 }
                 report.setOutcome(outcome);
                 Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
