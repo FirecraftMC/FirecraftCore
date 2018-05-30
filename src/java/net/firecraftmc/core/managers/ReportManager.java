@@ -223,7 +223,13 @@ public class ReportManager implements CommandExecutor {
                     player.sendMessage(prefix + Messages.notEnoughArgs);
                     return true;
                 }
-                int pageNumber = Integer.parseInt(args[1]); //TODO Add the try-catch method of integer detection
+                int pageNumber;
+                try {
+                    pageNumber = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    player.sendMessage(prefix + "The page number you provided is invalid.");
+                    return true;
+                }
                 paginator.display(player.getPlayer(), pageNumber);
             } else if (Utils.Command.checkCmdAliases(args, 0, "assign", "a")) {
                 Report report = getReport(args, 3, player);
