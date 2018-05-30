@@ -235,7 +235,7 @@ public class ReportManager implements CommandExecutor {
                     }
                 }
 
-                Report.Outcome outcome = null;
+                Report.Outcome outcome;
                 try {
                     outcome = Report.Outcome.valueOf(args[2].toUpperCase());
                 } catch (Exception e) {
