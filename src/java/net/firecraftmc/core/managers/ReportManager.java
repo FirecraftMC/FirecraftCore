@@ -15,10 +15,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * The Class for managing the report command.
@@ -166,7 +164,36 @@ public class ReportManager implements CommandExecutor {
                     paginator.display(player.getPlayer(), 1);
                 }
             } else if (Utils.Command.checkCmdAliases(args, 0, "view", "v")) {
+                if (args.length != 2) {
+                    player.sendMessage(prefix + Messages.notEnoughArgs);
+                    return true;
+                }
 
+                int rId;
+                try {
+                    rId = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    player.sendMessage(prefix + "&cThe number for the report id is invalid.");
+                    return true;
+                }
+
+                Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), rId);
+                if (report == null) {
+                    player.sendMessage(prefix + "&cThe report could not be found with that id.");
+                    return true;
+                }
+
+                player.sendMessage("&eViewing details for the report id &4" + rId);
+                player.sendMessage("&eReporter: &5" + report.getReporterName());
+                player.sendMessage("&eTarget: &d" + report.getTargetName());
+                player.sendMessage("&eAssignee: &1" + ((report.getAssignee() != null) ? report.getAssigneeName() : "None"));
+                player.sendMessage("&eReason: &3" + report.getReason());
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(report.getDate());
+                SimpleDateFormat format = new SimpleDateFormat("MM-dd-yyyy h:mm:ss a");
+                player.sendMessage("&eData: &7" + format.format(calendar));
+                player.sendMessage("&eStatus: " + report.getStatus().getColor() + report.getStatus().toString());
+                player.sendMessage("&eOutcome: " + ((report.getOutcome() != null) ? report.getOutcome().getColor() + report.getOutcome().toString() : "None"));
             } else if (Utils.Command.checkCmdAliases(args, 0, "teleport", "tp")) {
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "setstatus", "ss")) {
