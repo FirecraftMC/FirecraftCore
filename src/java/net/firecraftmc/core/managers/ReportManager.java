@@ -214,7 +214,17 @@ public class ReportManager implements CommandExecutor {
                 else
                     player.sendMessage(prefix + "&bYou set the outcome of the report id &4" + report.getId() + " &bto NONE");
             } else if (Utils.Command.checkCmdAliases(args, 0, "page", "p")) {
-
+                Paginator<Report> paginator = this.paginators.get(player.getUniqueId());
+                if (paginator == null) {
+                    player.sendMessage(prefix + "&cYou currently do not have a query of reports to display.");
+                    return true;
+                }
+                if (args.length != 2) {
+                    player.sendMessage(prefix + Messages.notEnoughArgs);
+                    return true;
+                }
+                int pageNumber = Integer.parseInt(args[1]); //TODO Add the try-catch method of integer detection
+                paginator.display(player.getPlayer(), pageNumber);
             } else if (Utils.Command.checkCmdAliases(args, 0, "refresh", "r")) {
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "assign", "a")) {
