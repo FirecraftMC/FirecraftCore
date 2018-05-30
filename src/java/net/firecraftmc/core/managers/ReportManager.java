@@ -225,8 +225,6 @@ public class ReportManager implements CommandExecutor {
                 }
                 int pageNumber = Integer.parseInt(args[1]); //TODO Add the try-catch method of integer detection
                 paginator.display(player.getPlayer(), pageNumber);
-            } else if (Utils.Command.checkCmdAliases(args, 0, "refresh", "r")) {
-
             } else if (Utils.Command.checkCmdAliases(args, 0, "assign", "a")) {
                 Report report = getReport(args, 3, player);
                 if (report == null) {
@@ -264,8 +262,6 @@ public class ReportManager implements CommandExecutor {
                     player.sendMessage(prefix + "&bYou assigned " + target.getNameNoPrefix() + " &bto the report with the id &e" + report.getId());
                 }
                 Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
-            } else if (Utils.Command.checkCmdAliases(args, 0, "help", "h")) {
-
             }
         }
 
