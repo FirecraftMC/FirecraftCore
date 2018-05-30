@@ -271,11 +271,13 @@ public class ReportManager implements CommandExecutor {
                     return true;
                 }
 
-                if (!report.getAssignee().equals(player.getUniqueId())) {
-                    FirecraftPlayer assignee = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), report.getAssignee());
-                    if (!player.getMainRank().isEqualToOrHigher(assignee.getMainRank())) {
-                        player.sendMessage(prefix + "&cThat report is not assigned to you, so you cannot change anything.");
-                        return true;
+                if (report.getAssignee() != null) {
+                    if (!report.getAssignee().equals(player.getUniqueId())) {
+                        FirecraftPlayer assignee = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), report.getAssignee());
+                        if (!player.getMainRank().isEqualToOrHigher(assignee.getMainRank())) {
+                            player.sendMessage(prefix + "&cThat report is not assigned to you, so you cannot change anything.");
+                            return true;
+                        }
                     }
                 }
 
