@@ -93,7 +93,8 @@ public class ReportManager implements CommandExecutor {
                             Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), set.getInt("id"));
                             reports.add(report);
                         }
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                    }
                 } else {
                     if (args[1].equalsIgnoreCase("all")) {
                         ResultSet set = plugin.getDatabase().querySQL("SELECT * FROM `reports`;");
@@ -102,7 +103,8 @@ public class ReportManager implements CommandExecutor {
                                 Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), set.getInt("id"));
                                 reports.add(report);
                             }
-                        } catch (Exception e) {}
+                        } catch (Exception e) {
+                        }
                     } else {
                         UUID target = null;
                         UUID reporter = null;
@@ -148,7 +150,8 @@ public class ReportManager implements CommandExecutor {
                                 if (assignee != null) if (!report.getAssignee().equals(assignee)) continue;
                                 reports.add(report);
                             }
-                        } catch (Exception e) {}
+                        } catch (Exception e) {
+                        }
                     }
                 }
 
@@ -206,7 +209,10 @@ public class ReportManager implements CommandExecutor {
                 }
                 report.setOutcome(outcome);
                 Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
-                player.sendMessage(prefix + "&bYou set the outcome of the report id &4" + report.getId() + " &bto " + outcome.getColor() + outcome.toString());
+                if (outcome != null)
+                    player.sendMessage(prefix + "&bYou set the outcome of the report id &4" + report.getId() + " &bto " + outcome.getColor() + outcome.toString());
+                else
+                    player.sendMessage(prefix + "&bYou set the outcome of the report id &4" + report.getId() + " &bto NONE");
             } else if (Utils.Command.checkCmdAliases(args, 0, "page", "p")) {
 
             } else if (Utils.Command.checkCmdAliases(args, 0, "refresh", "r")) {
