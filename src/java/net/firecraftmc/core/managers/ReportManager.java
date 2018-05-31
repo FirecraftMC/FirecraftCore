@@ -69,7 +69,7 @@ public class ReportManager implements CommandExecutor {
 
             String reason = Utils.getReason(1, args);
 
-            Report report = Utils.Database.saveReportToDatabase(plugin.getDatabase(), new Report(player.getUniqueId(), target.getUniqueId(), reason, player.getLocation(), System.currentTimeMillis()));
+            Report report = plugin.getDatabase().saveReport(new Report(player.getUniqueId(), target.getUniqueId(), reason, player.getLocation(), System.currentTimeMillis()));
             if (report.getId() == 0) {
                 player.sendMessage(prefix + Messages.reportDatabaseError);
                 return true;
@@ -94,7 +94,7 @@ public class ReportManager implements CommandExecutor {
                     ResultSet set = plugin.getDatabase().querySQL("SELECT * FROM `reports` WHERE `status` <> 'CLOSED';");
                     try {
                         while (set.next()) {
-                            Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), set.getInt("id"));
+                            Report report = plugin.getDatabase().getReport(set.getInt("id"));
                             reports.add(report);
                         }
                     } catch (Exception e) {
@@ -104,7 +104,7 @@ public class ReportManager implements CommandExecutor {
                         ResultSet set = plugin.getDatabase().querySQL("SELECT * FROM `reports`;");
                         try {
                             while (set.next()) {
-                                Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), set.getInt("id"));
+                                Report report = plugin.getDatabase().getReport(set.getInt("id"));
                                 reports.add(report);
                             }
                         } catch (Exception e) {
@@ -145,7 +145,7 @@ public class ReportManager implements CommandExecutor {
                         ResultSet set = plugin.getDatabase().querySQL(sql);
                         try {
                             while (set.next()) {
-                                Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), set.getInt("id"));
+                                Report report = plugin.getDatabase().getReport(set.getInt("id"));
                                 if (report == null) continue;
                                 if (target != null) if (!report.getTarget().equals(target)) continue;
                                 if (reporter != null) if (!report.getReporter().equals(reporter)) continue;
@@ -218,7 +218,7 @@ public class ReportManager implements CommandExecutor {
                     return true;
                 }
                 report.setStatus(status);
-                Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
+                plugin.getDatabase().saveReport(report);
                 FPReportSetStatus setStatus = new FPReportSetStatus(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), report.getStatus());
                 plugin.getSocket().sendPacket(setStatus);
             } else if (Utils.Command.checkCmdAliases(args, 0, "setoutcome", "so")) {
@@ -247,7 +247,7 @@ public class ReportManager implements CommandExecutor {
                     return true;
                 }
                 report.setOutcome(outcome);
-                Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
+                plugin.getDatabase().saveReport(report);
                 FPReportSetOutcome setOutcome = new FPReportSetOutcome(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), report.getOutcome());
                 plugin.getSocket().sendPacket(setOutcome);
             } else if (Utils.Command.checkCmdAliases(args, 0, "page", "p")) {
@@ -277,7 +277,7 @@ public class ReportManager implements CommandExecutor {
 
                 if (report.getAssignee() != null) {
                     if (!report.getAssignee().equals(player.getUniqueId())) {
-                        FirecraftPlayer assignee = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), report.getAssignee());
+                        FirecraftPlayer assignee = plugin.getDatabase().getPlayer(plugin.getFirecraftServer(), report.getAssignee());
                         if (!player.getMainRank().isEqualToOrHigher(assignee.getMainRank())) {
                             player.sendMessage(prefix + "&cThat report is not assigned to you, so you cannot change anything.");
                             return true;
@@ -316,7 +316,7 @@ public class ReportManager implements CommandExecutor {
                     FPReportAssignOthers assignOthers = new FPReportAssignOthers(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), target.getName());
                     plugin.getSocket().sendPacket(assignOthers);
                 }
-                Utils.Database.saveReportToDatabase(plugin.getDatabase(), report);
+                plugin.getDatabase().saveReport(report);
             }
         }
 
@@ -345,7 +345,7 @@ public class ReportManager implements CommandExecutor {
             return null;
         }
 
-        Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), rId);
+        Report report = plugin.getDatabase().getReport(rId);
         if (report == null) {
             player.sendMessage(prefix + "&cThe report could not be found with that id.");
             return null;

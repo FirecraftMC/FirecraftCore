@@ -60,7 +60,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                     Player p = Bukkit.getPlayer(uuid);
                     if (p != null) {
                         Punishment punishment = toKickForPunishment.get(uuid);
-                        String punisher = Utils.Database.getPlayerName(plugin.getDatabase(), Utils.convertToUUID(punishment.getPunisher()));
+                        String punisher = plugin.getDatabase().getPlayerName(Utils.convertToUUID(punishment.getPunisher()));
                         String reason = punishment.getReason();
                         if (punishment.getType().equals(Punishment.Type.BAN))
                             p.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, "Permanent", punishment.getId())));
@@ -92,7 +92,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         Player p = e.getPlayer();
         FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(plugin.getFirecraftServer(), p.getUniqueId());
         plugin.getSocket().sendPacket(serverPlayerJoin);
-        FirecraftPlayer player = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), p.getUniqueId());
+        FirecraftPlayer player = plugin.getDatabase().getPlayer(plugin.getFirecraftServer(), p.getUniqueId());
 
         if (player == null) {
             p.kickPlayer(Messages.getDataErrorKick);
@@ -184,7 +184,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                     ResultSet reportSet = plugin.getDatabase().querySQL("SELECT * FROM `reports` WHERE `status` <> 'CLOSED';");
                     try {
                         while (reportSet.next()) {
-                            Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), reportSet.getInt("id"));
+                            Report report = plugin.getDatabase().getReport(reportSet.getInt("id"));
                             reports.add(report);
                         }
                     } catch (Exception ex) {}
@@ -249,7 +249,7 @@ public class PlayerManager implements IPlayerManager, Listener {
     public FirecraftPlayer getPlayer(UUID uuid) {
         FirecraftPlayer player = onlinePlayers.get(uuid);
         if (player == null) player = cachedPlayers.get(uuid);
-        if (player == null) player = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), uuid);
+        if (player == null) player = plugin.getDatabase().getPlayer(plugin.getFirecraftServer(), uuid);
         return player;
     }
 
@@ -275,7 +275,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         if (uuid == null) {
             return null;
         }
-        return Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), uuid);
+        return plugin.getDatabase().getPlayer(plugin.getFirecraftServer(), uuid);
     }
 
     /**
@@ -375,7 +375,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             FirecraftPlayer target = getPlayer(t);
             if (target == null) target = getCachedPlayer(t);
             if (target == null)
-                target = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), t);
+                target = plugin.getDatabase().getPlayer(plugin.getFirecraftServer(), t);
             if (target == null) {
                 player.sendMessage("&cThere was an error getting the profile of that player.");
                 return true;
