@@ -1,6 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
+import net.firecraftmc.shared.classes.FirecraftMC;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
@@ -35,7 +36,6 @@ public class PlayerManager implements IPlayerManager, Listener {
     private final ConcurrentHashMap<UUID, FirecraftPlayer> cachedPlayers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, Punishment> toKickForPunishment = new ConcurrentHashMap<>();
     private final List<UUID> teleportUnjail = new ArrayList<>();
-    private final UUID firestar311 = UUID.fromString("3f7891ce-5a73-4d52-a2ba-299839053fdc");
 
     private final FirecraftCore plugin;
 
@@ -382,7 +382,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             }
 
             if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-                if (!player.getUniqueId().equals(firestar311)) {
+                if (!player.getUniqueId().equals(FirecraftMC.firestar311)) {
                     player.sendMessage(Messages.noPermission);
                     return true;
                 }
@@ -424,7 +424,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                         }
 
                         String prefix;
-                        if (!player.getUniqueId().equals(firestar311)) {
+                        if (!player.getUniqueId().equals(FirecraftMC.firestar311)) {
                             prefix = "&4&l" + ChatColor.stripColor(args[1]);
                         } else {
                             prefix = "&4&l" + args[1];

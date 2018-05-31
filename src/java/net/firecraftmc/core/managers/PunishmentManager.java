@@ -1,10 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.FirecraftPlayer;
-import net.firecraftmc.shared.classes.FirecraftServer;
-import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.enforcer.Enforcer;
 import net.firecraftmc.shared.enforcer.punishments.*;
@@ -29,7 +26,6 @@ import java.util.UUID;
 public class PunishmentManager implements CommandExecutor, Listener {
     private FirecraftCore plugin;
     private static final String prefix = "&d&l[ENFORCER] ";
-    private final UUID firestar311 = UUID.fromString("3f7891ce-5a73-4d52-a2ba-299839053fdc");
 
     public PunishmentManager(FirecraftCore plugin) {
         this.plugin = plugin;
@@ -128,7 +124,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
             }
     
             if (t.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-                if (!player.getUniqueId().equals(firestar311)) {
+                if (!player.getUniqueId().equals(FirecraftMC.firestar311)) {
                     player.sendMessage(prefix + Messages.noPunishRank);
                     return true;
                 }
