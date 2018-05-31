@@ -126,14 +126,14 @@ public class ReportManager implements CommandExecutor {
                                 try {
                                     status = Report.Status.valueOf(a.replace("s:", "").toUpperCase());
                                 } catch (Exception e) {
-                                    player.sendMessage(prefix + "The status you provided was invalid.");
+                                    player.sendMessage(prefix + "&cThe status you provided was invalid.");
                                 }
                             }
                             if (a.startsWith("o:")) {
                                 try {
                                     outcome = Report.Outcome.valueOf(a.replace("o:", "").toUpperCase());
                                 } catch (Exception e) {
-                                    player.sendMessage(prefix + "The outcome you provided was invalid.");
+                                    player.sendMessage(prefix + "&cThe outcome you provided was invalid.");
                                 }
                             }
                             if (a.startsWith("a:")) {
@@ -151,7 +151,11 @@ public class ReportManager implements CommandExecutor {
                                 if (reporter != null) if (!report.getReporter().equals(reporter)) continue;
                                 if (status != null) if (report.getStatus() != status) continue;
                                 if (outcome != null) if (report.getOutcome() != outcome) continue;
-                                if (assignee != null) if (!report.getAssignee().equals(assignee)) continue;
+                                if (assignee != null) {
+                                    if (report.getAssignee() != null) {
+                                        if (!report.getAssignee().equals(assignee)) continue;
+                                    } else continue;
+                                }
                                 reports.add(report);
                             }
                         } catch (Exception e) {
@@ -321,7 +325,8 @@ public class ReportManager implements CommandExecutor {
 
     /**
      * A private method to reduce code
-     * @param args The command arguments
+     *
+     * @param args   The command arguments
      * @param length The length the args should be
      * @param player The player to send messages to (CommandSender
      * @return The report based on the id
