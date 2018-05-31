@@ -510,6 +510,12 @@ public class PlayerManager implements IPlayerManager, Listener {
         return true;
     }
 
+    /**
+     * Just a shortcut method to prevent repeat code.
+     * @param rank The rank to generate for
+     * @param players The players in the rank
+     * @return A string representation of the players in that rank that are online.
+     */
     private String generateListLine(Rank rank, List<String> players) {
         StringBuilder base = new StringBuilder(" &8- &7" + rank.getTeamName() + " (&f" + players.size() + "&7): ");
         for (int i = 0; i < players.size(); i++) {
