@@ -203,19 +203,21 @@ public class ReportManager implements CommandExecutor {
                     }
                 }
 
-                if (!report.getAssignee().equals(player.getUniqueId())) {
-                    if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                        player.sendMessage(prefix + "&cThat report is not assigned to you, so you cannot change anything.");
-                        return true;
-                    }
-                }
-
                 Report.Status status;
                 try {
                     status = Report.Status.valueOf(args[2].toUpperCase());
                 } catch (Exception e) {
                     player.sendMessage(prefix + "&cThe status you provided is invalid.");
                     return true;
+                }
+
+                if (!report.getStatus().equals(Report.Status.PENDING)) {
+                    if (!report.getAssignee().equals(player.getUniqueId())) {
+                        if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                            player.sendMessage(prefix + "&cThat report is not assigned to you, so you cannot change anything.");
+                            return true;
+                        }
+                    }
                 }
                 report.setStatus(status);
                 plugin.getDatabase().saveReport(report);
