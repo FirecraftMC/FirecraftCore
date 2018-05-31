@@ -164,7 +164,7 @@ public class ReportManager implements CommandExecutor {
                 }
 
                 PaginatorFactory<Report> paginatorFactory = new PaginatorFactory<>();
-                paginatorFactory.setMaxElements(10).setHeader("§aReports page {pagenumber} out of {totalpages}").setFooter("§aUse /reportadmin page {nextpage} to view the next page.");
+                paginatorFactory.setMaxElements(7).setHeader("§aReports page {pagenumber} out of {totalpages}").setFooter("§aUse /reportadmin page {nextpage} to view the next page.");
                 reports.forEach(report -> paginatorFactory.addElement(report, reports.size()));
                 if (paginatorFactory.getPages().isEmpty()) {
                     player.sendMessage(prefix + "&cThere are no reports to display.");
@@ -313,8 +313,13 @@ public class ReportManager implements CommandExecutor {
                     }
 
                     report.setAssignee(target.getUniqueId());
-                    FPReportAssignOthers assignOthers = new FPReportAssignOthers(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), target.getName());
-                    plugin.getSocket().sendPacket(assignOthers);
+                    if (target.getUniqueId().equals(player.getUniqueId())) {
+                        FPReportAssignSelf selfAssign = new FPReportAssignSelf(plugin.getFirecraftServer(), player.getUniqueId(), report.getId());
+                        plugin.getSocket().sendPacket(selfAssign);
+                    } else {
+                        FPReportAssignOthers assignOthers = new FPReportAssignOthers(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), target.getName());
+                        plugin.getSocket().sendPacket(assignOthers);
+                    }
                 }
                 plugin.getDatabase().saveReport(report);
             }
