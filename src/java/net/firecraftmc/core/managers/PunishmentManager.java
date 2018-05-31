@@ -3,7 +3,6 @@ package net.firecraftmc.core.managers;
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.enforcer.Enforcer;
 import net.firecraftmc.shared.enforcer.punishments.*;
 import net.firecraftmc.shared.packets.FPacketPunish;
 import net.firecraftmc.shared.packets.FPacketPunishRemove;
@@ -214,7 +213,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 
                 PermanentBan permBan = new PermanentBan(type, server.getName(), punisherId, targetId, reason, date);
                 permBan.setActive(true);
-                Punishment permanentBan = Enforcer.addToDatabase(plugin.getDatabase(), permBan);
+                Punishment permanentBan = plugin.getDatabase().addPunishment(permBan);
                 if (permanentBan != null) {
                     if (Bukkit.getPlayer(t.getUniqueId()) != null)
                         t.kickPlayer(Utils.color(Messages.banMessage(punisherId, reason, "Permanent", permanentBan.getId())));
@@ -253,7 +252,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 Punishment.Type type = Punishment.Type.TEMP_BAN;
                 TemporaryBan tempBan = new TemporaryBan(type, server.getName(), punisherId, targetId, reason, date, expireDate);
                 tempBan.setActive(true);
-                TemporaryPunishment temporaryBan = (TemporaryPunishment) Enforcer.addToDatabase(plugin.getDatabase(), tempBan);
+                TemporaryPunishment temporaryBan = (TemporaryPunishment) plugin.getDatabase().addPunishment(tempBan);
                 if (temporaryBan == null) {
                     player.sendMessage(prefix + Messages.punishmentCreateIssue);
                     return true;
@@ -284,7 +283,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
     
                 PermanentMute permMute = new PermanentMute(type, server.getName(), punisherId, targetId, reason, date);
                 permMute.setActive(true);
-                Punishment permanentMute = Enforcer.addToDatabase(plugin.getDatabase(), permMute);
+                Punishment permanentMute = plugin.getDatabase().addPunishment(permMute);
                 if (permanentMute != null) {
                     FPacketPunish punish = new FPacketPunish(server, permanentMute.getId());
                     plugin.getSocket().sendPacket(punish);
@@ -323,7 +322,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 Punishment.Type type = Punishment.Type.TEMP_MUTE;
                 TemporaryBan tempBan = new TemporaryBan(type, server.getName(), punisherId, targetId, reason, date, expireDate);
                 tempBan.setActive(true);
-                TemporaryPunishment temporaryMute = (TemporaryPunishment) Enforcer.addToDatabase(plugin.getDatabase(), tempBan);
+                TemporaryPunishment temporaryMute = (TemporaryPunishment) plugin.getDatabase().addPunishment(tempBan);
                 if (temporaryMute == null) {
                     player.sendMessage(prefix + Messages.punishmentCreateIssue);
                     return true;
@@ -352,7 +351,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 }
                 Jail j = new Jail(server.getName(), punisherId, targetId, reason, date);
                 j.setActive(true);
-                Punishment jail = Enforcer.addToDatabase(plugin.getDatabase(), j);
+                Punishment jail = plugin.getDatabase().addPunishment(j);
                 if (jail != null) {
                     FPacketPunish punish = new FPacketPunish(server, jail.getId());
                     plugin.getSocket().sendPacket(punish);
@@ -378,7 +377,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 }
                 Kick k = new Kick(type, server.getName(), punisherId, targetId, reason, date);
                 
-                Kick kick = (Kick) Enforcer.addToDatabase(plugin.getDatabase(), k);
+                Kick kick = (Kick) plugin.getDatabase().addPunishment(k);
                 if (Bukkit.getPlayer(t.getUniqueId()) != null)
                     t.kickPlayer(Messages.kickMessage(player.getName(), reason));
                 if (kick != null) {
@@ -401,7 +400,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 }
                 Warn w = new Warn(server.getName(), punisherId, targetId, reason, date);
                 w.setActive(true);
-                Warn warn = (Warn) Enforcer.addToDatabase(plugin.getDatabase(), w);
+                Warn warn = (Warn) plugin.getDatabase().addPunishment(w);
                 if (warn != null) {
                     FPacketPunish punish = new FPacketPunish(server, warn.getId());
                     plugin.getSocket().sendPacket(punish);
