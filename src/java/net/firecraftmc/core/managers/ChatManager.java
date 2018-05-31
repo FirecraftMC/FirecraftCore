@@ -50,7 +50,6 @@ public class ChatManager implements CommandExecutor,Listener {
             }
         }
     
-        //TODO Make both of these checks in one query eventually
         ResultSet muteSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE (`type`='MUTE' OR `type`='TEMP_MUTE') AND `active`='true';");
         try {
             if (muteSet.next()) {
