@@ -5,7 +5,7 @@ import net.firecraftmc.core.wrapper.ItemPickupEvent1_12;
 import net.firecraftmc.core.wrapper.ItemPickupEvent1_8;
 import net.firecraftmc.core.wrapper.NickWrapper1_12_R1;
 import net.firecraftmc.core.wrapper.NickWrapper1_8_R3;
-import net.firecraftmc.shared.MySQL;
+import net.firecraftmc.shared.Database;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.FirecraftServer;
 import net.firecraftmc.shared.classes.FirecraftSocket;
@@ -49,7 +49,7 @@ public class FirecraftCore extends FirecraftPlugin {
 
         this.registerAllCommands();
 
-        database = new MySQL(getConfig().getString("mysql.user"), getConfig().getString("mysql.database"),
+        database = new Database(getConfig().getString("mysql.user"), getConfig().getString("mysql.database"),
                 getConfig().getString("mysql.password"), getConfig().getInt("mysql.port"), getConfig().getString("mysql.hostname"));
         database.openConnection();
 
