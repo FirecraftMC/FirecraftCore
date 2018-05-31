@@ -6,6 +6,7 @@ import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.interfaces.IPlayerManager;
+import net.firecraftmc.shared.classes.model.Report;
 import net.firecraftmc.shared.enforcer.punishments.Punishment;
 import net.firecraftmc.shared.enforcer.punishments.TemporaryBan;
 import net.firecraftmc.shared.packets.FPacketRankUpdate;
@@ -89,7 +90,6 @@ public class PlayerManager implements IPlayerManager, Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         e.setJoinMessage(null);
         Player p = e.getPlayer();
-        p.sendMessage(Utils.color(Messages.welcomeGetData));
         FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(plugin.getFirecraftServer(), p.getUniqueId());
         plugin.getSocket().sendPacket(serverPlayerJoin);
         FirecraftPlayer player = Utils.Database.getPlayerFromDatabase(plugin.getFirecraftServer(), plugin.getDatabase(), p.getUniqueId());
@@ -176,7 +176,38 @@ public class PlayerManager implements IPlayerManager, Listener {
             ex.printStackTrace();
         }
         player.setHomes(plugin.getHomeManager().loadHomes(player.getUniqueId()));
-        player.sendMessage(Messages.loadDataSuccessful);
+
+        if (Rank.isStaff(player.getMainRank())) {
+            new BukkitRunnable() {
+                public void run() {
+                    List<Report> reports = new ArrayList<>();
+                    ResultSet reportSet = plugin.getDatabase().querySQL("SELECT * FROM `reports` WHERE `status` <> 'CLOSED';");
+                    try {
+                        while (reportSet.next()) {
+                            Report report = Utils.Database.getReportFromDatabase(plugin.getDatabase(), reportSet.getInt("id"));
+                            reports.add(report);
+                        }
+                    } catch (Exception ex) {}
+
+                    if (reports.size() > 0) {
+                        int unassignedCount = 0, assignedToSelfCount = 0;
+                        for (Report report : reports) {
+                            if (report.getAssignee() == null) {
+                                unassignedCount++;
+                            } else {
+                                if (report.getAssignee().equals(player.getUniqueId())) {
+                                    assignedToSelfCount++;
+                                }
+                            }
+                        }
+
+                        player.sendMessage("&bThere are a total of &e" + reports.size() + " &breports that are not closed.");
+                        player.sendMessage("&bThere are a total of &e" + unassignedCount + " &breports that are not assigned.");
+                        player.sendMessage("&bThere are a total of &e" + assignedToSelfCount + " &breports that are assigned to you and not closed.");
+                    }
+                }
+            }.runTaskLater(plugin, 10L);
+        }
     }
 
     @EventHandler
