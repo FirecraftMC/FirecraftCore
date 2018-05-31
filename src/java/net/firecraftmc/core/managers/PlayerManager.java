@@ -141,7 +141,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                     if (!player.getMainRank().isEqualToOrHigher(p1.getMainRank())) {
                         player.getPlayer().hidePlayer(p.getPlayer());
                     }
-                } //TODO Nicknames should work due to the background code.
+                }
 
                 if (!p.getUniqueId().equals(player.getUniqueId())) {
                     if (p.getPlayer().canSee(player.getPlayer())) {
@@ -152,8 +152,11 @@ public class PlayerManager implements IPlayerManager, Listener {
         }
 
         if (player.isNicked()) {
-            //TODO NOT SUPPORTED YET, PLACEHOLDER
-            System.out.println("Player is nicked, this is a placeholder when it is implemented.");
+            new BukkitRunnable() {
+                public void run() {
+                    player.setNick(plugin, player.getNick().getProfile());
+                }
+            }.runTaskLater(plugin, 10L);
         }
 
         ResultSet jailSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
