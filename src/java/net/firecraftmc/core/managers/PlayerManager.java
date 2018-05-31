@@ -190,7 +190,8 @@ public class PlayerManager implements IPlayerManager, Listener {
                             Report report = plugin.getDatabase().getReport(reportSet.getInt("id"));
                             reports.add(report);
                         }
-                    } catch (Exception ex) {}
+                    } catch (Exception ex) {
+                    }
 
                     if (reports.size() > 0) {
                         int unassignedCount = 0, assignedToSelfCount = 0;
@@ -246,6 +247,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
     /**
      * Gets the FirecraftPlayer given the UUID
+     *
      * @param uuid The Unique Id of the player
      * @return The FirecraftPlayer object from memory or the database
      */
@@ -258,6 +260,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
     /**
      * Gets the FirecraftPlayer given the name
+     *
      * @param name The name of the player
      * @return The FirecraftPlayer object from memory or the database
      */
@@ -290,6 +293,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
     /**
      * Adds a player to the onlinePlayers list
+     *
      * @param player The player to add
      */
     public void addPlayer(FirecraftPlayer player) {
@@ -298,6 +302,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
     /**
      * Removes a player from the online list
+     *
      * @param uuid The Unique ID of the player to remove
      */
     public void removePlayer(UUID uuid) {
@@ -306,6 +311,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
     /**
      * Gets a Player Profile from the cache
+     *
      * @param uuid The UUID of the player to get
      * @return The profile of the player
      */
@@ -315,6 +321,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
     /**
      * Adds a punishment so that the player can be kicked if they are online, supports cross server kicking/banning
+     *
      * @param punishment The Punishment received from the socket
      */
     public void addToKickForPunishment(Punishment punishment) {
@@ -324,6 +331,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
     /**
      * Adds a player to the cache, which is used if a player profile is used when not online or they go offline.
+     *
      * @param player The player to add to the cache
      */
     public void addCachedPlayer(FirecraftPlayer player) {
@@ -332,6 +340,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
     /**
      * Add a player to the queue to be teleport to the jail location
+     *
      * @param uuid The UUID of the player to be jailed
      */
     public void addToTeleportUnJail(UUID uuid) {
@@ -462,7 +471,54 @@ public class PlayerManager implements IPlayerManager, Listener {
                 player.sendMessage(Messages.noPermission);
                 return true;
             }
+        } else if (cmd.getName().equalsIgnoreCase("list")) {
+            TreeMap<Rank, List<String>> onlinePlayers = new TreeMap<>();
+            for (FirecraftPlayer fp : this.onlinePlayers.values()) {
+                Rank r = fp.getMainRank();
+                if (onlinePlayers.get(r) == null) {
+                    onlinePlayers.put(r, new ArrayList<>());
+                }
+                onlinePlayers.get(r).add(fp.getNameNoPrefix());
+            }
+            int onlineCount = 0;
+            for (FirecraftPlayer fp : this.onlinePlayers.values()) {
+                if (fp.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                    if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                        onlineCount++;
+                    }
+                } else {
+                    onlineCount++;
+                }
+            }
+            player.sendMessage("&bThere are a total of &e" + onlineCount + " &bcurrently online.");
+            for (Map.Entry<Rank, List<String>> entry : onlinePlayers.entrySet()) {
+                if (entry.getValue().size() != 0) {
+                    String line = generateListLine(entry.getKey(), entry.getValue());
+                    if (entry.getKey().equals(Rank.FIRECRAFT_TEAM)) {
+                        if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                            player.sendMessage(line);
+                            continue;
+                        } else {
+                            continue;
+                        }
+                    }
+                    player.sendMessage(line);
+
+                }
+            }
         }
         return true;
+    }
+
+    private String generateListLine(Rank rank, List<String> players) {
+        StringBuilder base = new StringBuilder(" &8- &7" + rank.getTeamName() + " (&f" + players.size() + "&7): ");
+        for (int i = 0; i < players.size(); i++) {
+            String name = players.get(i);
+            base.append(name);
+            if (i != players.size() - 1) {
+                base.append("&7, ");
+            }
+        }
+        return base.toString();
     }
 }
