@@ -1,10 +1,10 @@
 package net.firecraftmc.core;
 
 import net.firecraftmc.core.managers.*;
-import net.firecraftmc.core.wrapper.ItemPickupEvent1_12;
-import net.firecraftmc.core.wrapper.ItemPickupEvent1_8;
-import net.firecraftmc.core.wrapper.NickWrapper1_12_R1;
-import net.firecraftmc.core.wrapper.NickWrapper1_8_R3;
+import net.firecraftmc.shared.classes.wrapper.ItemPickupEvent1_12;
+import net.firecraftmc.shared.classes.wrapper.ItemPickupEvent1_8;
+import net.firecraftmc.shared.classes.wrapper.NickWrapper1_12_R1;
+import net.firecraftmc.shared.classes.wrapper.NickWrapper1_8_R3;
 import net.firecraftmc.shared.Database;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.FirecraftServer;

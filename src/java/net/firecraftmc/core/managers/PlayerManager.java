@@ -60,7 +60,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                     Player p = Bukkit.getPlayer(uuid);
                     if (p != null) {
                         Punishment punishment = toKickForPunishment.get(uuid);
-                        String punisher = plugin.getDatabase().getPlayerName(Utils.convertToUUID(punishment.getPunisher()));
+                        String punisher = plugin.getFCDatabase().getPlayerName(Utils.convertToUUID(punishment.getPunisher()));
                         String reason = punishment.getReason();
                         if (punishment.getType().equals(Punishment.Type.BAN))
                             p.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, "Permanent", punishment.getId())));
@@ -92,7 +92,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         Player p = e.getPlayer();
         FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(plugin.getFirecraftServer(), p.getUniqueId());
         plugin.getSocket().sendPacket(serverPlayerJoin);
-        FirecraftPlayer player = plugin.getDatabase().getPlayer(plugin.getFirecraftServer(), p.getUniqueId());
+        FirecraftPlayer player = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), p.getUniqueId());
 
         if (player == null) {
             p.kickPlayer(Messages.getDataErrorKick);
@@ -100,7 +100,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         }
 
         if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-            ResultSet fct = plugin.getDatabase().querySQL("SELECT * FROM `fctprefixes` WHERE `fctmember` = '{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
+            ResultSet fct = plugin.getFCDatabase().querySQL("SELECT * FROM `fctprefixes` WHERE `fctmember` = '{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
             try {
                 if (fct.next()) {
                     player.setFctPrefix(fct.getString("prefix"));
@@ -111,7 +111,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         }
 
         this.onlinePlayers.put(player.getUniqueId(), player);
-        plugin.getDatabase().updateSQL("UPDATE `playerdata` SET `online`='true' WHERE `uniqueid`='" + player.getUniqueId().toString().replace("-", "") + "';");
+        plugin.getFCDatabase().updateSQL("UPDATE `playerdata` SET `online`='true' WHERE `uniqueid`='" + player.getUniqueId().toString().replace("-", "") + "';");
 
         player.playerOnlineStuff();
         if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
@@ -159,7 +159,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             }.runTaskLater(plugin, 10L);
         }
 
-        ResultSet jailSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
+        ResultSet jailSet = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
         try {
             if (jailSet.next()) {
                 player.teleport(plugin.getJailLocation());
@@ -168,7 +168,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             ex.printStackTrace();
         }
 
-        ResultSet warnSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `acknowledged`='false' AND `type`='WARN';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
+        ResultSet warnSet = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `acknowledged`='false' AND `type`='WARN';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
         try {
             if (warnSet.next()) {
                 String code = Utils.generateAckCode(Utils.codeCharacters);
@@ -184,10 +184,10 @@ public class PlayerManager implements IPlayerManager, Listener {
             new BukkitRunnable() {
                 public void run() {
                     List<Report> reports = new ArrayList<>();
-                    ResultSet reportSet = plugin.getDatabase().querySQL("SELECT * FROM `reports` WHERE `status` <> 'CLOSED';");
+                    ResultSet reportSet = plugin.getFCDatabase().querySQL("SELECT * FROM `reports` WHERE `status` <> 'CLOSED';");
                     try {
                         while (reportSet.next()) {
-                            Report report = plugin.getDatabase().getReport(reportSet.getInt("id"));
+                            Report report = plugin.getFCDatabase().getReport(reportSet.getInt("id"));
                             reports.add(report);
                         }
                     } catch (Exception ex) {
@@ -233,7 +233,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         plugin.getSocket().sendPacket(playerLeave);
 
         plugin.getHomeManager().saveHomes(player);
-        plugin.getDatabase().updateSQL("UPDATE `playerdata` SET `online`='false' WHERE `uniqueid`='" + player.getUniqueId().toString().replace("-", "") + "';");
+        plugin.getFCDatabase().updateSQL("UPDATE `playerdata` SET `online`='false' WHERE `uniqueid`='" + player.getUniqueId().toString().replace("-", "") + "';");
 
         onlinePlayers.remove(player.getUniqueId());
         cachedPlayers.put(player.getUniqueId(), player);
@@ -254,7 +254,7 @@ public class PlayerManager implements IPlayerManager, Listener {
     public FirecraftPlayer getPlayer(UUID uuid) {
         FirecraftPlayer player = onlinePlayers.get(uuid);
         if (player == null) player = cachedPlayers.get(uuid);
-        if (player == null) player = plugin.getDatabase().getPlayer(plugin.getFirecraftServer(), uuid);
+        if (player == null) player = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), uuid);
         return player;
     }
 
@@ -281,7 +281,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         if (uuid == null) {
             return null;
         }
-        return plugin.getDatabase().getPlayer(plugin.getFirecraftServer(), uuid);
+        return plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), uuid);
     }
 
     /**
@@ -387,7 +387,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             FirecraftPlayer target = getPlayer(t);
             if (target == null) target = getCachedPlayer(t);
             if (target == null)
-                target = plugin.getDatabase().getPlayer(plugin.getFirecraftServer(), t);
+                target = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), t);
             if (target == null) {
                 player.sendMessage("&cThere was an error getting the profile of that player.");
                 return true;
@@ -414,7 +414,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                             return true;
                         }
 
-                        plugin.getDatabase().updateSQL("UPDATE `playerdata` SET `mainrank` = '" + rank.toString() + "' WHERE `uniqueid`='{uuid}';".replace("{uuid}", target.getUniqueId().toString().replace("-", "")));
+                        plugin.getFCDatabase().updateSQL("UPDATE `playerdata` SET `mainrank` = '" + rank.toString() + "' WHERE `uniqueid`='{uuid}';".replace("{uuid}", target.getUniqueId().toString().replace("-", "")));
                         player.sendMessage(Messages.setMainRank(target.getName(), rank));
                         FPacketRankUpdate rankUpdate = new FPacketRankUpdate(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId());
                         plugin.getSocket().sendPacket(rankUpdate);
@@ -442,7 +442,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                             prefix = "&4&l" + args[1];
                         }
 
-                        ResultSet set = plugin.getDatabase().querySQL("SELECT * FROM `fctprefixes` WHERE `fctmember` = '{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
+                        ResultSet set = plugin.getFCDatabase().querySQL("SELECT * FROM `fctprefixes` WHERE `fctmember` = '{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
                         try {
                             String sql;
                             if (set.next()) {
@@ -450,7 +450,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                             } else {
                                 sql = "INSERT INTO `fctprefixes`(`fctmember`, `prefix`) VALUES ('{uuid}','{prefix}');".replace("{uuid}", player.getUniqueId().toString()).replace("{prefix}", prefix);
                             }
-                            plugin.getDatabase().updateSQL(sql);
+                            plugin.getFCDatabase().updateSQL(sql);
                         } catch (Exception e) {
                             player.sendMessage("&cThere was an error setting your prefix.");
                             return true;
@@ -458,7 +458,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                         player.setFctPrefix(prefix);
                         player.sendMessage("&bYou have set your prefix to " + prefix);
                     } else if (args[0].equalsIgnoreCase("resetprefix")) {
-                        plugin.getDatabase().updateSQL("DELETE FROM `fctprefixes` WHERE `fctmember`='{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
+                        plugin.getFCDatabase().updateSQL("DELETE FROM `fctprefixes` WHERE `fctmember`='{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
                         player.sendMessage("&bYou have reset your prefix.");
                         player.setFctPrefix(Rank.FIRECRAFT_TEAM.getPrefix());
                         return true;

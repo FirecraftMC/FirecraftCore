@@ -50,7 +50,7 @@ public class ChatManager implements CommandExecutor,Listener {
             }
         }
     
-        ResultSet muteSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE (`type`='MUTE' OR `type`='TEMP_MUTE') AND `active`='true';");
+        ResultSet muteSet = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE (`type`='MUTE' OR `type`='TEMP_MUTE') AND `active`='true';");
         try {
             if (muteSet.next()) {
                 player.sendMessage(Messages.chatMuted);
@@ -60,7 +60,7 @@ public class ChatManager implements CommandExecutor,Listener {
             ex.printStackTrace();
         }
     
-        ResultSet jailSet = plugin.getDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
+        ResultSet jailSet = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
         try {
             if (jailSet.next()) {
                 player.sendMessage(Messages.chatJailed);
