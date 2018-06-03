@@ -223,6 +223,7 @@ public class ReportManager implements CommandExecutor {
                 plugin.getFCDatabase().saveReport(report);
                 FPReportSetStatus setStatus = new FPReportSetStatus(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), report.getStatus());
                 plugin.getSocket().sendPacket(setStatus);
+                addReportChange(report, "changed status " + status.toString());
             } else if (Utils.Command.checkCmdAliases(args, 0, "setoutcome", "so")) {
                 Report report = getReport(args, 3, player);
                 if (report == null) return true;
@@ -252,6 +253,7 @@ public class ReportManager implements CommandExecutor {
                 plugin.getFCDatabase().saveReport(report);
                 FPReportSetOutcome setOutcome = new FPReportSetOutcome(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), report.getOutcome());
                 plugin.getSocket().sendPacket(setOutcome);
+                addReportChange(report, "changed outcome " + outcome.toString());
             } else if (Utils.Command.checkCmdAliases(args, 0, "page", "p")) {
                 Paginator<Report> paginator = this.paginators.get(player.getUniqueId());
                 if (paginator == null) {
@@ -297,6 +299,7 @@ public class ReportManager implements CommandExecutor {
                     report.setAssignee(player.getUniqueId());
                     FPReportAssignSelf selfAssign = new FPReportAssignSelf(plugin.getFirecraftServer(), player.getUniqueId(), report.getId());
                     plugin.getSocket().sendPacket(selfAssign);
+                    addReportChange(report, "assigned " + player.getName());
                 } else {
                     FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[2]);
                     if (target == null) {
@@ -322,6 +325,7 @@ public class ReportManager implements CommandExecutor {
                         FPReportAssignOthers assignOthers = new FPReportAssignOthers(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), target.getName());
                         plugin.getSocket().sendPacket(assignOthers);
                     }
+                    addReportChange(report, "assigned " + target.getName());
                 }
                 plugin.getFCDatabase().saveReport(report);
             }
@@ -358,5 +362,18 @@ public class ReportManager implements CommandExecutor {
             return null;
         }
         return report;
+    }
+
+    private void addReportChange(Report report, String change) {
+        FirecraftPlayer reporter = plugin.getPlayerManager().getPlayer(report.getReporter());
+        int id = plugin.getFCDatabase().addReportChange(report.getId(), change);
+        reporter.addUnseenReportAction(id);
+        if (reporter.getPlayer() != null) {
+            reporter.sendMessage(Messages.formatReportChange(report, change));
+            reporter.removeUnseenReportAction(id);
+        } else {
+            plugin.getFCDatabase().savePlayer(reporter);
+            System.out.println(reporter.getUnseenReportActions());
+        }
     }
 }

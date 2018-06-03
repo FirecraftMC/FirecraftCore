@@ -212,6 +212,18 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
             }.runTaskLater(plugin, 10L);
         }
+
+        System.out.println(player.getUnseenReportActions());
+        if (!player.getUnseenReportActions().isEmpty()) {
+            for (Integer reportChange : player.getUnseenReportActions()) {
+                String[] arr = plugin.getFCDatabase().getReportChange(reportChange).split(":");
+                if (arr.length == 2) {
+                    Report report = plugin.getFCDatabase().getReport(Integer.parseInt(arr[0]));
+                    player.sendMessage(Messages.formatReportChange(report, arr[1]));
+                }
+            }
+            player.getUnseenReportActions().clear();
+        }
     }
 
     @EventHandler
@@ -243,6 +255,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 p.getScoreboard().updateScoreboard(p);
             }
         }
+        plugin.getFCDatabase().savePlayer(player);
     }
 
     /**
