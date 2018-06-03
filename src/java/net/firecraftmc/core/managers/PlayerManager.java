@@ -180,9 +180,9 @@ public class PlayerManager implements IPlayerManager, Listener {
         }
         player.setHomes(plugin.getHomeManager().loadHomes(player.getUniqueId()));
 
-        if (Rank.isStaff(player.getMainRank())) {
-            new BukkitRunnable() {
-                public void run() {
+        new BukkitRunnable() {
+            public void run() {
+                if (Rank.isStaff(player.getMainRank())) {
                     List<Report> reports = new ArrayList<>();
                     ResultSet reportSet = plugin.getFCDatabase().querySQL("SELECT * FROM `reports` WHERE `status` <> 'CLOSED';");
                     try {
@@ -210,20 +210,19 @@ public class PlayerManager implements IPlayerManager, Listener {
                         player.sendMessage("&bThere are a total of &e" + assignedToSelfCount + " &breports that are assigned to you and not closed.");
                     }
                 }
-            }.runTaskLater(plugin, 10L);
-        }
 
-        System.out.println(player.getUnseenReportActions());
-        if (!player.getUnseenReportActions().isEmpty()) {
-            for (Integer reportChange : player.getUnseenReportActions()) {
-                String[] arr = plugin.getFCDatabase().getReportChange(reportChange).split(":");
-                if (arr.length == 2) {
-                    Report report = plugin.getFCDatabase().getReport(Integer.parseInt(arr[0]));
-                    player.sendMessage(Messages.formatReportChange(report, arr[1]));
+                if (!player.getUnseenReportActions().isEmpty()) {
+                    for (Integer reportChange : player.getUnseenReportActions()) {
+                        String[] arr = plugin.getFCDatabase().getReportChange(reportChange).split(":");
+                        if (arr.length == 2) {
+                            Report report = plugin.getFCDatabase().getReport(Integer.parseInt(arr[0]));
+                            player.sendMessage(Messages.formatReportChange(report, arr[1]));
+                        }
+                    }
+                    player.getUnseenReportActions().clear();
                 }
             }
-            player.getUnseenReportActions().clear();
-        }
+        }.runTaskLater(plugin, 10L);
     }
 
     @EventHandler
@@ -525,7 +524,8 @@ public class PlayerManager implements IPlayerManager, Listener {
 
     /**
      * Just a shortcut method to prevent repeat code.
-     * @param rank The rank to generate for
+     *
+     * @param rank    The rank to generate for
      * @param players The players in the rank
      * @return A string representation of the players in that rank that are online.
      */
