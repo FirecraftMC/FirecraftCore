@@ -1,6 +1,6 @@
 name: FirecraftCore
 main: net.firecraftmc.core.FirecraftCore
-version: 1.7.1-ALPHA
+version: 1.8-ALPHA
 load: STARTUP
 author: Firestar311
 commands:
@@ -79,3 +79,7 @@ commands:
     reportadmin:
         aliases: [ra]
     list:
+    message:
+        aliases: [pm, whisper, tell, msg, w]
+    reply:
+        aliases: [r]
