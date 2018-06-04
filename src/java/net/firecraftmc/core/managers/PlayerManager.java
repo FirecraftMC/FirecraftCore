@@ -187,6 +187,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 fp.sendMessage("\n" + player.getDisplayName() + " &a&lhas joined FirecraftMC for the first time!\n ");
             }
         }
+        player.setLastSeen(System.currentTimeMillis());
 
         new BukkitRunnable() {
             public void run() {
