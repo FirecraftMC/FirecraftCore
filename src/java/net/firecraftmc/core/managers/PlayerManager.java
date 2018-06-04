@@ -178,7 +178,15 @@ public class PlayerManager implements IPlayerManager, Listener {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
         player.setHomes(plugin.getHomeManager().loadHomes(player.getUniqueId()));
+
+        if (player.getFirstJoined() == 0) {
+            player.setFirstJoined(System.currentTimeMillis());
+            for (FirecraftPlayer fp : onlinePlayers.values()) {
+                fp.sendMessage("\n" + player.getDisplayName() + " &a&lhas joined FirecraftMC for the first time!\n ");
+            }
+        }
 
         new BukkitRunnable() {
             public void run() {
@@ -254,6 +262,15 @@ public class PlayerManager implements IPlayerManager, Listener {
                 p.getScoreboard().updateScoreboard(p);
             }
         }
+        long time = System.currentTimeMillis();
+        long playTime;
+        if (player.getLastSeen() == 0) {
+            playTime = time - player.getFirstJoined();
+        } else {
+            playTime = time - player.getLastSeen();
+        }
+        player.setTimePlayed(player.getTimePlayed() + playTime);
+        player.setLastSeen(time);
         plugin.getFCDatabase().savePlayer(player);
     }
 
