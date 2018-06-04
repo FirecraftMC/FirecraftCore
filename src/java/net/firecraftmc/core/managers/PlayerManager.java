@@ -562,7 +562,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
 
                 player.addIgnored(target.getUniqueId());
-                player.sendMessage("&bYou added &e{name} &bto your ignored users list.");
+                player.sendMessage("&bYou added &e{name} &bto your ignored users list.".replace("{name}", i));
             }
         } else if (cmd.getName().equalsIgnoreCase("unignore")) {
             if (!(args.length > 0)) {
@@ -578,7 +578,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
 
                 player.removeIgnored(target.getUniqueId());
-                player.sendMessage("&bYou removed &e{name} &bto your ignored users list.");
+                player.sendMessage("&bYou removed &e{name} &bto your ignored users list.".replace("{name}", i));
             }
         }
         return true;
