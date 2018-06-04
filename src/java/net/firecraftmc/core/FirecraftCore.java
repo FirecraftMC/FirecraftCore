@@ -15,6 +15,7 @@ import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 /**
@@ -56,6 +57,10 @@ public class FirecraftCore extends FirecraftPlugin {
         this.versionSpecificTasks();
 
         this.postWorldTasks();
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            this.playerManager.addPlayer(this.database.getPlayer(server, p.getUniqueId()));
+        }
     }
 
     /**
