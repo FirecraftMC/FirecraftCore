@@ -535,6 +535,10 @@ public class PlayerManager implements IPlayerManager, Listener {
 
                 }
             }
+        } else if (cmd.getName().equalsIgnoreCase("ignore")) {
+
+        } else if (cmd.getName().equalsIgnoreCase("unignore")) {
+
         }
         return true;
     }

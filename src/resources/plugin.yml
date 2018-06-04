@@ -83,3 +83,5 @@ commands:
         aliases: [pm, whisper, tell, msg, w]
     reply:
         aliases: [r]
+    ignore:
+    unignore:

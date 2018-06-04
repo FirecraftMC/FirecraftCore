@@ -1,16 +1,16 @@
 package net.firecraftmc.core;
 
 import net.firecraftmc.core.managers.*;
-import net.firecraftmc.shared.classes.wrapper.ItemPickupEvent1_12;
-import net.firecraftmc.shared.classes.wrapper.ItemPickupEvent1_8;
-import net.firecraftmc.shared.classes.wrapper.NickWrapper1_12_R1;
-import net.firecraftmc.shared.classes.wrapper.NickWrapper1_8_R3;
 import net.firecraftmc.shared.Database;
 import net.firecraftmc.shared.classes.FirecraftPlayer;
 import net.firecraftmc.shared.classes.FirecraftServer;
 import net.firecraftmc.shared.classes.FirecraftSocket;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.abstraction.FirecraftPlugin;
+import net.firecraftmc.shared.classes.wrapper.ItemPickupEvent1_12;
+import net.firecraftmc.shared.classes.wrapper.ItemPickupEvent1_8;
+import net.firecraftmc.shared.classes.wrapper.NickWrapper1_12_R1;
+import net.firecraftmc.shared.classes.wrapper.NickWrapper1_8_R3;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
@@ -94,7 +94,7 @@ public class FirecraftCore extends FirecraftPlugin {
      */
     private void registerAllCommands() {
         this.playerManager = new PlayerManager(this);
-        Utils.Command.registerCommands(this, playerManager, "players", "fct", "list");
+        Utils.Command.registerCommands(this, playerManager, "players", "fct", "list", "ignore", "unignore");
         this.getCommand("chat").setExecutor(new ChatManager(this));
         Utils.Command.registerCommands(this, new NickManager(this), "nick", "nickcancel", "nickconfirm", "unnick");
         Utils.Command.registerCommands(this, new GamemodeManager(this), "gamemode", "gmc", "gms", "gma", "gmsp");
