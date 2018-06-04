@@ -27,7 +27,6 @@ public class MessageManager implements CommandExecutor {
             return true;
         }
 
-        //TODO Cross-Server messaging will be General and Higher
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
 
         if (cmd.getName().equalsIgnoreCase("message")) {
