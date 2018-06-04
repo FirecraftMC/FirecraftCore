@@ -120,7 +120,9 @@ public class PlayerManager implements IPlayerManager, Listener {
             plugin.getSocket().sendPacket(staffChatJoin);
         } else {
             for (FirecraftPlayer p1 : onlinePlayers.values()) {
-                p1.sendMessage(player.getDisplayName() + " &ajoined the game.");
+                if (!p1.isIgnoring(player.getUniqueId())) {
+                    p1.sendMessage(player.getDisplayName() + " &ajoined the game.");
+                }
             }
         }
 
@@ -245,7 +247,9 @@ public class PlayerManager implements IPlayerManager, Listener {
             plugin.getSocket().sendPacket(staffQuit);
         } else {
             for (FirecraftPlayer fp : onlinePlayers.values()) {
-                fp.sendMessage(player.getDisplayName() + " &eleft the game.");
+                if (!fp.isIgnoring(player.getUniqueId())) {
+                    fp.sendMessage(player.getDisplayName() + " &eleft the game.");
+                }
             }
         }
 

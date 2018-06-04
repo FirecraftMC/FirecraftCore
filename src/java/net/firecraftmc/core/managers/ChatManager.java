@@ -83,7 +83,7 @@ public class ChatManager implements CommandExecutor,Listener {
                 }
             }
             for (FirecraftPlayer op : plugin.getPlayerManager().getPlayers()) {
-                if (!op.isIgnored(player.getUniqueId())) {
+                if (!op.isIgnoring(player.getUniqueId())) {
                     op.sendMessage(format);
                 }
             }

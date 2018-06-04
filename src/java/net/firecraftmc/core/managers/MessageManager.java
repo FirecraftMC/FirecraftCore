@@ -65,7 +65,7 @@ public class MessageManager implements CommandExecutor {
                 if (target.getPlayer() == null) {
                     if (plugin.getFCDatabase().getOnlineStatus(target.getUniqueId())) {
                         if (player.getMainRank().isEqualToOrHigher(Rank.GENERAL)) {
-                            if (target.isIgnored(player.getUniqueId())) {
+                            if (target.isIgnoring(player.getUniqueId())) {
                                 player.sendMessage(prefix + "&c" + args[0] + " is currently ignoring you.");
                                 return true;
                             }
@@ -102,7 +102,7 @@ public class MessageManager implements CommandExecutor {
                 }
             }
 
-            if (target.isIgnored(player.getUniqueId())) {
+            if (target.isIgnoring(player.getUniqueId())) {
                 player.sendMessage(prefix + "&c" + args[0] + " is currently ignoring you.");
                 return true;
             }

@@ -228,7 +228,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
                     return true;
                 }
             }
-            if (target.isIgnored(player.getUniqueId())) {
+            if (target.isIgnoring(player.getUniqueId())) {
                 player.sendMessage("&cYou are not allowed to request to teleport to " + target.getName() + " because they are ignoring you.");
                 return true;
             }
