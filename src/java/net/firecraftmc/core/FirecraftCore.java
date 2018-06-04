@@ -62,16 +62,6 @@ public class FirecraftCore extends FirecraftPlugin {
      * All close methods are called here and stuff is saved to the database/files where needed.
      */
     public void onDisable() {
-        for (FirecraftPlayer player : playerManager.getPlayers()) {
-            FPStaffChatQuit staffQuit = new FPStaffChatQuit(server, player.getUniqueId());
-            socket.sendPacket(staffQuit);
-        }
-
-        if (socket != null) {
-            socket.sendPacket(new FPacketServerDisconnect(server));
-            socket.close();
-        }
-
         getConfig().set("spawn", Utils.convertLocationToString(serverSpawn));
 
         if (jailLocation != null) {
@@ -83,6 +73,15 @@ public class FirecraftCore extends FirecraftPlugin {
         for (FirecraftPlayer player : playerManager.getPlayers()) {
             this.homeManager.saveHomes(player);
             this.database.savePlayer(player);
+            FPStaffChatQuit staffQuit = new FPStaffChatQuit(server, player.getUniqueId());
+            socket.sendPacket(staffQuit);
+        }
+
+        this.playerManager.getPlayers().clear();
+
+        if (socket != null) {
+            socket.sendPacket(new FPacketServerDisconnect(server));
+            socket.close();
         }
 
         this.database.closeConnection();
