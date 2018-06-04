@@ -72,8 +72,6 @@ public class FirecraftCore extends FirecraftPlugin {
             socket.close();
         }
 
-        this.database.closeConnection();
-
         getConfig().set("spawn", Utils.convertLocationToString(serverSpawn));
 
         if (jailLocation != null) {
@@ -84,7 +82,10 @@ public class FirecraftCore extends FirecraftPlugin {
 
         for (FirecraftPlayer player : playerManager.getPlayers()) {
             this.homeManager.saveHomes(player);
+            this.database.savePlayer(player);
         }
+
+        this.database.closeConnection();
 
         saveConfig();
     }
