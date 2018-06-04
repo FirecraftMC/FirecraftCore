@@ -507,6 +507,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 if (onlinePlayers.get(r) == null) {
                     onlinePlayers.put(r, new ArrayList<>());
                 }
+
                 onlinePlayers.get(r).add(fp.getNameNoPrefix());
             }
             int onlineCount = 0;
@@ -536,9 +537,49 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
             }
         } else if (cmd.getName().equalsIgnoreCase("ignore")) {
+            if (!(args.length > 0)) {
+                player.sendMessage(Messages.notEnoughArgs);
+                return true;
+            }
 
+            if (Rank.isStaff(player.getMainRank())) {
+                if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                    player.sendMessage("&cStaff members cannot ignored other players.");
+                    return true;
+                }
+            }
+
+            for (String i : args) {
+                FirecraftPlayer target = getPlayer(i);
+                if (target == null) {
+                    player.sendMessage("&cThe name {name} is not valid".replace("{name}", i));
+                    continue;
+                }
+
+                if (Rank.isStaff(target.getMainRank())) {
+                    player.sendMessage("&cYou cannot ignore a staff memnber.");
+                    continue;
+                }
+
+                player.addIgnored(target.getUniqueId());
+                player.sendMessage("&bYou added &e{name} &bto your ignored users list.");
+            }
         } else if (cmd.getName().equalsIgnoreCase("unignore")) {
+            if (!(args.length > 0)) {
+                player.sendMessage(Messages.notEnoughArgs);
+                return true;
+            }
 
+            for (String i : args) {
+                FirecraftPlayer target = getPlayer(i);
+                if (target == null) {
+                    player.sendMessage("&cThe name {name} is not valid".replace("{name}", i));
+                    continue;
+                }
+
+                player.removeIgnored(target.getUniqueId());
+                player.sendMessage("&bYou removed &e{name} &bto your ignored users list.");
+            }
         }
         return true;
     }

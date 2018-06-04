@@ -65,6 +65,10 @@ public class MessageManager implements CommandExecutor {
                 if (target.getPlayer() == null) {
                     if (plugin.getFCDatabase().getOnlineStatus(target.getUniqueId())) {
                         if (player.getMainRank().isEqualToOrHigher(Rank.GENERAL)) {
+                            if (target.isIgnored(player.getUniqueId())) {
+                                player.sendMessage(prefix + "&c" + args[0] + " is currently ignoring you.");
+                                return true;
+                            }
                             String message = Utils.getReason(1, args);
                             FPacketPrivateMessage pMPacket = new FPacketPrivateMessage(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId(), message);
                             plugin.getSocket().sendPacket(pMPacket);
@@ -96,6 +100,11 @@ public class MessageManager implements CommandExecutor {
                     player.sendMessage(prefix + "&cThat player is not online.");
                     return true;
                 }
+            }
+
+            if (target.isIgnored(player.getUniqueId())) {
+                player.sendMessage(prefix + "&c" + args[0] + " is currently ignoring you.");
+                return true;
             }
 
             sendMessages(player, target, args, 1);

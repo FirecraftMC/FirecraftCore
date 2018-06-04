@@ -83,7 +83,9 @@ public class ChatManager implements CommandExecutor,Listener {
                 }
             }
             for (FirecraftPlayer op : plugin.getPlayerManager().getPlayers()) {
-                op.sendMessage(format);
+                if (!op.isIgnored(player.getUniqueId())) {
+                    op.sendMessage(format);
+                }
             }
         } else if (player.getChannel().equals(Channel.STAFF)) {
             FPStaffChatMessage msg = new FPStaffChatMessage(plugin.getFirecraftServer(), player.getUniqueId(), e.getMessage());

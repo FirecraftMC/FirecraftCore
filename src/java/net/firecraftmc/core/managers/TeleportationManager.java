@@ -228,10 +228,14 @@ public class TeleportationManager implements CommandExecutor, Listener {
                     return true;
                 }
             }
+            if (target.isIgnored(player.getUniqueId())) {
+                player.sendMessage("&cYou are not allowed to request to teleport to " + target.getName() + " because they are ignoring you.");
+                return true;
+            }
             
             long currentTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
             long expire = currentTime + 60;
-            
+
             this.requests.put(currentTime, new TPRequest(player.getUniqueId(), target.getUniqueId(), expire));
             player.sendMessage(Messages.tpRequestReceive(target.getName()));
             target.sendMessage(Messages.tpRequestSend(player.getName()));
