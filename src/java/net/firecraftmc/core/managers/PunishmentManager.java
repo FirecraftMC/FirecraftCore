@@ -87,6 +87,11 @@ public class PunishmentManager implements CommandExecutor, Listener {
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (sender instanceof Player) {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
+            if (player.isRecording()) {
+                player.sendMessage(prefix + Messages.recordingNoUse);
+                return true;
+            }
+
             if (cmd.getName().equalsIgnoreCase("setjail")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                     player.sendMessage(prefix + Messages.noPermission);

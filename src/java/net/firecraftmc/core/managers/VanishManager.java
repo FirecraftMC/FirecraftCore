@@ -48,6 +48,10 @@ public class VanishManager implements TabExecutor, Listener {
         
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
         if (player.getMainRank().equals(Rank.VIP) || player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
+            if (player.isRecording()) {
+                player.sendMessage(Messages.recordingNoUse);
+                return true;
+            }
             if (args.length == 0) {
                 if (player.isVanished()) {
                     boolean flight = player.getVanishInfo().allowFlightBeforeVanish();

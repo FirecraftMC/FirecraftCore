@@ -28,6 +28,11 @@ public class BroadcastManager implements CommandExecutor {
 
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
 
+        if (player.isRecording()) {
+            player.sendMessage(prefix + Messages.recordingNoUse);
+            return true;
+        }
+
         if (args.length == 0) {
             player.sendMessage(prefix + Messages.notEnoughArgs);
             return true;

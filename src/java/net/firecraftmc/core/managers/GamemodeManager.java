@@ -48,6 +48,10 @@ public class GamemodeManager implements CommandExecutor, Listener {
                 
                 FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
                 if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
+                if (player.isRecording()) {
+                    player.sendMessage(prefix + Messages.recordingNoUse);
+                    return true;
+                }
                 GameMode mode = null;
                 if (Utils.Command.checkCmdAliases(args, 0, "creative", "c", "1")) {
                     mode = GameMode.CREATIVE;
@@ -91,6 +95,10 @@ public class GamemodeManager implements CommandExecutor, Listener {
     private void gamemodeShortcut(CommandSender sender, GameMode mode, String[] args) {
         if (sender instanceof Player) {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
+            if (player.isRecording()) {
+                player.sendMessage(prefix + Messages.recordingNoUse);
+                return;
+            }
             if (player.getMainRank().equals(Rank.BUILD_TEAM) || player.getMainRank().isEqualToOrHigher(Rank.TRIAL_ADMIN)) {
                 FirecraftPlayer target = null;
                 if (args.length > 0) {

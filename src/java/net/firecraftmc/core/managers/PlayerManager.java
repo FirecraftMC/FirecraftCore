@@ -2,6 +2,7 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftMC;
+import net.firecraftmc.shared.classes.enums.Channel;
 import net.firecraftmc.shared.classes.model.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
@@ -17,6 +18,7 @@ import net.firecraftmc.shared.packets.staffchat.FPStaffChatJoin;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -396,6 +398,11 @@ public class PlayerManager implements IPlayerManager, Listener {
                 return true;
             }
 
+            if (player.isRecording()) {
+                player.sendMessage(Messages.recordingNoUse);
+                return true;
+            }
+
             if (!(args.length > 0)) {
                 player.sendMessage(Messages.notEnoughArgs);
                 return true;
@@ -448,7 +455,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                             return true;
                         }
 
-                        plugin.getFCDatabase().updateSQL("UPDATE `playerdata` SET `mainrank` = '" + rank.toString() + "' WHERE `uniqueid`='{uuid}';".replace("{uuid}", target.getUniqueId().toString().replace("-", "")));
+                        plugin.getFCDatabase().updateSQL("UPDATE `playerdata` SET `mainrank` = '" + rank.toString() + "' WHERE `uniqueid`='{uuid}';".replace("{uuid}", target.getUniqueId().toString()));
                         player.sendMessage(Messages.setMainRank(target.getName(), rank));
                         FPacketRankUpdate rankUpdate = new FPacketRankUpdate(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId());
                         plugin.getSocket().sendPacket(rankUpdate);
@@ -462,6 +469,11 @@ public class PlayerManager implements IPlayerManager, Listener {
             }
         } else if (cmd.getName().equalsIgnoreCase("fct")) {
             if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                if (player.isRecording()) {
+                    player.sendMessage(Messages.recordingNoUse);
+                    return true;
+                }
+
                 if (args.length > 0) {
                     if (args[0].equalsIgnoreCase("setprefix")) {
                         if (args.length > 2) {
@@ -584,6 +596,33 @@ public class PlayerManager implements IPlayerManager, Listener {
 
                 player.removeIgnored(target.getUniqueId());
                 player.sendMessage("&bYou removed &e{name} &bto your ignored users list.".replace("{name}", i));
+            }
+        } else if (cmd.getName().equalsIgnoreCase("record")) {
+            if (!player.getMainRank().isEqualToOrHigher(Rank.FAMOUS)) {
+                player.sendMessage(Messages.noPermission);
+                return true;
+            }
+
+            player.setServer(plugin.getFirecraftServer());
+            player.setRecording(!player.isRecording());
+            if (player.isRecording()) {
+                player.sendMessage("&bYou have turned on recording mode, this means:");
+                player.sendMessage("&8- &eYou show up as the default rank to other players.");
+                player.sendMessage("&8- &eYou will be able to access all of your rank based perks.");
+                player.sendMessage("&8- &eYou will not receive messages that are for your rank.");
+                player.sendMessage("&8- &eYou will not receive private messages that are from non-staff.");
+                player.setChannel(Channel.GLOBAL);
+                player.setGamemode(GameMode.SURVIVAL);
+                if (player.isNicked()) {
+                    player.resetNick(plugin);
+                    player.sendMessage("&8- &eYour nickname has been removed.");
+                }
+                if (player.isVanished()) {
+                    player.unVanish();
+                    player.sendMessage("&8- &eYou have been removed from vanish.");
+                }
+            } else {
+                player.sendMessage("&bYou have turned off recording mode, all restrictions lifted.");
             }
         }
         return true;

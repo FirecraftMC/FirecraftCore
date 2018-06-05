@@ -21,6 +21,10 @@ public class WeatherManager implements CommandExecutor {
         if (sender instanceof Player) {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
             if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                if (player.isRecording()) {
+                    player.sendMessage(prefix + Messages.recordingNoUse);
+                    return true;
+                }
                 World world = player.getPlayer().getWorld();
                 if (args.length > 0) {
                     if (args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("c")) {

@@ -28,6 +28,11 @@ public class DevManager implements CommandExecutor {
             player.sendMessage(Messages.onlyFirecraftTeam);
             return true;
         }
+
+        if (player.isRecording()) {
+            player.sendMessage(Messages.recordingNoUse);
+            return true;
+        }
         
         if (args.length <= 0) {
             player.sendMessage(Messages.noSubCommand);

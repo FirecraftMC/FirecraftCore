@@ -81,6 +81,11 @@ public class TeleportationManager implements CommandExecutor, Listener {
                 player.sendMessage(Messages.noPermission);
                 return true;
             }
+
+            if (player.isRecording()) {
+                player.sendMessage(Messages.recordingNoUse);
+                return true;
+            }
             
             if (args.length == 1) {
                 FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
@@ -190,6 +195,10 @@ public class TeleportationManager implements CommandExecutor, Listener {
             plugin.getSocket().sendPacket(tpHere);
         } else if (cmd.getName().equalsIgnoreCase("tpall")) {
             if (player.getMainRank().equals(Rank.HEAD_ADMIN) || player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                if (player.isRecording()) {
+                    player.sendMessage(Messages.recordingNoUse);
+                    return true;
+                }
                 if (player.getMainRank().equals(Rank.HEAD_ADMIN)) {
                     for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
                         if (!p.getUniqueId().equals(player.getUniqueId())) {
@@ -276,6 +285,10 @@ public class TeleportationManager implements CommandExecutor, Listener {
             this.requests.remove(entry.getKey());
         } else if (cmd.getName().equalsIgnoreCase("setspawn")) {
             if (player.getMainRank().isEqualToOrHigher(Rank.HEAD_ADMIN)) {
+                if (player.isRecording()) {
+                    player.sendMessage(Messages.recordingNoUse);
+                    return true;
+                }
                 plugin.setServerSpawn(player.getLocation());
                 player.sendMessage(Messages.setSpawn);
                 return true;

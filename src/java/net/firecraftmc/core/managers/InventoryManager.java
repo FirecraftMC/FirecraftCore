@@ -46,6 +46,10 @@ public class InventoryManager implements CommandExecutor, Listener {
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
 
         if (cmd.getName().equalsIgnoreCase("clearinventory")) {
+            if (player.isRecording()) {
+                player.sendMessage(Messages.recordingNoUse);
+                return true;
+            }
             if (args.length > 0) {
                 if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                     FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
@@ -115,6 +119,11 @@ public class InventoryManager implements CommandExecutor, Listener {
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("invsee")) {
+            if (player.isRecording()) {
+                player.sendMessage(Messages.recordingNoUse);
+                return true;
+            }
+
             if (!(args.length > 0)) {
                 player.sendMessage(Messages.notEnoughArgs);
                 return true;

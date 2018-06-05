@@ -107,6 +107,11 @@ public class ChatManager implements CommandExecutor,Listener {
                     player.sendMessage(prefix + Messages.onlyStaff);
                     return true;
                 }
+
+                if (player.isRecording()) {
+                    player.sendMessage(prefix + Messages.recordingNoUse);
+                    return true;
+                }
             
                 if (player.getChannel().equals(Channel.STAFF)) {
                     player.sendMessage(prefix + Messages.alreadyInChannel);

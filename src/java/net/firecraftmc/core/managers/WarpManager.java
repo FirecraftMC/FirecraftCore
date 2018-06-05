@@ -91,6 +91,10 @@ public class WarpManager implements CommandExecutor {
 
         if (cmd.getName().equalsIgnoreCase("setwarp")) {
             if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                if (player.isRecording()) {
+                    player.sendMessage(prefix + Messages.recordingNoUse);
+                    return true;
+                }
                 Warp warp;
                 if (args.length == 2) {
                     Rank rank;
@@ -113,6 +117,10 @@ public class WarpManager implements CommandExecutor {
             }
         } else if (cmd.getName().equalsIgnoreCase("delwarp")) {
             if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                if (player.isRecording()) {
+                    player.sendMessage(prefix + Messages.recordingNoUse);
+                    return true;
+                }
                 Warp warp = null;
                 for (Warp w : warps) {
                     if (w.getName().equalsIgnoreCase(args[0])) {

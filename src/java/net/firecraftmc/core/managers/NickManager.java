@@ -37,6 +37,11 @@ public class NickManager implements CommandExecutor {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
             if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
+
+            if (player.isRecording()) {
+                player.sendMessage(prefix + Messages.recordingNoUse);
+                return true;
+            }
             
             if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS) || player.getMainRank().isEqualToOrHigher(Rank.TRIAL_ADMIN))) {
                 player.sendMessage(prefix + Messages.noPermission);
@@ -95,6 +100,11 @@ public class NickManager implements CommandExecutor {
                 FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
                 if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().isEqualToOrHigher(Rank.MOD))) {
                     player.sendMessage(prefix + Messages.noPermission);
+                    return true;
+                }
+
+                if (player.isRecording()) {
+                    player.sendMessage(prefix + Messages.recordingNoUse);
                     return true;
                 }
                 

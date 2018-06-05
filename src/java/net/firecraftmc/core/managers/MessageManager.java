@@ -28,6 +28,10 @@ public class MessageManager implements CommandExecutor {
         }
 
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
+        if (player.isRecording()) {
+            player.sendMessage(prefix + Messages.recordingNoUse);
+            return true;
+        }
 
         if (cmd.getName().equalsIgnoreCase("message")) {
             if (!(args.length > 1)) {
@@ -67,6 +71,10 @@ public class MessageManager implements CommandExecutor {
                         if (player.getMainRank().isEqualToOrHigher(Rank.GENERAL)) {
                             if (target.isIgnoring(player.getUniqueId())) {
                                 player.sendMessage(prefix + "&c" + args[0] + " is currently ignoring you.");
+                                return true;
+                            }
+                            if (target.isRecording()) {
+                                player.sendMessage(prefix + "&cThat player is currently recording, they cannot receive messages.");
                                 return true;
                             }
                             String message = Utils.getReason(1, args);
@@ -135,6 +143,10 @@ public class MessageManager implements CommandExecutor {
     }
 
     private void sendMessages(FirecraftPlayer player, FirecraftPlayer target, String[] args, int reasonIndex) {
+        if (target.isRecording()) {
+            player.sendMessage(prefix + "&cThat player is currently recording, they cannot receive messages.");
+            return;
+        }
         String message = Utils.getReason(reasonIndex, args);
         if (target.isNicked()) {
             player.sendMessage(Utils.Chat.formatPrivateMessage("You", target.getNick().getProfile().getName(), message));

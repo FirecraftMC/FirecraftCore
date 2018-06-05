@@ -83,6 +83,11 @@ public class ReportManager implements CommandExecutor {
                 return true;
             }
 
+            if (player.isRecording()) {
+                player.sendMessage(prefix + Messages.recordingNoUse);
+                return true;
+            }
+
             if (!(args.length > 0)) {
                 player.sendMessage(prefix + Messages.noPermission);
                 return true;

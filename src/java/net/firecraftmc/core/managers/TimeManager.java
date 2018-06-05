@@ -22,6 +22,10 @@ public class TimeManager implements CommandExecutor {
         if (sender instanceof Player) {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
             if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                if (player.isRecording()) {
+                    player.sendMessage(prefix + Messages.recordingNoUse);
+                    return true;
+                }
                 World world = player.getPlayer().getWorld();
                 int time;
                 String timeName = "";
