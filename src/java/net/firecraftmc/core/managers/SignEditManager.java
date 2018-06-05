@@ -6,6 +6,7 @@ import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Rank;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
@@ -14,6 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -41,6 +43,14 @@ public class SignEditManager implements CommandExecutor,Listener {
                 }
             }
         }.runTaskLater(plugin, 5L);
+    }
+
+    @EventHandler
+    public void onSignChange(SignChangeEvent e) {
+        String[] lines = e.getLines();
+        for (int i=0; i<lines.length; i++) {
+            e.setLine(i, ChatColor.translateAlternateColorCodes('&', lines[i]));
+        }
     }
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
