@@ -595,7 +595,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
 
                 player.removeIgnored(target.getUniqueId());
-                player.sendMessage("&bYou removed &e{name} &bto your ignored users list.".replace("{name}", i));
+                player.sendMessage("&bYou removed &e{name} &bfrom your ignored users list.".replace("{name}", i));
             }
         } else if (cmd.getName().equalsIgnoreCase("record")) {
             if (!player.getMainRank().isEqualToOrHigher(Rank.FAMOUS)) {
