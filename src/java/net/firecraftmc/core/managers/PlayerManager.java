@@ -619,6 +619,16 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
                 if (player.isVanished()) {
                     player.unVanish();
+                    for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
+                        p.getPlayer().showPlayer(player.getPlayer());
+                        if (!player.isNicked()) {
+                            player.getPlayer().setPlayerListName(player.getName());
+                        } else {
+                            player.getPlayer().setPlayerListName(player.getNick().getProfile().getName());
+                        }
+                        p.getScoreboard().updateScoreboard(p);
+                    }
+                    player.setActionBar(null);
                     player.sendMessage("&8- &eYou have been removed from vanish.");
                 }
             } else {
