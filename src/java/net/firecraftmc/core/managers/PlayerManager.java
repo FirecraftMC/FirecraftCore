@@ -634,6 +634,18 @@ public class PlayerManager implements IPlayerManager, Listener {
             } else {
                 player.sendMessage("&bYou have turned off recording mode, all restrictions lifted.");
             }
+        } else if (cmd.getName().equalsIgnoreCase("stafflist")) {
+            if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
+                player.sendMessage(Messages.noPermission);
+                return true;
+            }
+
+            ResultSet set = plugin.getFCDatabase().querySQL("SELECT * FROM `playerdata` WHERE `online`='true'");
+            try {
+                while (set.next()) {
+                    
+                }
+            } catch (Exception e) {}
         }
         return true;
     }

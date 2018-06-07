@@ -1,6 +1,6 @@
 name: FirecraftCore
 main: net.firecraftmc.core.FirecraftCore
-version: 1.9-ALPHA
+version: 1.10-ALPHA
 load: STARTUP
 author: Firestar311
 commands:
@@ -86,3 +86,5 @@ commands:
     ignore:
     unignore:
     record:
+    stafflist:
+        aliases: [sl]

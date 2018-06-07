@@ -100,7 +100,7 @@ public class FirecraftCore extends FirecraftPlugin {
      */
     private void registerAllCommands() {
         this.playerManager = new PlayerManager(this);
-        Utils.Command.registerCommands(this, playerManager, "players", "fct", "list", "ignore", "unignore", "record");
+        Utils.Command.registerCommands(this, playerManager, "players", "fct", "list", "ignore", "unignore", "record", "stafflist");
         this.getCommand("chat").setExecutor(new ChatManager(this));
         Utils.Command.registerCommands(this, new NickManager(this), "nick", "nickcancel", "nickconfirm", "unnick");
         Utils.Command.registerCommands(this, new GamemodeManager(this), "gamemode", "gmc", "gms", "gma", "gmsp");
