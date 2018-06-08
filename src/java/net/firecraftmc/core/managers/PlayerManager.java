@@ -640,12 +640,20 @@ public class PlayerManager implements IPlayerManager, Listener {
                 return true;
             }
 
+            HashMap<String, List<String>> onlineUsers = new HashMap<>();
             ResultSet set = plugin.getFCDatabase().querySQL("SELECT * FROM `playerdata` WHERE `online`='true'");
             try {
                 while (set.next()) {
-                    
+                    if (onlineUsers.containsKey(set.getString("server"))) {
+                        onlineUsers.get(set.getString("server")).add("lastname");
+                    } else {
+                        onlineUsers.put(set.getString("server"), new ArrayList<>());
+                        onlineUsers.get(set.getString("server")).add(set.getString("lastname"));
+                    }
                 }
             } catch (Exception e) {}
+
+            
         }
         return true;
     }
