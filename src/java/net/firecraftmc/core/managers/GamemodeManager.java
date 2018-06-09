@@ -131,7 +131,7 @@ public class GamemodeManager implements CommandExecutor, Listener {
             }
 
             if (mode.equals(GameMode.CREATIVE)) {
-                if (!(player.getMainRank().isEqualToOrHigher(Rank.BUILD_TEAM) || player.getMainRank().isEqualToOrHigher(Rank.ADMIN))) {
+                if (!(player.getMainRank().equals(Rank.BUILD_TEAM) || player.getMainRank().isEqualToOrHigher(Rank.ADMIN))) {
                     player.sendMessage(prefix + Messages.noPermission);
                     return;
                 }
