@@ -151,7 +151,7 @@ public class GamemodeManager implements CommandExecutor, Listener {
                 }
             }
 
-            if (target.getPlayer().getGameMode().equals(mode)) {
+            if (player.getPlayer().getGameMode().equals(mode)) {
                 player.sendMessage(prefix + "&cYou are already in that gamemode.");
                 return;
             }
