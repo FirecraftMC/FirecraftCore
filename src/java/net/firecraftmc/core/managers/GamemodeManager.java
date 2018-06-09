@@ -22,12 +22,12 @@ public class GamemodeManager implements CommandExecutor, Listener {
     private final FirecraftCore plugin;
 
     private static final String prefix = "&d&l[Gamemode] ";
-    
+
     public GamemodeManager(FirecraftCore plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
     }
-    
+
     @EventHandler
     public void onPlayerChangeWorld(PlayerChangedWorldEvent e) {
         Player player = e.getPlayer();
@@ -40,12 +40,12 @@ public class GamemodeManager implements CommandExecutor, Listener {
             }
         }.runTaskLater(plugin, 5L);
     }
-    
+
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (cmd.getName().equalsIgnoreCase("gamemode")) {
             if (sender instanceof Player) {
                 if (!Utils.Command.checkArgCountGreater(sender, args, 0)) return true;
-                
+
                 FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
                 if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
                 if (player.isRecording()) {
@@ -62,12 +62,12 @@ public class GamemodeManager implements CommandExecutor, Listener {
                 } else if (Utils.Command.checkCmdAliases(args, 0, "spectator", "sp", "spec", "3")) {
                     mode = GameMode.SPECTATOR;
                 }
-                
+
                 if (mode == null) {
                     player.sendMessage(prefix + Messages.invalidGamemode);
                     return true;
                 }
-                
+
                 gamemodeShortcut(sender, mode, args);
             } else if (sender instanceof ConsoleCommandSender) {
                 sender.sendMessage(prefix + Messages.consoleNotImplemented);
@@ -82,15 +82,16 @@ public class GamemodeManager implements CommandExecutor, Listener {
         } else if (cmd.getName().equalsIgnoreCase("gma")) {
             gamemodeShortcut(sender, GameMode.ADVENTURE, args);
         }
-        
+
         return true;
     }
 
     /**
      * Just a little utility method to prevent repeat code
+     *
      * @param sender The CommandSender from the command
-     * @param mode The target Gamemode
-     * @param args The command arguments
+     * @param mode   The target Gamemode
+     * @param args   The command arguments
      */
     private void gamemodeShortcut(CommandSender sender, GameMode mode, String[] args) {
         if (sender instanceof Player) {
@@ -99,43 +100,64 @@ public class GamemodeManager implements CommandExecutor, Listener {
                 player.sendMessage(prefix + Messages.recordingNoUse);
                 return;
             }
-            if (player.getMainRank().equals(Rank.BUILD_TEAM) || player.getMainRank().isEqualToOrHigher(Rank.TRIAL_ADMIN)) {
-                FirecraftPlayer target = null;
-                if (args.length > 0) {
-                    target = plugin.getPlayerManager().getPlayer(args[0]);
-                }
-                
-                if (args.length > 1) {
-                    target = plugin.getPlayerManager().getPlayer(args[1]);
-                }
-                
-                if (target != null) {
-                    if (!target.getName().equalsIgnoreCase("creative") || !target.getName().equalsIgnoreCase("survival")) {
-                        if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                            player.sendMessage(prefix + Messages.onlyAdminHigherSetOthersGamemode);
-                            return;
-                        }
+            FirecraftPlayer target = null;
+            if (args.length > 0) {
+                target = plugin.getPlayerManager().getPlayer(args[0]);
+            }
 
-                        if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-                            if (!(target.getMainRank().equals(Rank.FIRECRAFT_TEAM) && player.getMainRank().equals(Rank.FIRECRAFT_TEAM))) {
-                                player.sendMessage(prefix + Messages.cannotSetGmOfSameRankOrHigher);
-                                return;
-                            }
-                        }
+            if (args.length > 1) {
+                target = plugin.getPlayerManager().getPlayer(args[1]);
+            }
 
-                        target.setGamemode(mode);
-                        FPSCSetGamemodeOthers setGamemode = new FPSCSetGamemodeOthers(plugin.getFirecraftServer(), player.getUniqueId(), mode, target.getUniqueId());
-                        plugin.getSocket().sendPacket(setGamemode);
+            if (target != null) {
+                if (!target.getName().equalsIgnoreCase("creative") || !target.getName().equalsIgnoreCase("survival")) {
+                    if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                        player.sendMessage(prefix + Messages.onlyAdminHigherSetOthersGamemode);
                         return;
                     }
+
+                    if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                        if (!(target.getMainRank().equals(Rank.FIRECRAFT_TEAM) && player.getMainRank().equals(Rank.FIRECRAFT_TEAM))) {
+                            player.sendMessage(prefix + Messages.cannotSetGmOfSameRankOrHigher);
+                            return;
+                        }
+                    }
+
+                    if (mode.equals(GameMode.CREATIVE)) {
+                        if (!(player.getMainRank().isEqualToOrHigher(Rank.BUILD_TEAM) || player.getMainRank().isEqualToOrHigher(Rank.ADMIN))) {
+                            player.sendMessage(prefix + Messages.noPermission);
+                            return;
+                        }
+                    }
+
+                    if (mode.equals(GameMode.SPECTATOR)) {
+                        if (!player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
+                            player.sendMessage(prefix + Messages.noPermission);
+                            return;
+                        }
+                    }
+
+                    if (mode.equals(GameMode.ADVENTURE)) {
+                        if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                            player.sendMessage(prefix + Messages.noPermission);
+                            return;
+                        }
+                    }
+
+                    if (target.getPlayer().getGameMode().equals(mode)) {
+                        player.sendMessage(prefix + "&cYou are already in that gamemode.");
+                        return;
+                    }
+                    target.setGamemode(mode);
+                    FPSCSetGamemodeOthers setGamemode = new FPSCSetGamemodeOthers(plugin.getFirecraftServer(), player.getUniqueId(), mode, target.getUniqueId());
+                    plugin.getSocket().sendPacket(setGamemode);
+                    return;
                 }
-                
-                player.setGamemode(mode);
-                FPSCSetGamemode setGamemode = new FPSCSetGamemode(plugin.getFirecraftServer(), player.getUniqueId(), mode);
-                plugin.getSocket().sendPacket(setGamemode);
-            } else {
-                player.sendMessage(prefix + Messages.noPermission);
             }
+
+            player.setGamemode(mode);
+            FPSCSetGamemode setGamemode = new FPSCSetGamemode(plugin.getFirecraftServer(), player.getUniqueId(), mode);
+            plugin.getSocket().sendPacket(setGamemode);
         } else if (sender instanceof ConsoleCommandSender) {
             sender.sendMessage(prefix + Messages.consoleNotImplemented);
         }
