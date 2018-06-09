@@ -35,8 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerManager implements IPlayerManager, Listener {
 
-    private final ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<UUID, FirecraftPlayer> cachedPlayers = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>(), cachedPlayers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, Punishment> toKickForPunishment = new ConcurrentHashMap<>();
     private final List<UUID> teleportUnjail = new ArrayList<>();
 
@@ -164,7 +163,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             }.runTaskLater(plugin, 10L);
         }
 
-        ResultSet jailSet = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
+        ResultSet jailSet = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString()));
         try {
             if (jailSet.next()) {
                 player.teleport(plugin.getJailLocation());
@@ -173,7 +172,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             ex.printStackTrace();
         }
 
-        ResultSet warnSet = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `acknowledged`='false' AND `type`='WARN';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
+        ResultSet warnSet = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `acknowledged`='false' AND `type`='WARN';".replace("{uuid}", player.getUniqueId().toString()));
         try {
             if (warnSet.next()) {
                 String code = Utils.generateAckCode(Utils.codeCharacters);
@@ -219,9 +218,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                             }
                         }
 
-                        player.sendMessage("&bThere are a total of &e" + reports.size() + " &breports that are not closed.");
-                        player.sendMessage("&bThere are a total of &e" + unassignedCount + " &breports that are not assigned.");
-                        player.sendMessage("&bThere are a total of &e" + assignedToSelfCount + " &breports that are assigned to you and not closed.");
+                        player.sendMessage(Messages.staffReportLogin(reports.size(), unassignedCount, assignedToSelfCount));
                     }
                 }
 
@@ -416,13 +413,13 @@ public class PlayerManager implements IPlayerManager, Listener {
                 try {
                     t = Utils.Mojang.getUUIDFromName(args[0]);
                 } catch (Exception e1) {
-                    player.sendMessage("&cThere was an error getting the unique id of that player from Mojang.");
+                    player.sendMessage(Messages.mojangUUIDError);
                     return true;
                 }
             }
 
             if (t == null) {
-                player.sendMessage("&cThere was an error getting the unique id of that player from Mojang.");
+                player.sendMessage(Messages.mojangUUIDError);
                 return true;
             }
 
@@ -431,7 +428,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             if (target == null)
                 target = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), t);
             if (target == null) {
-                player.sendMessage("&cThere was an error getting the profile of that player.");
+                player.sendMessage(Messages.profileError);
                 return true;
             }
 
@@ -503,10 +500,10 @@ public class PlayerManager implements IPlayerManager, Listener {
                             return true;
                         }
                         player.setFctPrefix(prefix);
-                        player.sendMessage("&bYou have set your prefix to " + prefix);
+                        player.sendMessage(Messages.fct_setPrefix(prefix));
                     } else if (args[0].equalsIgnoreCase("resetprefix")) {
                         plugin.getFCDatabase().updateSQL("DELETE FROM `fctprefixes` WHERE `fctmember`='{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
-                        player.sendMessage("&bYou have reset your prefix.");
+                        player.sendMessage(Messages.fct_resetPrefix);
                         player.setFctPrefix(Rank.FIRECRAFT_TEAM.getPrefix());
                         return true;
                     }
@@ -538,7 +535,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                     onlineCount++;
                 }
             }
-            player.sendMessage("&bThere are a total of &e" + onlineCount + " &bcurrently online.");
+            player.sendMessage(Messages.listHeader(onlineCount));
             for (Map.Entry<Rank, List<String>> entry : onlinePlayers.entrySet()) {
                 if (entry.getValue().size() != 0) {
                     String line = generateListLine(entry.getKey(), entry.getValue());
@@ -580,7 +577,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
 
                 player.addIgnored(target.getUniqueId());
-                player.sendMessage("&bYou added &e{name} &bto your ignored users list.".replace("{name}", i));
+                player.sendMessage(Messages.ignoreAction("added", "to", i));
             }
         } else if (cmd.getName().equalsIgnoreCase("unignore")) {
             if (!(args.length > 0)) {
@@ -596,7 +593,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
 
                 player.removeIgnored(target.getUniqueId());
-                player.sendMessage("&bYou removed &e{name} &bfrom your ignored users list.".replace("{name}", i));
+                player.sendMessage(Messages.ignoreAction("removed", "from", i));
             }
         } else if (cmd.getName().equalsIgnoreCase("record")) {
             if (!player.getMainRank().isEqualToOrHigher(Rank.FAMOUS)) {
@@ -633,7 +630,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                     player.sendMessage("&8- &eYou have been removed from vanish.");
                 }
             } else {
-                player.sendMessage("&bYou have turned off recording mode, all restrictions lifted.");
+                player.sendMessage(Messages.recordingModeOff);
             }
         } else if (cmd.getName().equalsIgnoreCase("stafflist")) {
             if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
@@ -690,7 +687,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
             }
 
-            player.sendMessage("&bThere are a total of &e" + playerCount + " &bstaff on &e" + serverCount + " &bserver(s)");
+            player.sendMessage(Messages.staffListHeader(playerCount, serverCount));
             for (String ss : displayStrings) {
                 player.sendMessage(ss);
             }

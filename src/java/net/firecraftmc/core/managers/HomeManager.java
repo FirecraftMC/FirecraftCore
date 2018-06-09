@@ -1,6 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
+import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.model.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
@@ -22,8 +23,6 @@ public class HomeManager implements IHomeManager {
 
     private File file;
     private FileConfiguration config;
-
-    private static final String prefix = "&d&l[Homes] ";
 
     private FirecraftCore plugin;
 
@@ -88,45 +87,45 @@ public class HomeManager implements IHomeManager {
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
         if (cmd.getName().equalsIgnoreCase("sethome")) {
             if (!(args.length > 0)) {
-                player.sendMessage(prefix + Messages.notEnoughArgs);
+                player.sendMessage(Prefixes.HOMES + Messages.notEnoughArgs);
                 return true;
             }
 
             player.addHome(new Home(args[0], player.getLocation()));
-            player.sendMessage(prefix + Messages.setHome(args[0]));
+            player.sendMessage(Prefixes.HOMES + Messages.setHome(args[0]));
         } else if (cmd.getName().equalsIgnoreCase("delhome")) {
             if (!(args.length > 0)) {
-                player.sendMessage(prefix + Messages.notEnoughArgs);
+                player.sendMessage(Prefixes.HOMES + Messages.notEnoughArgs);
                 return true;
             }
 
             Home home = player.getHome(args[0]);
             if (home == null) {
-                player.sendMessage(prefix + Messages.homeNotExist);
+                player.sendMessage(Prefixes.HOMES + Messages.homeNotExist);
                 return true;
             }
 
             player.removeHome(home);
-            player.sendMessage(prefix + Messages.delHome(home.getName()));
+            player.sendMessage(Prefixes.HOMES + Messages.delHome(home.getName()));
         } else if (cmd.getName().equalsIgnoreCase("home")) {
             if (args.length == 0) {
                 Home home = player.getHome("home");
                 if (home == null) {
-                    player.sendMessage(prefix + Messages.homeNotExist);
+                    player.sendMessage(Prefixes.HOMES + Messages.homeNotExist);
                     return true;
                 }
                 player.teleport(home.getLocation());
-                player.sendMessage(prefix + Messages.homeTeleport(home.getName()));
+                player.sendMessage(Prefixes.HOMES + Messages.homeTeleport(home.getName()));
                 return true;
             }
 
             Home home = player.getHome(args[0]);
             if (home == null) {
-                player.sendMessage(prefix + Messages.homeNotExist);
+                player.sendMessage(Prefixes.HOMES + Messages.homeNotExist);
                 return true;
             }
             player.teleport(home.getLocation());
-            player.sendMessage(prefix + Messages.homeTeleport(home.getName()));
+            player.sendMessage(Prefixes.HOMES + Messages.homeTeleport(home.getName()));
         }
 
         return true;

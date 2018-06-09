@@ -32,8 +32,8 @@ public class ItemManager implements CommandExecutor {
                 if (player.getMainRank().isEqualToOrHigher(Rank.INFERNO)) {
                     if (p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getType() != Material.AIR) {
                         if (args.length == 0) {
-                            player.sendMessage("&cUsage: /setname [name].");
-                            return false;
+                            player.sendMessage(Messages.notEnoughArgs);
+                            return true;
                         }
                         String newName = Utils.color(StringUtils.join(args, " ", 0, args.length));
                     
@@ -64,8 +64,8 @@ public class ItemManager implements CommandExecutor {
                 if (player.getMainRank().isEqualToOrHigher(Rank.INFERNO)) {
                     if (p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getType() != Material.AIR) {
                         if (args.length == 0) {
-                            player.sendMessage("&cUsage: /setlore [lore].");
-                            return false;
+                            player.sendMessage(Messages.notEnoughArgs);
+                            return true;
                         }
                         String newLore = Utils.color(StringUtils.join(args, " ", 0, args.length));
                     

@@ -1,6 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
+import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.model.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.enums.Rank;
@@ -12,8 +13,6 @@ import org.bukkit.entity.Player;
 
 public class BroadcastManager implements CommandExecutor {
     private FirecraftCore plugin;
-
-    private static String prefix = "&d&l[Broadcast] ";
 
     public BroadcastManager(FirecraftCore plugin) {
         this.plugin = plugin;
@@ -29,12 +28,12 @@ public class BroadcastManager implements CommandExecutor {
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
 
         if (player.isRecording()) {
-            player.sendMessage(prefix + Messages.recordingNoUse);
+            player.sendMessage(Prefixes.BROADCAST + Messages.recordingNoUse);
             return true;
         }
 
         if (args.length == 0) {
-            player.sendMessage(prefix + Messages.notEnoughArgs);
+            player.sendMessage(Prefixes.BROADCAST + Messages.notEnoughArgs);
             return true;
         }
 
@@ -51,7 +50,7 @@ public class BroadcastManager implements CommandExecutor {
                     fp.sendMessage("");
                 }
             } else {
-                player.sendMessage(prefix + Messages.noPermission);
+                player.sendMessage(Prefixes.BROADCAST + Messages.noPermission);
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("socketbroadcast")) {
@@ -59,7 +58,7 @@ public class BroadcastManager implements CommandExecutor {
                 FPacketSocketBroadcast socketBroadcast = new FPacketSocketBroadcast(plugin.getFirecraftServer(), sb.toString());
                 plugin.getSocket().sendPacket(socketBroadcast);
             } else {
-                player.sendMessage(prefix + Messages.noPermission);
+                player.sendMessage(Prefixes.BROADCAST + Messages.noPermission);
                 return true;
             }
         }

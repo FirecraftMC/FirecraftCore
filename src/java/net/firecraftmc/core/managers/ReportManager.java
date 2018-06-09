@@ -1,6 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
+import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.model.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
@@ -28,7 +29,6 @@ import java.util.*;
 public class ReportManager implements CommandExecutor {
 
     private FirecraftCore plugin;
-    private final String prefix = "&d&l[Report] ";
 
     private HashMap<UUID, Paginator<Report>> paginators = new HashMap<>();
 
@@ -46,7 +46,7 @@ public class ReportManager implements CommandExecutor {
 
         if (cmd.getName().equalsIgnoreCase("report")) {
             if (!(args.length > 1)) {
-                player.sendMessage(prefix + Messages.notEnoughArgs);
+                player.sendMessage(Prefixes.REPORT + Messages.notEnoughArgs);
                 return true;
             }
             FirecraftPlayer target;
@@ -63,7 +63,7 @@ public class ReportManager implements CommandExecutor {
             }
 
             if (target == null) {
-                player.sendMessage(prefix + Messages.reportInvalidTarget);
+                player.sendMessage(Prefixes.REPORT + Messages.reportInvalidTarget);
                 return true;
             }
 
@@ -71,25 +71,25 @@ public class ReportManager implements CommandExecutor {
 
             Report report = plugin.getFCDatabase().saveReport(new Report(player.getUniqueId(), target.getUniqueId(), reason, player.getLocation(), System.currentTimeMillis()));
             if (report.getId() == 0) {
-                player.sendMessage(prefix + Messages.reportDatabaseError);
+                player.sendMessage(Prefixes.REPORT + Messages.reportDatabaseError);
                 return true;
             }
             FPacketReport packetReport = new FPacketReport(plugin.getFirecraftServer(), report.getId());
             plugin.getSocket().sendPacket(packetReport);
-            player.sendMessage(prefix + Messages.successfulReportFile);
+            player.sendMessage(Prefixes.REPORT + Messages.successfulReportFile);
         } else if (cmd.getName().equalsIgnoreCase("reportadmin")) {
             if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
-                player.sendMessage(prefix + Messages.noPermission);
+                player.sendMessage(Prefixes.REPORT + Messages.noPermission);
                 return true;
             }
 
             if (player.isRecording()) {
-                player.sendMessage(prefix + Messages.recordingNoUse);
+                player.sendMessage(Prefixes.REPORT + Messages.recordingNoUse);
                 return true;
             }
 
             if (!(args.length > 0)) {
-                player.sendMessage(prefix + Messages.noPermission);
+                player.sendMessage(Prefixes.REPORT + Messages.noPermission);
                 return true;
             }
 
@@ -131,14 +131,14 @@ public class ReportManager implements CommandExecutor {
                                 try {
                                     status = Report.Status.valueOf(a.replace("s:", "").toUpperCase());
                                 } catch (Exception e) {
-                                    player.sendMessage(prefix + "&cThe status you provided was invalid.");
+                                    player.sendMessage(Prefixes.REPORT + Messages.reportInvalidValue("status"));
                                 }
                             }
                             if (a.startsWith("o:")) {
                                 try {
                                     outcome = Report.Outcome.valueOf(a.replace("o:", "").toUpperCase());
                                 } catch (Exception e) {
-                                    player.sendMessage(prefix + "&cThe outcome you provided was invalid.");
+                                    player.sendMessage(Prefixes.REPORT + Messages.reportInvalidValue("outcome"));
                                 }
                             }
                             if (a.startsWith("a:")) {
@@ -172,7 +172,7 @@ public class ReportManager implements CommandExecutor {
                 paginatorFactory.setMaxElements(7).setHeader("§aReports page {pagenumber} out of {totalpages}").setFooter("§aUse /reportadmin page {nextpage} to view the next page.");
                 reports.forEach(report -> paginatorFactory.addElement(report, reports.size()));
                 if (paginatorFactory.getPages().isEmpty()) {
-                    player.sendMessage(prefix + "&cThere are no reports to display.");
+                    player.sendMessage(Prefixes.REPORT + "&cThere are no reports to display.");
                     return true;
                 } else {
                     Paginator<Report> paginator = paginatorFactory.build();
@@ -197,13 +197,13 @@ public class ReportManager implements CommandExecutor {
                 Report report = getReport(args, 2, player);
                 if (report == null) return true;
                 player.teleport(report.getLocation());
-                player.sendMessage(prefix + "&bYou teleported to the location of the report with the id &e" + report.getId());
+                player.sendMessage(Prefixes.REPORT + Messages.reportTeleport(report.getId()));
             } else if (Utils.Command.checkCmdAliases(args, 0, "setstatus", "ss")) {
                 Report report = getReport(args, 3, player);
                 if (report == null) return true;
                 if (report.getAssignee() == null) {
                     if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                        player.sendMessage(prefix + "&cThat report is not assigned to anyone. Assign yourself or someone else.");
+                        player.sendMessage(Prefixes.REPORT + "&cThat report is not assigned to anyone. Assign yourself or someone else.");
                         return true;
                     }
                 }
@@ -212,14 +212,14 @@ public class ReportManager implements CommandExecutor {
                 try {
                     status = Report.Status.valueOf(args[2].toUpperCase());
                 } catch (Exception e) {
-                    player.sendMessage(prefix + "&cThe status you provided is invalid.");
+                    player.sendMessage(Prefixes.REPORT + Messages.reportInvalidValue("status"));
                     return true;
                 }
 
                 if (!report.getStatus().equals(Report.Status.PENDING)) {
                     if (!report.getAssignee().equals(player.getUniqueId())) {
                         if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                            player.sendMessage(prefix + "&cThat report is not assigned to you, so you cannot change anything.");
+                            player.sendMessage(Prefixes.REPORT + "&cThat report is not assigned to you, so you cannot change anything.");
                             return true;
                         }
                     }
@@ -235,14 +235,14 @@ public class ReportManager implements CommandExecutor {
 
                 if (report.getAssignee() == null) {
                     if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                        player.sendMessage(prefix + "&cThat report is not assigned to anyone. Assign yourself or someone else.");
+                        player.sendMessage(Prefixes.REPORT + "&cThat report is not assigned to anyone. Assign yourself or someone else.");
                         return true;
                     }
                 }
 
                 if (!report.getAssignee().equals(player.getUniqueId())) {
                     if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                        player.sendMessage(prefix + "&cThat report is not assigned to you, so you cannot change anything.");
+                        player.sendMessage(Prefixes.REPORT + "&cThat report is not assigned to you, so you cannot change anything.");
                         return true;
                     }
                 }
@@ -251,7 +251,7 @@ public class ReportManager implements CommandExecutor {
                 try {
                     outcome = Report.Outcome.valueOf(args[2].toUpperCase());
                 } catch (Exception e) {
-                    player.sendMessage(prefix + "&cThe outcome you provided is invalid.");
+                    player.sendMessage(Prefixes.REPORT + Messages.reportInvalidValue("outcome"));
                     return true;
                 }
                 report.setOutcome(outcome);
@@ -262,25 +262,25 @@ public class ReportManager implements CommandExecutor {
             } else if (Utils.Command.checkCmdAliases(args, 0, "page", "p")) {
                 Paginator<Report> paginator = this.paginators.get(player.getUniqueId());
                 if (paginator == null) {
-                    player.sendMessage(prefix + "&cYou currently do not have a query of reports to display.");
+                    player.sendMessage(Prefixes.REPORT + "&cYou currently do not have a query of reports to display.");
                     return true;
                 }
                 if (args.length != 2) {
-                    player.sendMessage(prefix + Messages.notEnoughArgs);
+                    player.sendMessage(Prefixes.REPORT + Messages.notEnoughArgs);
                     return true;
                 }
                 int pageNumber;
                 try {
                     pageNumber = Integer.parseInt(args[1]);
                 } catch (NumberFormatException e) {
-                    player.sendMessage(prefix + "The page number you provided is invalid.");
+                    player.sendMessage(Prefixes.REPORT + "&cThe page number you provided is invalid.");
                     return true;
                 }
                 paginator.display(player.getPlayer(), pageNumber);
             } else if (Utils.Command.checkCmdAliases(args, 0, "assign", "a")) {
                 Report report = getReport(args, 3, player);
                 if (report == null) {
-                    player.sendMessage(prefix + "&cThe report could not be found with that id.");
+                    player.sendMessage(Prefixes.REPORT + "&cThe report could not be found with that id.");
                     return true;
                 }
 
@@ -288,7 +288,7 @@ public class ReportManager implements CommandExecutor {
                     if (!report.getAssignee().equals(player.getUniqueId())) {
                         FirecraftPlayer assignee = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), report.getAssignee());
                         if (!player.getMainRank().isEqualToOrHigher(assignee.getMainRank())) {
-                            player.sendMessage(prefix + "&cThat report is not assigned to you, so you cannot change anything.");
+                            player.sendMessage(Prefixes.REPORT + "&cThat report is not assigned to you, so you cannot change anything.");
                             return true;
                         }
                     }
@@ -297,7 +297,7 @@ public class ReportManager implements CommandExecutor {
                 if (args[2].equalsIgnoreCase("self")) {
                     if (report.isInvolved(player.getUniqueId())) {
                         if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                            player.sendMessage(prefix + "&cYou cannot self-assign a report that you are involved in.");
+                            player.sendMessage(Prefixes.REPORT + "&cYou cannot self-assign a report that you are involved in.");
                             return true;
                         }
                     }
@@ -308,16 +308,16 @@ public class ReportManager implements CommandExecutor {
                 } else {
                     FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[2]);
                     if (target == null) {
-                        player.sendMessage(prefix + "The player name you provided is not valid.");
+                        player.sendMessage(Prefixes.REPORT + "&cThe player name you provided is not valid.");
                         return true;
                     }
                     if (!target.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
-                        player.sendMessage(prefix + "&cOnly staff can be assigned to report.");
+                        player.sendMessage(Prefixes.REPORT + "&cOnly staff can be assigned to report.");
                         return true;
                     }
                     if (report.isInvolved(player.getUniqueId())) {
                         if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                            player.sendMessage(prefix + "&cYou cannot assign a report to a staff member involved with the report.");
+                            player.sendMessage(Prefixes.REPORT + "&cYou cannot assign a report to a staff member involved with the report.");
                             return true;
                         }
                     }
@@ -349,7 +349,7 @@ public class ReportManager implements CommandExecutor {
      */
     private Report getReport(String[] args, int length, FirecraftPlayer player) {
         if (args.length != length) {
-            player.sendMessage(prefix + Messages.notEnoughArgs);
+            player.sendMessage(Prefixes.REPORT + Messages.notEnoughArgs);
             return null;
         }
 
@@ -357,13 +357,13 @@ public class ReportManager implements CommandExecutor {
         try {
             rId = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
-            player.sendMessage(prefix + "&cThe number for the report id is invalid.");
+            player.sendMessage(Prefixes.REPORT + "&cThe number for the report id is invalid.");
             return null;
         }
 
         Report report = plugin.getFCDatabase().getReport(rId);
         if (report == null) {
-            player.sendMessage(prefix + "&cThe report could not be found with that id.");
+            player.sendMessage(Prefixes.REPORT + "&cThe report could not be found with that id.");
             return null;
         }
         return report;

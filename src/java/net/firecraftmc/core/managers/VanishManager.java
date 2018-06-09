@@ -1,6 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
+import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.model.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
@@ -32,7 +33,6 @@ import java.util.List;
 public class VanishManager implements TabExecutor, Listener {
     
     private final FirecraftCore plugin;
-    private final String prefix = "&d&l[Vanish] ";
     private final List<String> interactTypes = Arrays.asList("inventoryinteract", "itemuse", "itempickup", "blockbreak", "blockplace", "entityinteract", "chat", "silentinventoryopen");
     
     public VanishManager(FirecraftCore plugin) {
@@ -91,12 +91,12 @@ public class VanishManager implements TabExecutor, Listener {
                 plugin.getSocket().sendPacket(toggleVanish);
             } else {
                 if (!Utils.Command.checkCmdAliases(args, 0, "settings", "s")) {
-                    player.sendMessage(prefix + Messages.invalidSubCommand);
+                    player.sendMessage(Prefixes.VANISH + Messages.invalidSubCommand);
                     return true;
                 }
                 
                 if (!player.isVanished()) {
-                    player.sendMessage(prefix + Messages.notVanished);
+                    player.sendMessage(Prefixes.VANISH + Messages.notVanished);
                     return true;
                 }
                 
@@ -106,7 +106,7 @@ public class VanishManager implements TabExecutor, Listener {
                         if (!toggled.contains(args[i].toLowerCase())) {
                             toggled.add(args[i]);
                         } else {
-                            player.sendMessage(prefix + Messages.duplicateOption(args[i]));
+                            player.sendMessage(Prefixes.VANISH + Messages.duplicateOption(args[i]));
                         }
                     }
                 }
@@ -115,61 +115,61 @@ public class VanishManager implements TabExecutor, Listener {
                     if (option.equalsIgnoreCase("inventoryinteract")) {
                         if (player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
                             player.getVanishInfo().toggleInventoryInteract();
-                            player.sendMessage(prefix + Messages.optionToggle("inventoryinteract", player.getVanishInfo().inventoryInteract()));
+                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("inventoryinteract", player.getVanishInfo().inventoryInteract()));
                         } else {
-                            player.sendMessage(prefix + Messages.noPermission);
+                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
                         }
                     } else if (option.equalsIgnoreCase("itemuse")) {
                         if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                             player.getVanishInfo().toggleItemUse();
-                            player.sendMessage(prefix + Messages.optionToggle("itemuse", player.getVanishInfo().itemUse()));
+                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("itemuse", player.getVanishInfo().itemUse()));
                         } else {
-                            player.sendMessage(prefix + Messages.noPermission);
+                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
                         }
                     } else if (option.equalsIgnoreCase("itempickup")) {
                         if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                             player.getVanishInfo().toggleItemPickup();
-                            player.sendMessage(prefix + Messages.optionToggle("itempickup", player.getVanishInfo().itemPickup()));
+                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("itempickup", player.getVanishInfo().itemPickup()));
                         } else {
-                            player.sendMessage(prefix + Messages.noPermission);
+                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
                         }
                     } else if (option.equalsIgnoreCase("blockbreak")) {
                         if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                             player.getVanishInfo().toggleBlockBreak();
-                            player.sendMessage(prefix + Messages.optionToggle("blockbreak", player.getVanishInfo().blockBreak()));
+                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("blockbreak", player.getVanishInfo().blockBreak()));
                         } else {
-                            player.sendMessage(prefix + Messages.noPermission);
+                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
                         }
                     } else if (option.equalsIgnoreCase("blockplace")) {
                         if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                             player.getVanishInfo().toggleBlockPlace();
-                            player.sendMessage(prefix + Messages.optionToggle("blockplace", player.getVanishInfo().blockPlace()));
+                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("blockplace", player.getVanishInfo().blockPlace()));
                         } else {
-                            player.sendMessage(prefix + Messages.noPermission);
+                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
                         }
                     } else if (option.equalsIgnoreCase("entityinteract")) {
                         if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                             player.getVanishInfo().toggleEntityInteract();
-                            player.sendMessage(prefix + Messages.optionToggle("entityinteract", player.getVanishInfo().entityInteract()));
+                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("entityinteract", player.getVanishInfo().entityInteract()));
                             
                         } else {
-                            player.sendMessage(prefix + Messages.noPermission);
+                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
                         }
                     } else if (option.equalsIgnoreCase("chat")) {
                         player.getVanishInfo().toggleChatInteract();
-                        player.sendMessage(prefix + Messages.optionToggle("chatting", player.getVanishInfo().canChat()));
+                        player.sendMessage(Prefixes.VANISH + Messages.optionToggle("chatting", player.getVanishInfo().canChat()));
                     } else if (option.equalsIgnoreCase("silentinventoryopen")) {
                         if (player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
                             player.getVanishInfo().toggleSilentInventories();
-                            player.sendMessage(prefix + Messages.optionToggle("silentinventoryopen", player.getVanishInfo().silentInventoryOpen()));
+                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("silentinventoryopen", player.getVanishInfo().silentInventoryOpen()));
                         } else {
-                            player.sendMessage(prefix + Messages.noPermission);
+                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
                         }
                     }
                 });
             }
         } else {
-            player.sendMessage(prefix + Messages.noPermission);
+            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
             return true;
         }
         
@@ -201,7 +201,7 @@ public class VanishManager implements TabExecutor, Listener {
         if (player.isVanished()) {
             if (!player.getVanishInfo().blockBreak()) {
                 e.setCancelled(true);
-                player.sendMessage(prefix + Messages.cannotActionVanished("break blocks"));
+                player.sendMessage(Prefixes.VANISH + Messages.cannotActionVanished("break blocks"));
             }
         }
     }
@@ -212,7 +212,7 @@ public class VanishManager implements TabExecutor, Listener {
         if (player.isVanished()) {
             if (!player.getVanishInfo().blockPlace()) {
                 e.setCancelled(true);
-                player.sendMessage(prefix + Messages.cannotActionVanished("place blocks"));
+                player.sendMessage(Prefixes.VANISH + Messages.cannotActionVanished("place blocks"));
             }
         }
     }
@@ -224,7 +224,7 @@ public class VanishManager implements TabExecutor, Listener {
             if (player.isVanished()) {
                 if (!player.getVanishInfo().inventoryInteract()) {
                     e.setCancelled(true);
-                    player.sendMessage(prefix + Messages.cannotActionVanished("open inventories"));
+                    player.sendMessage(Prefixes.VANISH + Messages.cannotActionVanished("open inventories"));
                 } else {
                     if (player.getVanishInfo().silentInventoryOpen()) {
                         e.setCancelled(true);
@@ -251,7 +251,7 @@ public class VanishManager implements TabExecutor, Listener {
                         }
                         
                         player.getPlayer().openInventory(inv);
-                        player.sendMessage(prefix + Messages.openInventorySilent);
+                        player.sendMessage(Prefixes.VANISH + Messages.openInventorySilent);
                     }
                 }
             }
@@ -266,7 +266,7 @@ public class VanishManager implements TabExecutor, Listener {
             if (player.isVanished()) {
                 if (!player.getVanishInfo().entityInteract()) {
                     e.setCancelled(true);
-                    player.sendMessage(prefix + Messages.cannotActionVanished("damage entities"));
+                    player.sendMessage(Prefixes.VANISH + Messages.cannotActionVanished("damage entities"));
                 }
             }
         }
@@ -294,7 +294,7 @@ public class VanishManager implements TabExecutor, Listener {
         if (player.isVanished()) {
             if (!player.getVanishInfo().itemUse()) {
                 e.setCancelled(true);
-                player.sendMessage(prefix + Messages.cannotActionVanished("fill buckets"));
+                player.sendMessage(Prefixes.VANISH + Messages.cannotActionVanished("fill buckets"));
             }
         }
     }
@@ -305,7 +305,7 @@ public class VanishManager implements TabExecutor, Listener {
         if (player.isVanished()) {
             if (!player.getVanishInfo().itemUse()) {
                 e.setCancelled(true);
-                player.sendMessage(prefix + Messages.cannotActionVanished("empty buckets"));
+                player.sendMessage(Prefixes.VANISH + Messages.cannotActionVanished("empty buckets"));
             }
         }
     }
@@ -316,7 +316,7 @@ public class VanishManager implements TabExecutor, Listener {
         if (player.isVanished()) {
             if (!player.getVanishInfo().itemPickup()) {
                 e.setCancelled(true);
-                player.sendMessage(prefix + Messages.cannotActionVanished("drop items"));
+                player.sendMessage(Prefixes.VANISH + Messages.cannotActionVanished("drop items"));
             }
         }
     }
@@ -327,7 +327,7 @@ public class VanishManager implements TabExecutor, Listener {
         if (player.isVanished()) {
             if (!player.getVanishInfo().entityInteract()) {
                 e.setCancelled(true);
-                player.sendMessage(prefix + Messages.cannotActionVanished("interact with entities"));
+                player.sendMessage(Prefixes.VANISH + Messages.cannotActionVanished("interact with entities"));
             }
         }
     }
@@ -338,7 +338,7 @@ public class VanishManager implements TabExecutor, Listener {
         if (player.isVanished()) {
             if (!player.getVanishInfo().entityInteract()) {
                 e.setCancelled(true);
-                player.sendMessage(prefix + Messages.cannotActionVanished("shear entities"));
+                player.sendMessage(Prefixes.VANISH + Messages.cannotActionVanished("shear entities"));
             }
         }
     }

@@ -1,6 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
+import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.model.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.enums.Rank;
@@ -12,7 +13,7 @@ import org.bukkit.entity.Player;
 
 public class WeatherManager implements CommandExecutor {
     private FirecraftCore plugin;
-    private final String prefix = "&d&l[Weather] ";
+
     public WeatherManager(FirecraftCore plugin) {
         this.plugin = plugin;
     }
@@ -22,7 +23,7 @@ public class WeatherManager implements CommandExecutor {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
             if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                 if (player.isRecording()) {
-                    player.sendMessage(prefix + Messages.recordingNoUse);
+                    player.sendMessage(Prefixes.WEATHER + Messages.recordingNoUse);
                     return true;
                 }
                 World world = player.getPlayer().getWorld();
@@ -31,17 +32,17 @@ public class WeatherManager implements CommandExecutor {
                         world.setThundering(false);
                         world.setStorm(false);
                         world.setWeatherDuration(Integer.MAX_VALUE);
-                        player.sendMessage(prefix + Messages.weatherChange("clear", world.getName()));
+                        player.sendMessage(Prefixes.WEATHER + Messages.weatherChange("clear", world.getName()));
                     } else if (args[0].equalsIgnoreCase("storm") || args[0].equalsIgnoreCase("s")) {
                         world.setStorm(true);
                         world.setThundering(true);
                         world.setWeatherDuration(Integer.MAX_VALUE);
-                        player.sendMessage(prefix + Messages.weatherChange("storm", world.getName()));
+                        player.sendMessage(Prefixes.WEATHER + Messages.weatherChange("storm", world.getName()));
                     } else if (args[0].equalsIgnoreCase("rain") || args[0].equalsIgnoreCase("r")) {
                         world.setStorm(true);
                         world.setThundering(false);
                         world.setWeatherDuration(Integer.MAX_VALUE);
-                        player.sendMessage(prefix + Messages.weatherChange("rain", world.getName()));
+                        player.sendMessage(Prefixes.WEATHER + Messages.weatherChange("rain", world.getName()));
                     }
                 } else {
                     player.sendMessage(Messages.notEnoughArgs);

@@ -1,6 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
+import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.model.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
@@ -15,7 +16,6 @@ import org.bukkit.entity.Player;
 public class MessageManager implements CommandExecutor {
 
     private FirecraftCore plugin;
-    private final String prefix = "&d&l[Messaging] ";
 
     public MessageManager(FirecraftCore plugin) {
         this.plugin = plugin;
@@ -29,13 +29,13 @@ public class MessageManager implements CommandExecutor {
 
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
         if (player.isRecording()) {
-            player.sendMessage(prefix + Messages.recordingNoUse);
+            player.sendMessage(Prefixes.MESSAGING + Messages.recordingNoUse);
             return true;
         }
 
         if (cmd.getName().equalsIgnoreCase("message")) {
             if (!(args.length > 1)) {
-                player.sendMessage(prefix + Messages.notEnoughArgs);
+                player.sendMessage(Prefixes.MESSAGING + Messages.notEnoughArgs);
                 return true;
             }
 
@@ -51,7 +51,7 @@ public class MessageManager implements CommandExecutor {
                 }
 
                 if (target == null) {
-                    player.sendMessage(prefix + "&cA player with that name could not be found.");
+                    player.sendMessage(Prefixes.MESSAGING + Messages.couldNotFindPlayer(args[0]));
                     return true;
                 }
             }
@@ -70,11 +70,11 @@ public class MessageManager implements CommandExecutor {
                     if (plugin.getFCDatabase().getOnlineStatus(target.getUniqueId())) {
                         if (player.getMainRank().isEqualToOrHigher(Rank.PHOENIX)) {
                             if (target.isIgnoring(player.getUniqueId())) {
-                                player.sendMessage(prefix + "&c" + args[0] + " is currently ignoring you.");
+                                player.sendMessage(Prefixes.MESSAGING + Messages.currentlyIgnoring);
                                 return true;
                             }
                             if (target.isRecording()) {
-                                player.sendMessage(prefix + "&cThat player is currently recording, they cannot receive messages.");
+                                player.sendMessage(Prefixes.MESSAGING + Messages.recordingNoMessage);
                                 return true;
                             }
                             String message = Utils.getReason(1, args);
@@ -84,11 +84,11 @@ public class MessageManager implements CommandExecutor {
                             player.setLastMessage(target.getUniqueId());
                             return true;
                         } else {
-                            player.sendMessage(prefix + "&cThat player is not online.");
+                            player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
                             return true;
                         }
                     } else {
-                        player.sendMessage(prefix + "&cThat player is not online.");
+                        player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
                         return true;
                     }
                 }
@@ -97,7 +97,7 @@ public class MessageManager implements CommandExecutor {
             if (target.isNicked()) {
                 if (target.getName().equalsIgnoreCase(args[0])) {
                     if (target.getMainRank().isHigher(player.getMainRank())) {
-                        player.sendMessage(prefix + "&cThat player is not online.");
+                        player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
                         return true;
                     }
                 }
@@ -105,20 +105,20 @@ public class MessageManager implements CommandExecutor {
 
             if (target.isVanished()) {
                 if (target.getMainRank().isHigher(player.getMainRank())) {
-                    player.sendMessage(prefix + "&cThat player is not online.");
+                    player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
                     return true;
                 }
             }
 
             if (target.isIgnoring(player.getUniqueId())) {
-                player.sendMessage(prefix + "&c" + args[0] + " is currently ignoring you.");
+                player.sendMessage(Prefixes.MESSAGING + Messages.currentlyIgnoring);
                 return true;
             }
 
             sendMessages(player, target, args, 1);
         } else if (cmd.getName().equalsIgnoreCase("reply")) {
             if (!(args.length > 0)) {
-                player.sendMessage(prefix + Messages.notEnoughArgs);
+                player.sendMessage(Prefixes.MESSAGING + Messages.notEnoughArgs);
                 return true;
             }
 
@@ -131,7 +131,7 @@ public class MessageManager implements CommandExecutor {
                     player.setLastMessage(player.getLastMessage());
                     return true;
                 } else {
-                    player.sendMessage(prefix + "&cThat player is not online.");
+                    player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
                     return true;
                 }
             }
@@ -144,7 +144,7 @@ public class MessageManager implements CommandExecutor {
 
     private void sendMessages(FirecraftPlayer player, FirecraftPlayer target, String[] args, int reasonIndex) {
         if (target.isRecording()) {
-            player.sendMessage(prefix + "&cThat player is currently recording, they cannot receive messages.");
+            player.sendMessage(Prefixes.MESSAGING + Messages.recordingNoMessage);
             return;
         }
         String message = Utils.getReason(reasonIndex, args);

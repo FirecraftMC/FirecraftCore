@@ -210,7 +210,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
                             }
                         }
                     }
-                    player.sendMessage("&bYou teleported all players except Firecraft Team members to you.");
+                    player.sendMessage(Messages.tpAllNoFCT);
                 } else {
                     for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
                        if (!p.getUniqueId().equals(player.getUniqueId())) {
@@ -218,7 +218,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
                            p.sendMessage(Messages.tpAllTeleported(player.getDisplayName()));
                        }
                     }
-                    player.sendMessage("&bYou teleported all players to you.");
+                    player.sendMessage(Messages.tpAll);
                 }
             } else {
                 player.sendMessage(Messages.noPermission);

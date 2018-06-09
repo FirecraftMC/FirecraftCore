@@ -1,6 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
+import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.model.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
@@ -23,8 +24,6 @@ import java.sql.ResultSet;
 public class ChatManager implements CommandExecutor,Listener {
     private final FirecraftCore plugin;
 
-    private static final String prefix = "&d&l[Chat] ";
-    
     public ChatManager(FirecraftCore plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
@@ -35,7 +34,7 @@ public class ChatManager implements CommandExecutor,Listener {
         e.setCancelled(true);
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(e.getPlayer().getUniqueId());
         if (player == null) {
-            e.getPlayer().sendMessage(prefix + Messages.chatNoData);
+            e.getPlayer().sendMessage(Prefixes.CHAT + Messages.chatNoData);
             return;
         }
         
@@ -72,7 +71,7 @@ public class ChatManager implements CommandExecutor,Listener {
         
         if (player.getChannel().equals(Channel.GLOBAL)) {
             if (player.isVanished() && !player.getVanishInfo().canChat()) {
-                player.sendMessage(prefix + Messages.noTalkGlobal);
+                player.sendMessage(Prefixes.CHAT + Messages.noTalkGlobal);
                 return;
             }
             if (player.getMainRank().isEqualToOrHigher(Rank.INFERNO)) {
@@ -106,30 +105,30 @@ public class ChatManager implements CommandExecutor,Listener {
             if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
             if (Utils.Command.checkCmdAliases(args, 0, "staff", "st", "s")) {
                 if (!Rank.isStaff(player.getMainRank())) {
-                    player.sendMessage(prefix + Messages.onlyStaff);
+                    player.sendMessage(Prefixes.CHAT + Messages.onlyStaff);
                     return true;
                 }
 
                 if (player.isRecording()) {
-                    player.sendMessage(prefix + Messages.recordingNoUse);
+                    player.sendMessage(Prefixes.CHAT + Messages.recordingNoUse);
                     return true;
                 }
             
                 if (player.getChannel().equals(Channel.STAFF)) {
-                    player.sendMessage(prefix + Messages.alreadyInChannel);
+                    player.sendMessage(Prefixes.CHAT + Messages.alreadyInChannel);
                     return true;
                 }
                 player.setChannel(Channel.STAFF);
-                player.sendMessage(prefix + Messages.channelSwitch(Channel.STAFF));
+                player.sendMessage(Prefixes.CHAT + Messages.channelSwitch(Channel.STAFF));
             } else if (Utils.Command.checkCmdAliases(args, 0, "global", "gl", "g")) {
                 if (player.getChannel().equals(Channel.GLOBAL)) {
-                    player.sendMessage(prefix + Messages.alreadyInChannel);
+                    player.sendMessage(Prefixes.CHAT + Messages.alreadyInChannel);
                     return true;
                 }
                 player.setChannel(Channel.GLOBAL);
-                player.sendMessage(prefix + Messages.channelSwitch(Channel.GLOBAL));
+                player.sendMessage(Prefixes.CHAT + Messages.channelSwitch(Channel.GLOBAL));
             } else {
-                player.sendMessage(prefix + Messages.noOtherChannels);
+                player.sendMessage(Prefixes.CHAT + Messages.noOtherChannels);
                 return true;
             }
         }

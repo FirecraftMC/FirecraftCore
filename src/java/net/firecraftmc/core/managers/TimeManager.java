@@ -1,9 +1,10 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.model.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.enums.Rank;
+import net.firecraftmc.shared.classes.model.FirecraftPlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,8 +13,7 @@ import org.bukkit.entity.Player;
 
 public class TimeManager implements CommandExecutor {
     private FirecraftCore plugin;
-    private final String prefix = "&d&l[Time] ";
-    
+
     public TimeManager(FirecraftCore plugin) {
         this.plugin = plugin;
     }
@@ -23,7 +23,7 @@ public class TimeManager implements CommandExecutor {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
             if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                 if (player.isRecording()) {
-                    player.sendMessage(prefix + Messages.recordingNoUse);
+                    player.sendMessage(Prefixes.TIME + Messages.recordingNoUse);
                     return true;
                 }
                 World world = player.getPlayer().getWorld();
@@ -50,16 +50,16 @@ public class TimeManager implements CommandExecutor {
                             try {
                                 time = Integer.parseInt(args[0]);
                             } catch (NumberFormatException e) {
-                                player.sendMessage(prefix + Messages.invalidTime);
+                                player.sendMessage(Prefixes.TIME + Messages.invalidTime);
                                 return true;
                             }
                         }
                         if (timeName.equals("")) {
                             world.setTime(time);
-                            player.sendMessage(prefix + Messages.timeChange(time + "", world.getName()));
+                            player.sendMessage(Prefixes.TIME + Messages.timeChange(time + "", world.getName()));
                         } else {
                             world.setTime(time);
-                            player.sendMessage(prefix + Messages.timeChange(timeName, world.getName()));
+                            player.sendMessage(Prefixes.TIME + Messages.timeChange(timeName, world.getName()));
                         }
                     } else {
                         player.sendMessage(Messages.notEnoughArgs);
@@ -67,10 +67,10 @@ public class TimeManager implements CommandExecutor {
                     }
                 } else if (cmd.getName().equalsIgnoreCase("day")) {
                     world.setTime(1000);
-                    player.sendMessage(prefix + Messages.timeChange("day", world.getName()));
+                    player.sendMessage(Prefixes.TIME + Messages.timeChange("day", world.getName()));
                 } else if (cmd.getName().equalsIgnoreCase("night")) {
                     world.setTime(14000);
-                    player.sendMessage(prefix + Messages.timeChange("night", world.getName()));
+                    player.sendMessage(Prefixes.TIME + Messages.timeChange("night", world.getName()));
                 }
             }
         } else {
