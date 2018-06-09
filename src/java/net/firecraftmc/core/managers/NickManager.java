@@ -43,7 +43,7 @@ public class NickManager implements CommandExecutor {
                 return true;
             }
             
-            if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS) || player.getMainRank().isEqualToOrHigher(Rank.TRIAL_ADMIN))) {
+            if (!(player.hasRank(Rank.VIP, Rank.FAMOUS) || player.getMainRank().isEqualToOrHigher(Rank.TRIAL_ADMIN))) {
                 player.sendMessage(prefix + Messages.noPermission);
                 return true;
             }

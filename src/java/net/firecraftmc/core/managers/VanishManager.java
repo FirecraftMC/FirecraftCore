@@ -120,35 +120,35 @@ public class VanishManager implements TabExecutor, Listener {
                             player.sendMessage(prefix + Messages.noPermission);
                         }
                     } else if (option.equalsIgnoreCase("itemuse")) {
-                        if (player.getMainRank().equals(Rank.ADMIN) || player.getMainRank().isHigher(Rank.ADMIN)) {
+                        if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                             player.getVanishInfo().toggleItemUse();
                             player.sendMessage(prefix + Messages.optionToggle("itemuse", player.getVanishInfo().itemUse()));
                         } else {
                             player.sendMessage(prefix + Messages.noPermission);
                         }
                     } else if (option.equalsIgnoreCase("itempickup")) {
-                        if (player.getMainRank().equals(Rank.ADMIN) || player.getMainRank().isHigher(Rank.ADMIN)) {
+                        if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                             player.getVanishInfo().toggleItemPickup();
                             player.sendMessage(prefix + Messages.optionToggle("itempickup", player.getVanishInfo().itemPickup()));
                         } else {
                             player.sendMessage(prefix + Messages.noPermission);
                         }
                     } else if (option.equalsIgnoreCase("blockbreak")) {
-                        if (player.getMainRank().equals(Rank.ADMIN) || player.getMainRank().isHigher(Rank.ADMIN)) {
+                        if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                             player.getVanishInfo().toggleBlockBreak();
                             player.sendMessage(prefix + Messages.optionToggle("blockbreak", player.getVanishInfo().blockBreak()));
                         } else {
                             player.sendMessage(prefix + Messages.noPermission);
                         }
                     } else if (option.equalsIgnoreCase("blockplace")) {
-                        if (player.getMainRank().equals(Rank.ADMIN) || player.getMainRank().isHigher(Rank.ADMIN)) {
+                        if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                             player.getVanishInfo().toggleBlockPlace();
                             player.sendMessage(prefix + Messages.optionToggle("blockplace", player.getVanishInfo().blockPlace()));
                         } else {
                             player.sendMessage(prefix + Messages.noPermission);
                         }
                     } else if (option.equalsIgnoreCase("entityinteract")) {
-                        if (player.getMainRank().equals(Rank.ADMIN) || player.getMainRank().isHigher(Rank.ADMIN)) {
+                        if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                             player.getVanishInfo().toggleEntityInteract();
                             player.sendMessage(prefix + Messages.optionToggle("entityinteract", player.getVanishInfo().entityInteract()));
                             
@@ -159,7 +159,7 @@ public class VanishManager implements TabExecutor, Listener {
                         player.getVanishInfo().toggleChatInteract();
                         player.sendMessage(prefix + Messages.optionToggle("chatting", player.getVanishInfo().canChat()));
                     } else if (option.equalsIgnoreCase("silentinventoryopen")) {
-                        if (player.getMainRank().equals(Rank.MODERATOR) || player.getMainRank().isHigher(Rank.MODERATOR)) {
+                        if (player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
                             player.getVanishInfo().toggleSilentInventories();
                             player.sendMessage(prefix + Messages.optionToggle("silentinventoryopen", player.getVanishInfo().silentInventoryOpen()));
                         } else {

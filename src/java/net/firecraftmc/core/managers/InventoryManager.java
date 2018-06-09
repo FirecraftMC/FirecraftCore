@@ -75,7 +75,7 @@ public class InventoryManager implements CommandExecutor, Listener {
                 }
             }
         } else if (cmd.getName().equalsIgnoreCase("enderchest")) {
-            if (player.getMainRank().isEqualToOrHigher(Rank.EMBER)) {
+            if (player.getMainRank().isEqualToOrHigher(Rank.PHOENIX)) {
                 if (args.length > 0) {
                     if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                         FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
