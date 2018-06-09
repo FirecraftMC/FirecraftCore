@@ -123,36 +123,37 @@ public class GamemodeManager implements CommandExecutor, Listener {
                         }
                     }
 
-                    if (mode.equals(GameMode.CREATIVE)) {
-                        if (!(player.getMainRank().isEqualToOrHigher(Rank.BUILD_TEAM) || player.getMainRank().isEqualToOrHigher(Rank.ADMIN))) {
-                            player.sendMessage(prefix + Messages.noPermission);
-                            return;
-                        }
-                    }
-
-                    if (mode.equals(GameMode.SPECTATOR)) {
-                        if (!player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
-                            player.sendMessage(prefix + Messages.noPermission);
-                            return;
-                        }
-                    }
-
-                    if (mode.equals(GameMode.ADVENTURE)) {
-                        if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                            player.sendMessage(prefix + Messages.noPermission);
-                            return;
-                        }
-                    }
-
-                    if (target.getPlayer().getGameMode().equals(mode)) {
-                        player.sendMessage(prefix + "&cYou are already in that gamemode.");
-                        return;
-                    }
                     target.setGamemode(mode);
                     FPSCSetGamemodeOthers setGamemode = new FPSCSetGamemodeOthers(plugin.getFirecraftServer(), player.getUniqueId(), mode, target.getUniqueId());
                     plugin.getSocket().sendPacket(setGamemode);
                     return;
                 }
+            }
+
+            if (mode.equals(GameMode.CREATIVE)) {
+                if (!(player.getMainRank().isEqualToOrHigher(Rank.BUILD_TEAM) || player.getMainRank().isEqualToOrHigher(Rank.ADMIN))) {
+                    player.sendMessage(prefix + Messages.noPermission);
+                    return;
+                }
+            }
+
+            if (mode.equals(GameMode.SPECTATOR)) {
+                if (!player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
+                    player.sendMessage(prefix + Messages.noPermission);
+                    return;
+                }
+            }
+
+            if (mode.equals(GameMode.ADVENTURE)) {
+                if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                    player.sendMessage(prefix + Messages.noPermission);
+                    return;
+                }
+            }
+
+            if (target.getPlayer().getGameMode().equals(mode)) {
+                player.sendMessage(prefix + "&cYou are already in that gamemode.");
+                return;
             }
 
             player.setGamemode(mode);
