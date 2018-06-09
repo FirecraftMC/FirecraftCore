@@ -1,5 +1,6 @@
 package net.firecraftmc.core.managers;
 
+import com.google.common.collect.Lists;
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftMC;
 import net.firecraftmc.shared.classes.enums.Channel;
@@ -113,7 +114,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         }
 
         this.onlinePlayers.put(player.getUniqueId(), player);
-        plugin.getFCDatabase().updateSQL("UPDATE `playerdata` SET `online`='true',`server`='{server}' WHERE `uniqueid`='".replace("{server}", plugin.getFirecraftServer().getName()) + player.getUniqueId().toString().replace("-", "") + "';");
+        plugin.getFCDatabase().updateSQL("UPDATE `playerdata` SET `online`='true',`server`='{server}' WHERE `uniqueid`='".replace("{server}", plugin.getFirecraftServer().getName()) + player.getUniqueId().toString() + "';");
 
         player.playerOnlineStuff();
         if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
@@ -259,7 +260,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         plugin.getSocket().sendPacket(playerLeave);
 
         plugin.getHomeManager().saveHomes(player);
-        plugin.getFCDatabase().updateSQL("UPDATE `playerdata` SET `online`='false',`server`='' WHERE `uniqueid`='" + player.getUniqueId().toString().replace("-", "") + "';");
+        plugin.getFCDatabase().updateSQL("UPDATE `playerdata` SET `online`='false',`server`='' WHERE `uniqueid`='" + player.getUniqueId().toString() + "';");
 
         onlinePlayers.remove(player.getUniqueId());
         cachedPlayers.put(player.getUniqueId(), player);
@@ -640,20 +641,59 @@ public class PlayerManager implements IPlayerManager, Listener {
                 return true;
             }
 
-            HashMap<String, List<String>> onlineUsers = new HashMap<>();
+            HashMap<String, List<FirecraftPlayer>> onlineStaff = new HashMap<>();
+
             ResultSet set = plugin.getFCDatabase().querySQL("SELECT * FROM `playerdata` WHERE `online`='true'");
+
             try {
                 while (set.next()) {
-                    if (onlineUsers.containsKey(set.getString("server"))) {
-                        onlineUsers.get(set.getString("server")).add("lastname");
-                    } else {
-                        onlineUsers.put(set.getString("server"), new ArrayList<>());
-                        onlineUsers.get(set.getString("server")).add(set.getString("lastname"));
+                    String server = set.getString("server");
+                    FirecraftPlayer p = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), UUID.fromString(set.getString("uniqueid")));
+                    if (Rank.isStaff(p.getMainRank())) {
+                        if (!onlineStaff.containsKey(server)) {
+                            onlineStaff.put(server, new ArrayList<>(Lists.newArrayList(p)));
+                        } else {
+                            onlineStaff.get(server).add(p);
+                        }
                     }
                 }
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-            
+            if (onlineStaff.isEmpty()) {
+                player.sendMessage("&cThere was an issue with getting the list of online staff members.");
+                return true;
+            }
+
+            List<String> displayStrings = new ArrayList<>();
+            int serverCount = 0, playerCount = 0;
+            for (String server : onlineStaff.keySet()) {
+                serverCount++;
+                String base = " &8- &7" + server + "&7(&f" + onlineStaff.get(server).size() + "&7): ";
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < onlineStaff.get(server).size(); i++) {
+                    FirecraftPlayer fp = onlineStaff.get(server).get(i);
+                    if (fp.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                        if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                            continue;
+                        }
+                    }
+                    sb.append(fp.getNameNoPrefix());
+                    if (i != onlineStaff.get(server).size() - 1) {
+                        sb.append("&7, ");
+                    }
+                    playerCount++;
+                }
+                if (!sb.toString().equals("")) {
+                    displayStrings.add(base + sb.toString());
+                }
+            }
+
+            player.sendMessage("&bThere are a total of &e" + playerCount + " &bstaff on &e" + serverCount + " &bserver(s)");
+            for (String ss : displayStrings) {
+                player.sendMessage(ss);
+            }
         }
         return true;
     }
