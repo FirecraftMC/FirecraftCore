@@ -29,7 +29,7 @@ public class ItemManager implements CommandExecutor {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
                 FirecraftPlayer player = plugin.getPlayerManager().getPlayer(p.getUniqueId());
-                if (player.getMainRank().isEqualToOrHigher(Rank.MAJOR)) {
+                if (player.getMainRank().isEqualToOrHigher(Rank.INFERNO)) {
                     if (p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getType() != Material.AIR) {
                         if (args.length == 0) {
                             player.sendMessage("&cUsage: /setname [name].");
@@ -61,7 +61,7 @@ public class ItemManager implements CommandExecutor {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
                 FirecraftPlayer player = plugin.getPlayerManager().getPlayer(p.getUniqueId());
-                if (player.getMainRank().isEqualToOrHigher(Rank.MAJOR)) {
+                if (player.getMainRank().isEqualToOrHigher(Rank.INFERNO)) {
                     if (p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getType() != Material.AIR) {
                         if (args.length == 0) {
                             player.sendMessage("&cUsage: /setlore [lore].");

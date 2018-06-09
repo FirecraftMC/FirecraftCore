@@ -57,7 +57,7 @@ public class SignEditManager implements CommandExecutor,Listener {
         if (sender instanceof Player) {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
         
-            if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
+            if (!player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
                 player.sendMessage(prefix + Messages.noPermission);
                 return true;
             }

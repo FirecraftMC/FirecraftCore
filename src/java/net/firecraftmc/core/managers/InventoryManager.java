@@ -66,7 +66,7 @@ public class InventoryManager implements CommandExecutor, Listener {
                     return true;
                 }
             } else {
-                if (player.getMainRank().isEqualToOrHigher(Rank.CORPORAL)) {
+                if (player.getMainRank().isEqualToOrHigher(Rank.INFERNO)) {
                     player.getPlayer().getInventory().clear();
                     player.sendMessage(Messages.clearInventory);
                 } else {
@@ -75,7 +75,7 @@ public class InventoryManager implements CommandExecutor, Listener {
                 }
             }
         } else if (cmd.getName().equalsIgnoreCase("enderchest")) {
-            if (player.getMainRank().isEqualToOrHigher(Rank.SERGEANT)) {
+            if (player.getMainRank().isEqualToOrHigher(Rank.EMBER)) {
                 if (args.length > 0) {
                     if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                         FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
@@ -110,7 +110,7 @@ public class InventoryManager implements CommandExecutor, Listener {
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("workbench")) {
-            if (player.getMainRank().isEqualToOrHigher(Rank.CAPTAIN)) {
+            if (player.getMainRank().isEqualToOrHigher(Rank.EMBER)) {
                 Inventory workbench = Bukkit.createInventory(null, InventoryType.WORKBENCH, "Workbench");
                 player.getPlayer().openInventory(workbench);
                 player.sendMessage(Messages.workbench);

@@ -90,7 +90,7 @@ public class NickManager implements CommandExecutor {
             confirmNick.put(player.getUniqueId(), nick);
             player.sendMessage(prefix + "&7You need to confirm the info for the nick.\nType &a/nickconfirm&7. To cancel type &c/nickcancel&7.");
             player.sendMessage(prefix + "&6Nickname Profile Info: " + nick.getName());
-            if (nick.getMainRank().equals(Rank.PRIVATE)) {
+            if (nick.getMainRank().equals(Rank.DEFAULT)) {
                 player.sendMessage(prefix + "&6Rank: " + nick.getMainRank().getBaseColor() + "Private");
             } else {
                 player.sendMessage(prefix + "&6Rank: " + nick.getMainRank().getPrefix());
@@ -98,7 +98,7 @@ public class NickManager implements CommandExecutor {
         } else if (cmd.getName().equalsIgnoreCase("nickrandom")) {
             if (sender instanceof Player) {
                 FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
-                if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().isEqualToOrHigher(Rank.MOD))) {
+                if (!(player.getMainRank().equals(Rank.VIP) || player.getMainRank().isEqualToOrHigher(Rank.MODERATOR))) {
                     player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }

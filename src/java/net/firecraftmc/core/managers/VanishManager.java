@@ -47,7 +47,7 @@ public class VanishManager implements TabExecutor, Listener {
         }
         
         FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
-        if (player.getMainRank().equals(Rank.VIP) || player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
+        if (player.getMainRank().equals(Rank.VIP) || player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
             if (player.isRecording()) {
                 player.sendMessage(Messages.recordingNoUse);
                 return true;
@@ -113,7 +113,7 @@ public class VanishManager implements TabExecutor, Listener {
                 
                 toggled.forEach(option -> {
                     if (option.equalsIgnoreCase("inventoryinteract")) {
-                        if (player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
+                        if (player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
                             player.getVanishInfo().toggleInventoryInteract();
                             player.sendMessage(prefix + Messages.optionToggle("inventoryinteract", player.getVanishInfo().inventoryInteract()));
                         } else {
@@ -159,7 +159,7 @@ public class VanishManager implements TabExecutor, Listener {
                         player.getVanishInfo().toggleChatInteract();
                         player.sendMessage(prefix + Messages.optionToggle("chatting", player.getVanishInfo().canChat()));
                     } else if (option.equalsIgnoreCase("silentinventoryopen")) {
-                        if (player.getMainRank().equals(Rank.MOD) || player.getMainRank().isHigher(Rank.MOD)) {
+                        if (player.getMainRank().equals(Rank.MODERATOR) || player.getMainRank().isHigher(Rank.MODERATOR)) {
                             player.getVanishInfo().toggleSilentInventories();
                             player.sendMessage(prefix + Messages.optionToggle("silentinventoryopen", player.getVanishInfo().silentInventoryOpen()));
                         } else {

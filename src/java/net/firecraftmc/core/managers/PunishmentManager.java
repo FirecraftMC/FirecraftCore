@@ -174,7 +174,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                         plugin.getSocket().sendPacket(punishRemove);
                     }
                 } else if (cmd.getName().equalsIgnoreCase("unmute")) {
-                    if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
+                    if (!player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
                         player.sendMessage(prefix + Messages.noPermission);
                         return true;
                     }
@@ -185,7 +185,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                         plugin.getSocket().sendPacket(punishRemove);
                     }
                 } else if (cmd.getName().equalsIgnoreCase("unjail")) {
-                    if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
+                    if (!player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
                         player.sendMessage(prefix + Messages.noPermission);
                         return true;
                     }
@@ -231,7 +231,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                     return true;
                 }
             } else if (cmd.getName().equalsIgnoreCase("tempban")) {
-                if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
+                if (!player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
                     player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }
@@ -275,7 +275,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                     return true;
                 }
             } else if (cmd.getName().equalsIgnoreCase("mute")) {
-                if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
+                if (!player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
                     player.sendMessage(prefix + Messages.noPermission);
                     return true;
                 }

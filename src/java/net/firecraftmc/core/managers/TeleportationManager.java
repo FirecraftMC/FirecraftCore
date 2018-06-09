@@ -77,7 +77,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
         if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
         
         if (cmd.getName().equalsIgnoreCase("teleport")) {
-            if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
+            if (!player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
                 player.sendMessage(Messages.noPermission);
                 return true;
             }
@@ -105,7 +105,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
                 FPSCTeleport teleport = new FPSCTeleport(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId());
                 plugin.getSocket().sendPacket(teleport);
             } else if (args.length == 2) {
-                if (player.getMainRank().equals(Rank.MOD)) {
+                if (player.getMainRank().equals(Rank.MODERATOR)) {
                     player.sendMessage(Messages.noPermission);
                     return true;
                 }

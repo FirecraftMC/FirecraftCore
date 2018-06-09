@@ -68,7 +68,7 @@ public class MessageManager implements CommandExecutor {
 
                 if (target.getPlayer() == null) {
                     if (plugin.getFCDatabase().getOnlineStatus(target.getUniqueId())) {
-                        if (player.getMainRank().isEqualToOrHigher(Rank.GENERAL)) {
+                        if (player.getMainRank().isEqualToOrHigher(Rank.PHOENIX)) {
                             if (target.isIgnoring(player.getUniqueId())) {
                                 player.sendMessage(prefix + "&c" + args[0] + " is currently ignoring you.");
                                 return true;
