@@ -4,7 +4,7 @@ import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.model.FirecraftPlayer;
+import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

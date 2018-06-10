@@ -3,7 +3,7 @@ package net.firecraftmc.core.managers;
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.model.FirecraftPlayer;
+import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.FirecraftServer;
 import net.firecraftmc.shared.enforcer.punishments.*;
 import net.firecraftmc.shared.packets.FPacketPunish;
