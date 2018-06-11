@@ -1,16 +1,15 @@
 package net.firecraftmc.core.managers;
 
-import com.google.common.collect.Lists;
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftMC;
-import net.firecraftmc.shared.classes.enums.Channel;
-import net.firecraftmc.shared.classes.model.ActionBar;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.enums.Channel;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.interfaces.IPlayerManager;
+import net.firecraftmc.shared.classes.model.ActionBar;
 import net.firecraftmc.shared.classes.model.Report;
+import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.enforcer.punishments.Punishment;
 import net.firecraftmc.shared.enforcer.punishments.TemporaryBan;
 import net.firecraftmc.shared.packets.FPacketRankUpdate;
@@ -623,25 +622,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 return true;
             }
 
-            HashMap<String, List<FirecraftPlayer>> onlineStaff = new HashMap<>();
-
-            ResultSet set = plugin.getFCDatabase().querySQL("SELECT * FROM `playerdata` WHERE `online`='true'");
-
-            try {
-                while (set.next()) {
-                    String server = set.getString("server");
-                    FirecraftPlayer p = plugin.getFCDatabase().getPlayer(UUID.fromString(set.getString("uniqueid")));
-                    if (Rank.isStaff(p.getMainRank())) {
-                        if (!onlineStaff.containsKey(server)) {
-                            onlineStaff.put(server, new ArrayList<>(Lists.newArrayList(p)));
-                        } else {
-                            onlineStaff.get(server).add(p);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            HashMap<String, List<FirecraftPlayer>> onlineStaff = plugin.getFCDatabase().getOnlineStaffMembers();
 
             if (onlineStaff.isEmpty()) {
                 player.sendMessage("&cThere was an issue with getting the list of online staff members.");
