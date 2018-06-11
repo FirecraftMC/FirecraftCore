@@ -114,7 +114,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         }
 
         this.onlinePlayers.put(player.getUniqueId(), player);
-        plugin.getFCDatabase().updateSQL("UPDATE `playerdata` SET `online`='true',`server`='{server}' WHERE `uniqueid`='".replace("{server}", plugin.getFirecraftServer().getName()) + player.getUniqueId().toString() + "';");
+        plugin.getFCDatabase().updateOnlineStatus(player.getUniqueId(), true, plugin.getFirecraftServer().getName());
 
         player.setServer(plugin.getFirecraftServer());
         if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
@@ -261,7 +261,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         plugin.getSocket().sendPacket(playerLeave);
 
         plugin.getHomeManager().saveHomes(player);
-        plugin.getFCDatabase().updateSQL("UPDATE `playerdata` SET `online`='false',`server`='' WHERE `uniqueid`='" + player.getUniqueId().toString() + "';");
+        plugin.getFCDatabase().updateOnlineStatus(player.getUniqueId(), false, "");
 
         onlinePlayers.remove(player.getUniqueId());
         cachedPlayers.put(player.getUniqueId(), player);
