@@ -7,6 +7,7 @@ import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Channel;
 import net.firecraftmc.shared.classes.enums.Rank;
+import net.firecraftmc.shared.enforcer.punishments.Punishment;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatMessage;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -20,6 +21,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.sql.ResultSet;
+import java.util.List;
 
 public class ChatManager implements CommandExecutor,Listener {
     private final FirecraftCore plugin;
@@ -48,26 +50,20 @@ public class ChatManager implements CommandExecutor,Listener {
                 return;
             }
         }
-    
-        ResultSet muteSet = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE (`type`='MUTE' OR `type`='TEMP_MUTE') AND `active`='true';");
-        try {
-            if (muteSet.next()) {
-                player.sendMessage(Messages.chatMuted);
-                return;
+
+        List<Punishment> punishments = plugin.getFCDatabase().getPunishments(player.getUniqueId());
+        for (Punishment punishment : punishments) {
+            if (punishment.isActive()) {
+                if (punishment.getType().equals(Punishment.Type.MUTE) || punishment.getType().equals(Punishment.Type.TEMP_MUTE)) {
+                    player.sendMessage(Messages.chatMuted);
+                    return;
+                } else if (punishment.getType().equals(Punishment.Type.JAIL)) {
+                    player.sendMessage(Messages.chatJailed);
+                    return;
+                }
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
-    
-        ResultSet jailSet = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString().replace("-", "")));
-        try {
-            if (jailSet.next()) {
-                player.sendMessage(Messages.chatJailed);
-                return;
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+
         
         if (player.getChannel().equals(Channel.GLOBAL)) {
             if (player.isVanished() && !player.getVanishInfo().canChat()) {

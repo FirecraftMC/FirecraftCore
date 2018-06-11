@@ -180,15 +180,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         new BukkitRunnable() {
             public void run() {
                 if (Rank.isStaff(player.getMainRank())) {
-                    List<Report> reports = new ArrayList<>();
-                    ResultSet reportSet = plugin.getFCDatabase().querySQL("SELECT * FROM `reports` WHERE `status` <> 'CLOSED';");
-                    try {
-                        while (reportSet.next()) {
-                            Report report = plugin.getFCDatabase().getReport(reportSet.getInt("id"));
-                            reports.add(report);
-                        }
-                    } catch (Exception ex) {
-                    }
+                    List<Report> reports = plugin.getFCDatabase().getNotClosedReports();
 
                     if (reports.size() > 0) {
                         int unassignedCount = 0, assignedToSelfCount = 0;
