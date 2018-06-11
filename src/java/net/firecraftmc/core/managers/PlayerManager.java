@@ -103,14 +103,8 @@ public class PlayerManager implements IPlayerManager, Listener {
         }
 
         if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-            ResultSet fct = plugin.getFCDatabase().querySQL("SELECT * FROM `fctprefixes` WHERE `fctmember` = '{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
-            try {
-                if (fct.next()) {
-                    player.setFctPrefix(fct.getString("prefix"));
-                }
-            } catch (Exception ex) {
-                player.setFctPrefix(Rank.FIRECRAFT_TEAM.getPrefix());
-            }
+            String prefix = plugin.getFCDatabase().getFTPrefix(player.getUniqueId());
+            if (prefix != null) player.setFctPrefix(prefix);
         }
 
         this.onlinePlayers.put(player.getUniqueId(), player);
@@ -478,7 +472,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
 
                 if (args.length > 0) {
-                    if (args[0].equalsIgnoreCase("setprefix")) {
+                    if (Utils.Command.checkCmdAliases(args, 0, "setprefix", "sp")) {
                         if (args.length > 2) {
                             player.sendMessage("&cFirecraft Team prefixes cannot have spaces.");
                             return true;
@@ -486,28 +480,20 @@ public class PlayerManager implements IPlayerManager, Listener {
 
                         String prefix;
                         if (!player.getUniqueId().equals(FirecraftMC.firestar311)) {
-                            prefix = "&4&l" + ChatColor.stripColor(args[1]);
+                            prefix = "&4&l" + ChatColor.stripColor(Utils.color(args[1]));
                         } else {
                             prefix = "&4&l" + args[1];
                         }
 
-                        ResultSet set = plugin.getFCDatabase().querySQL("SELECT * FROM `fctprefixes` WHERE `fctmember` = '{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
-                        try {
-                            String sql;
-                            if (set.next()) {
-                                sql = "UPDATE `fctprefixes` SET `prefix`='" + prefix + "' WHERE `fctmember` = '{uuid}';".replace("{uuid}", player.getUniqueId().toString());
-                            } else {
-                                sql = "INSERT INTO `fctprefixes`(`fctmember`, `prefix`) VALUES ('{uuid}','{prefix}');".replace("{uuid}", player.getUniqueId().toString()).replace("{prefix}", prefix);
-                            }
-                            plugin.getFCDatabase().updateSQL(sql);
-                        } catch (Exception e) {
+                        if (plugin.getFCDatabase().setFTPrefix(player.getUniqueId(), prefix)) {
+                            player.setFctPrefix(prefix);
+                            player.sendMessage(Messages.fct_setPrefix(prefix));
+                        } else {
                             player.sendMessage("&cThere was an error setting your prefix.");
                             return true;
                         }
-                        player.setFctPrefix(prefix);
-                        player.sendMessage(Messages.fct_setPrefix(prefix));
-                    } else if (args[0].equalsIgnoreCase("resetprefix")) {
-                        plugin.getFCDatabase().updateSQL("DELETE FROM `fctprefixes` WHERE `fctmember`='{uuid}';".replace("{uuid}", player.getUniqueId().toString()));
+                    } else if (Utils.Command.checkCmdAliases(args, 0, "resetprefix", "rp")) {
+                        plugin.getFCDatabase().removeFTPrefix(player.getUniqueId());
                         player.sendMessage(Messages.fct_resetPrefix);
                         player.setFctPrefix(Rank.FIRECRAFT_TEAM.getPrefix());
                         return true;
