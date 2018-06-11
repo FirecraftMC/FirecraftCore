@@ -158,24 +158,14 @@ public class PlayerManager implements IPlayerManager, Listener {
             }.runTaskLater(plugin, 10L);
         }
 
-        ResultSet jailSet = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString()));
-        try {
-            if (jailSet.next()) {
-                player.teleport(plugin.getJailLocation());
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if (plugin.getFCDatabase().hasActiveJail(player.getUniqueId())) {
+            player.teleport(plugin.getJailLocation());
         }
 
-        ResultSet warnSet = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `acknowledged`='false' AND `type`='WARN';".replace("{uuid}", player.getUniqueId().toString()));
-        try {
-            if (warnSet.next()) {
-                String code = Utils.generateAckCode(Utils.codeCharacters);
-                this.plugin.addAckCode(player.getUniqueId(), code);
-                player.sendMessage(Messages.joinUnAckWarning(code));
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if (plugin.getFCDatabase().hasUnacknowledgedWarnings(player.getUniqueId())) {
+            String code = Utils.generateAckCode(Utils.codeCharacters);
+            this.plugin.addAckCode(player.getUniqueId(), code);
+            player.sendMessage(Messages.joinUnAckWarning(code));
         }
 
         player.setHomes(plugin.getHomeManager().loadHomes(player.getUniqueId()));
