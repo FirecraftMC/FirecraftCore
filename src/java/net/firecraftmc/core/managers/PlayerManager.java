@@ -115,7 +115,6 @@ public class PlayerManager implements IPlayerManager, Listener {
         this.onlinePlayers.put(player.getUniqueId(), player);
         plugin.getFCDatabase().updateSQL("UPDATE `playerdata` SET `online`='true',`server`='{server}' WHERE `uniqueid`='".replace("{server}", plugin.getFirecraftServer().getName()) + player.getUniqueId().toString() + "';");
 
-        player.playerOnlineStuff();
         player.setServer(plugin.getFirecraftServer());
         if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
                 player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS)) {
@@ -234,17 +233,8 @@ public class PlayerManager implements IPlayerManager, Listener {
                     player.getUnseenReportActions().clear();
                 }
 
-
-                player.sendMessage("&7Your player information: ");
-                player.sendMessage("&7Name: " + player.getName());
-                player.sendMessage("&7Rank: " + player.getMainRank());
-                player.sendMessage("&7Channel: " + player.getChannel());
-                player.sendMessage("&7First Joined: " + player.getFirstJoined());
-                player.sendMessage("&7Last Seen: " + player.getLastSeen());
-                player.sendMessage("&7Time played: " + player.getTimePlayed());
-                player.sendMessage("&7Nickname: " + player.getNick());
-                player.sendMessage("&7Vanish: " + player.getVanishInfo());
-                player.sendMessage("&7Server: " + player.getServer());
+                player.playerOnlineStuff();
+                player.updatePlayerListName();
             }
         }.runTaskLater(plugin, 10L);
     }
@@ -642,8 +632,10 @@ public class PlayerManager implements IPlayerManager, Listener {
                     player.setActionBar(null);
                     player.sendMessage("&8- &eYou have been removed from vanish.");
                 }
+                player.updatePlayerListName();
             } else {
                 player.sendMessage(Messages.recordingModeOff);
+                player.updatePlayerListName();
             }
         } else if (cmd.getName().equalsIgnoreCase("stafflist")) {
             if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {

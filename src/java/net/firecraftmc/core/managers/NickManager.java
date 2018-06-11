@@ -150,6 +150,7 @@ public class NickManager implements CommandExecutor {
                     player.setActionBar(new ActionBar(Messages.actionBar_Nicked));
                     FPStaffChatSetNick setNick = new FPStaffChatSetNick(plugin.getFirecraftServer(), player.getUniqueId(), nick.getName());
                     plugin.getSocket().sendPacket(setNick);
+                    player.updatePlayerListName();
                 } else {
                     player.sendMessage(Prefixes.NICKNAME + Messages.notSettingNick);
                     return true;
@@ -181,6 +182,7 @@ public class NickManager implements CommandExecutor {
             player.sendMessage(Prefixes.NICKNAME + Messages.resetNickname);
             FPStaffChatResetNick resetNick = new FPStaffChatResetNick(plugin.getFirecraftServer(), player.getUniqueId());
             plugin.getSocket().sendPacket(resetNick);
+            player.updatePlayerListName();
         }
         return true;
     }
