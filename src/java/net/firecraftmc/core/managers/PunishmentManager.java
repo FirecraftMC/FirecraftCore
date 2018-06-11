@@ -42,7 +42,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                     if (set.getBoolean("active")) {
                         int id = set.getInt("id");
                         Punishment.Type type = Punishment.Type.valueOf(set.getString("type"));
-                        FirecraftPlayer punisher = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), UUID.fromString(set.getString("punisher")));
+                        FirecraftPlayer punisher = plugin.getFCDatabase().getPlayer(UUID.fromString(set.getString("punisher")));
                         String reason = set.getString("reason");
                         if (type.equals(Punishment.Type.TEMP_BAN)) {
                             long expire = set.getLong("expire");
@@ -61,7 +61,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
 
     @EventHandler
     public void onCommandPreProcess(PlayerCommandPreprocessEvent e) {
-        FirecraftPlayer player = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), e.getPlayer().getUniqueId());
+        FirecraftPlayer player = plugin.getFCDatabase().getPlayer(e.getPlayer().getUniqueId());
         ResultSet jailSet = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{uuid}' AND `active`='true' AND `type`='JAIL';".replace("{uuid}", player.getUniqueId().toString()));
         try {
             if (jailSet.next()) {
@@ -121,7 +121,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
     
             FirecraftPlayer t = plugin.getPlayerManager().getPlayer(uuid);
             if (t == null) {
-                t = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), uuid);
+                t = plugin.getFCDatabase().getPlayer(uuid);
                 if (t == null) {
                     player.sendMessage(Prefixes.ENFORCER + Messages.profileNotFound);
                     return true;
@@ -144,7 +144,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                     if (set.next()) {
                         puId = set.getInt("id");
                         UUID punisherId = Utils.convertToUUID(set.getString("punisher"));
-                        punisher = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), punisherId);
+                        punisher = plugin.getFCDatabase().getPlayer(punisherId);
                         ty = Punishment.Type.valueOf(set.getString("type"));
             
                         if (punisher.getMainRank().equals(Rank.FIRECRAFT_TEAM) && !player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {

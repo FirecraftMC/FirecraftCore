@@ -59,7 +59,7 @@ public class FirecraftCore extends FirecraftPlugin {
         this.postWorldTasks();
 
         for (Player p : Bukkit.getOnlinePlayers()) {
-            this.playerManager.addPlayer(this.database.getPlayer(server, p.getUniqueId()));
+            this.playerManager.addPlayer(this.database.getPlayer(p.getUniqueId()));
             this.playerManager.getPlayer(p.getUniqueId()).playerOnlineStuff();
         }
     }

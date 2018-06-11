@@ -52,7 +52,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                         p.getActionBar().send(p.getPlayer());
                 }
             }
-        }.runTaskTimerAsynchronously(plugin, 0L, 40L);
+        }.runTaskTimerAsynchronously(plugin, 0L, 5L);
 
         new BukkitRunnable() {
             public void run() {
@@ -94,7 +94,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         Player p = e.getPlayer();
         FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(plugin.getFirecraftServer(), p.getUniqueId());
         plugin.getSocket().sendPacket(serverPlayerJoin);
-        FirecraftPlayer player = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), p.getUniqueId());
+        FirecraftPlayer player = plugin.getFCDatabase().getPlayer(p.getUniqueId());
 
         if (player == null) {
             p.kickPlayer(Messages.getDataErrorKick);
@@ -116,6 +116,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         plugin.getFCDatabase().updateSQL("UPDATE `playerdata` SET `online`='true',`server`='{server}' WHERE `uniqueid`='".replace("{server}", plugin.getFirecraftServer().getName()) + player.getUniqueId().toString() + "';");
 
         player.playerOnlineStuff();
+        player.setServer(plugin.getFirecraftServer());
         if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
                 player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS)) {
             FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(plugin.getFirecraftServer(), player.getUniqueId());
@@ -232,6 +233,18 @@ public class PlayerManager implements IPlayerManager, Listener {
                     }
                     player.getUnseenReportActions().clear();
                 }
+
+
+                player.sendMessage("&7Your player information: ");
+                player.sendMessage("&7Name: " + player.getName());
+                player.sendMessage("&7Rank: " + player.getMainRank());
+                player.sendMessage("&7Channel: " + player.getChannel());
+                player.sendMessage("&7First Joined: " + player.getFirstJoined());
+                player.sendMessage("&7Last Seen: " + player.getLastSeen());
+                player.sendMessage("&7Time played: " + player.getTimePlayed());
+                player.sendMessage("&7Nickname: " + player.getNick());
+                player.sendMessage("&7Vanish: " + player.getVanishInfo());
+                player.sendMessage("&7Server: " + player.getServer());
             }
         }.runTaskLater(plugin, 10L);
     }
@@ -288,7 +301,7 @@ public class PlayerManager implements IPlayerManager, Listener {
     public FirecraftPlayer getPlayer(UUID uuid) {
         FirecraftPlayer player = onlinePlayers.get(uuid);
         if (player == null) player = cachedPlayers.get(uuid);
-        if (player == null) player = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), uuid);
+        if (player == null) player = plugin.getFCDatabase().getPlayer(uuid);
         return player;
     }
 
@@ -315,7 +328,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         if (uuid == null) {
             return null;
         }
-        return plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), uuid);
+        return plugin.getFCDatabase().getPlayer(uuid);
     }
 
     /**
@@ -426,7 +439,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             FirecraftPlayer target = getPlayer(t);
             if (target == null) target = getCachedPlayer(t);
             if (target == null)
-                target = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), t);
+                target = plugin.getFCDatabase().getPlayer(t);
             if (target == null) {
                 player.sendMessage(Messages.profileError);
                 return true;
@@ -645,7 +658,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             try {
                 while (set.next()) {
                     String server = set.getString("server");
-                    FirecraftPlayer p = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), UUID.fromString(set.getString("uniqueid")));
+                    FirecraftPlayer p = plugin.getFCDatabase().getPlayer(UUID.fromString(set.getString("uniqueid")));
                     if (Rank.isStaff(p.getMainRank())) {
                         if (!onlineStaff.containsKey(server)) {
                             onlineStaff.put(server, new ArrayList<>(Lists.newArrayList(p)));

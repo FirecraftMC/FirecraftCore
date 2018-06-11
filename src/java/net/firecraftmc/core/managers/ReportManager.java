@@ -286,7 +286,7 @@ public class ReportManager implements CommandExecutor {
 
                 if (report.getAssignee() != null) {
                     if (!report.getAssignee().equals(player.getUniqueId())) {
-                        FirecraftPlayer assignee = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), report.getAssignee());
+                        FirecraftPlayer assignee = plugin.getFCDatabase().getPlayer(report.getAssignee());
                         if (!player.getMainRank().isEqualToOrHigher(assignee.getMainRank())) {
                             player.sendMessage(Prefixes.REPORT + "&cThat report is not assigned to you, so you cannot change anything.");
                             return true;

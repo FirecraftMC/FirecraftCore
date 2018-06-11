@@ -62,7 +62,7 @@ public class NickManager implements CommandExecutor {
                 return true;
             }
             
-            FirecraftPlayer nick = plugin.getFCDatabase().getPlayer(plugin.getFirecraftServer(), uuid);
+            FirecraftPlayer nick = plugin.getFCDatabase().getPlayer(uuid);
             
             if (nick == null) {
                 player.sendMessage(Prefixes.NICKNAME + Messages.getProfileError);
