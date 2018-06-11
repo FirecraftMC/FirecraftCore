@@ -63,7 +63,6 @@ public class ChatManager implements CommandExecutor,Listener {
                 }
             }
         }
-
         
         if (player.getChannel().equals(Channel.GLOBAL)) {
             if (player.isVanished() && !player.getVanishInfo().canChat()) {
