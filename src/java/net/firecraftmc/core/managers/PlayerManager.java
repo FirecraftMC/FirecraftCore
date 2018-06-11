@@ -280,6 +280,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         }
         player.setTimePlayed(player.getTimePlayed() + playTime);
         player.setLastSeen(time);
+        player.setOnline(false);
         plugin.getFCDatabase().savePlayer(player);
     }
 
