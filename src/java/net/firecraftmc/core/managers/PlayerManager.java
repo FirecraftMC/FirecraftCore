@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftMC;
 import net.firecraftmc.shared.classes.enums.Channel;
+import net.firecraftmc.shared.classes.model.ActionBar;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
@@ -52,7 +53,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                         p.getActionBar().send(p.getPlayer());
                 }
             }
-        }.runTaskTimerAsynchronously(plugin, 0L, 5L);
+        }.runTaskTimerAsynchronously(plugin, 0L, 1L);
 
         new BukkitRunnable() {
             public void run() {
@@ -633,9 +634,11 @@ public class PlayerManager implements IPlayerManager, Listener {
                     player.sendMessage("&8- &eYou have been removed from vanish.");
                 }
                 player.updatePlayerListName();
+                player.setActionBar(new ActionBar(Messages.actionBar_Recording));
             } else {
                 player.sendMessage(Messages.recordingModeOff);
                 player.updatePlayerListName();
+                player.setActionBar(null);
             }
         } else if (cmd.getName().equalsIgnoreCase("stafflist")) {
             if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
