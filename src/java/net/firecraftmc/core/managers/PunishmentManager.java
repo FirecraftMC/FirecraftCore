@@ -233,10 +233,10 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 }
                 String expireTime = "P";
                 String time = args[1].toUpperCase();
-                String[] a = time.split("D");
+                String[] a = time.split("d".toUpperCase());
 
                 if (a.length == 1) {
-                    if (a[0].contains("h") || a[0].contains("m") || a[0].contains("s")) {
+                    if (a[0].contains("H") || a[0].contains("M") || a[0].contains("S")) {
                         expireTime += "T" + a[0];
                     } else {
                         expireTime += a[0] + "d";
@@ -306,7 +306,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 String[] a = time.split("d".toUpperCase());
 
                 if (a.length == 1) {
-                    if (a[0].contains("h") || a[0].contains("m") || a[0].contains("s")) {
+                    if (a[0].contains("H") || a[0].contains("M") || a[0].contains("S")) {
                         expireTime += "T" + a[0];
                     } else {
                         expireTime += a[0] + "d";
