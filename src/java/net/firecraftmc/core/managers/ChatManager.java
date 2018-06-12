@@ -69,18 +69,18 @@ public class ChatManager implements CommandExecutor,Listener {
                 player.sendMessage(Prefixes.CHAT + Messages.noTalkGlobal);
                 return;
             }
+            String format = Utils.Chat.formatGlobal(player, e.getMessage());
             if (player.getMainRank().isEqualToOrHigher(Rank.INFERNO)) {
-                String format = Utils.Chat.formatGlobal(player, e.getMessage());
                 if (format.toLowerCase().contains("[item]")) {
                     if (player.getInventory().getItemInMainHand() != null && player.getInventory().getItemInMainHand().getType() != Material.AIR) {
                         String itemName = player.getInventory().getItemInMainHand().getItemMeta().getDisplayName();
                         format = format.replace("[item]", itemName);
                     }
                 }
-                for (FirecraftPlayer op : plugin.getPlayerManager().getPlayers()) {
-                    if (!op.isIgnoring(player.getUniqueId())) {
-                        op.sendMessage(format);
-                    }
+            }
+            for (FirecraftPlayer op : plugin.getPlayerManager().getPlayers()) {
+                if (!op.isIgnoring(player.getUniqueId())) {
+                    op.sendMessage(format);
                 }
             }
         } else if (player.getChannel().equals(Channel.STAFF)) {

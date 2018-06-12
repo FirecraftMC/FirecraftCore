@@ -433,7 +433,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                             return true;
                         }
 
-                        plugin.getFCDatabase().updateDataColumn(player.getUniqueId(), "mainrank", rank.toString());
+                        plugin.getFCDatabase().updateDataColumn(target.getUniqueId(), "mainrank", rank.toString());
                         player.sendMessage(Messages.setMainRank(target.getName(), rank));
                         FPacketRankUpdate rankUpdate = new FPacketRankUpdate(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId());
                         plugin.getSocket().sendPacket(rankUpdate);

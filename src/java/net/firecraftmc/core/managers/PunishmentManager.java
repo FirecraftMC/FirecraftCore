@@ -73,6 +73,11 @@ public class PunishmentManager implements CommandExecutor, Listener {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        List<Punishment> punishments = plugin.getFCDatabase().getPunishments(player.getUniqueId());
+        for (Punishment punishment : punishments) {
+            if (punishment.getType().equals(Punishment.Type.JAIL));
+        }
     }
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
