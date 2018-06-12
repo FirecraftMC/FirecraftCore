@@ -196,8 +196,8 @@ public class PunishmentManager implements CommandExecutor, Listener {
             
             //TODO The direct commands will only be available to Admin+ when the automation part is implemented.
             long date = System.currentTimeMillis();
-            String punisherId = player.getUniqueId().toString().replace("-", "");
-            String targetId = t.getUniqueId().toString().replace("-", "");
+            String punisherId = player.getUniqueId().toString();
+            String targetId = t.getUniqueId().toString();
             FirecraftServer server = plugin.getFirecraftServer();
             if (cmd.getName().equalsIgnoreCase("ban")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
