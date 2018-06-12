@@ -29,7 +29,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.sql.ResultSet;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -106,7 +105,6 @@ public class PlayerManager implements IPlayerManager, Listener {
             if (prefix != null) player.setFctPrefix(prefix);
         }
 
-        this.onlinePlayers.put(player.getUniqueId(), player);
         plugin.getFCDatabase().updateOnlineStatus(player.getUniqueId(), true, plugin.getFirecraftServer().getName());
 
         player.setServer(plugin.getFirecraftServer());
@@ -213,6 +211,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 player.updatePlayerListName();
             }
         }.runTaskLater(plugin, 10L);
+        this.onlinePlayers.put(player.getUniqueId(), player);
     }
 
     @EventHandler
