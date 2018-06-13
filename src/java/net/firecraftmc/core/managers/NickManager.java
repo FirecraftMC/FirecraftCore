@@ -95,7 +95,7 @@ public class NickManager implements CommandExecutor {
                 }
 
                 LinkedList<FirecraftPlayer> possibleNicks = new LinkedList<>();
-                ResultSet set = plugin.getFCDatabase().querySQL("SELECT * FROM `playerdata` WHERE `mainrank` <> 'FIRECRAFT_TEAM' AND `mainrank` <> 'HEAD_ADMIN' AND `mainrank` <> 'ADMIN'  AND `mainrank` <> 'TRIAL_ADMIN' AND `mainrank` <> 'MOD' AND `mainrank` <> 'HELPER'  AND `mainrank` <> 'QUALITY_ASSURANCE'  AND `mainrank` <> 'BUILD_TEAM'  AND `mainrank` <> 'VIP'  AND `mainrank` <> 'FAMOUS';");
+                ResultSet set = plugin.getFCDatabase().querySQL("SELECT * FROM `playerdata` WHERE `mainrank` <> 'FIRECRAFT_TEAM' AND `mainrank` <> 'HEAD_ADMIN' AND `mainrank` <> 'ADMIN'  AND `mainrank` <> 'TRIAL_ADMIN' AND `mainrank` <> 'MOD' AND `mainrank` <> 'HELPER'  AND `mainrank` <> 'QUALITY_ASSURANCE'  AND `mainrank` <> 'BUILD_TEAM'  AND `mainrank` <> 'VIP'  AND `mainrank` <> 'FAMOUS' AND `online`='false';");
                 try {
                     while (set.next()) {
                         possibleNicks.add(plugin.getFCDatabase().getPlayer(UUID.fromString(set.getString("uniqueid"))));
