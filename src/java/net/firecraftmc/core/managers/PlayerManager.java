@@ -265,12 +265,9 @@ public class PlayerManager implements IPlayerManager, Listener {
      * @return The FirecraftPlayer object from memory or the database
      */
     public FirecraftPlayer getPlayer(UUID uuid) {
-        System.out.println("Trying to get FirecraftPlayer object for " + uuid.toString());
         FirecraftPlayer player = onlinePlayers.get(uuid);
         if (player == null) {
-            System.out.println("Profile not found in onlineplayers");
             player = cachedPlayers.get(uuid);
-            System.out.println("Profile not found in cached players");
         }
         if (player == null) player = plugin.getFCDatabase().getPlayer(uuid);
         return player;
