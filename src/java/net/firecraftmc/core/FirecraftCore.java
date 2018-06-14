@@ -1,6 +1,7 @@
 package net.firecraftmc.core;
 
 import net.firecraftmc.core.managers.*;
+import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.Database;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.FirecraftServer;
@@ -11,6 +12,7 @@ import net.firecraftmc.shared.classes.wrapper.ItemPickupEvent1_12;
 import net.firecraftmc.shared.classes.wrapper.ItemPickupEvent1_8;
 import net.firecraftmc.shared.classes.wrapper.NickWrapper1_12_R1;
 import net.firecraftmc.shared.classes.wrapper.NickWrapper1_8_R3;
+import net.firecraftmc.shared.packets.FPacketServerConnect;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
@@ -40,6 +42,23 @@ public class FirecraftCore extends FirecraftPlugin {
         this.socket = new FirecraftSocket(this, host, getConfig().getInt("port"));
         this.socket.start();
         this.server = new FirecraftServer(getConfig().getString("server.name"), ChatColor.valueOf(getConfig().getString("server.color")));
+
+        this.socket.addSocketListener((packet) -> {
+            if (packet instanceof FPacketServerConnect) {
+                FPacketServerConnect serverConnect = (FPacketServerConnect) packet;
+                String format = Utils.Chat.formatServerConnect(serverConnect.getServer().toString());
+                getPlayerManager().getPlayers().forEach(player -> {
+                    if (Rank.isStaff(player.getMainRank())) player.sendMessage(format);
+                });
+            } else if (packet instanceof FPacketServerDisconnect) {
+                FPacketServerDisconnect serverConnect = (FPacketServerDisconnect) packet;
+                String format = Utils.Chat.formatServerDisconnect(serverConnect.getServer().toString());
+                getPlayerManager().getPlayers().forEach(player -> {
+                    if (Rank.isStaff(player.getMainRank())) player.sendMessage(format);
+                });
+            }
+        });
+
         new BukkitRunnable() {
             public void run() {
                 if (socket == null || socket.getState().equals(Thread.State.TERMINATED) || !socket.isOpen()) {

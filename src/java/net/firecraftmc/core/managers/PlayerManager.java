@@ -85,6 +85,19 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
             }
         }.runTaskTimer(plugin, 0L, 5L);
+
+        plugin.getSocket().addSocketListener(packet -> {
+            if (packet instanceof FPacketRankUpdate) {
+                FPacketRankUpdate rankUpdate = (FPacketRankUpdate) packet;
+                FirecraftPlayer player = plugin.getPlayerManager().getPlayer(rankUpdate.getTarget());
+                if (player != null) {
+                    Rank rank = plugin.getFCDatabase().getPlayer(player.getUniqueId()).getMainRank();
+                    player.setMainRank(rank);
+                    player.sendMessage(Messages.socketRankUpdate);
+                    player.updatePlayerListName();
+                }
+            }
+        });
     }
 
     @EventHandler
