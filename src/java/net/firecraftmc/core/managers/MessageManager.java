@@ -19,6 +19,18 @@ public class MessageManager implements CommandExecutor {
 
     public MessageManager(FirecraftCore plugin) {
         this.plugin = plugin;
+
+        plugin.getSocket().addSocketListener(packet -> {
+            if (packet instanceof FPacketPrivateMessage) {
+                FPacketPrivateMessage messagePacket = ((FPacketPrivateMessage) packet);
+                FirecraftPlayer target = plugin.getPlayerManager().getPlayer(messagePacket.getTarget());
+                if (target.getPlayer() != null) {
+                    String senderName = plugin.getFCDatabase().getPlayerName(messagePacket.getSender());
+                    target.sendMessage(Utils.Chat.formatPrivateMessage(senderName, "You", messagePacket.getMessage()));
+                    target.setLastMessage(messagePacket.getSender());
+                }
+            }
+        });
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {

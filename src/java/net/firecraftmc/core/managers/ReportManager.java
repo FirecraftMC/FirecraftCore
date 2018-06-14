@@ -34,6 +34,56 @@ public class ReportManager implements CommandExecutor {
 
     public ReportManager(FirecraftCore plugin) {
         this.plugin = plugin;
+
+        plugin.getSocket().addSocketListener(packet -> {
+            if (packet instanceof FPacketReport) {
+                Utils.Socket.handleReport(packet, plugin.getFirecraftServer(), plugin.getFCDatabase(), plugin.getPlayerManager().getPlayers());
+            } else if (packet instanceof FPReportAssignOthers) {
+                FPReportAssignOthers assignOthers = ((FPReportAssignOthers) packet);
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(assignOthers.getPlayer());
+                String format = Utils.Chat.formatReportAssignOthers(plugin.getFirecraftServer().getName(), staffMember.getName(), assignOthers.getAssignee(), assignOthers.getId());
+                plugin.getPlayerManager().getPlayers().forEach(p -> {
+                    if (Rank.isStaff(p.getMainRank())) {
+                        if (!p.isRecording()) {
+                            p.sendMessage(format);
+                        }
+                    }
+                });
+            } else if (packet instanceof FPReportAssignSelf) {
+                FPReportAssignSelf assignSelf = ((FPReportAssignSelf) packet);
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(assignSelf.getPlayer());
+                String format = Utils.Chat.formatReportAssignSelf(plugin.getFirecraftServer().getName(), staffMember.getName(), assignSelf.getId());
+                plugin.getPlayerManager().getPlayers().forEach(p -> {
+                    if (Rank.isStaff(p.getMainRank())) {
+                        if (!p.isRecording()) {
+                            p.sendMessage(format);
+                        }
+                    }
+                });
+            } else if (packet instanceof FPReportSetOutcome) {
+                FPReportSetOutcome setOutcome = ((FPReportSetOutcome) packet);
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(setOutcome.getPlayer());
+                String format = Utils.Chat.formatReportSetOutcome(plugin.getFirecraftServer().getName(), staffMember.getName(), setOutcome.getId(), setOutcome.getOutcome());
+                plugin.getPlayerManager().getPlayers().forEach(p -> {
+                    if (Rank.isStaff(p.getMainRank())) {
+                        if (!p.isRecording()) {
+                            p.sendMessage(format);
+                        }
+                    }
+                });
+            } else if (packet instanceof FPReportSetStatus) {
+                FPReportSetStatus setOutcome = ((FPReportSetStatus) packet);
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(setOutcome.getPlayer());
+                String format = Utils.Chat.formatReportSetStatus(plugin.getFirecraftServer().getName(), staffMember.getName(), setOutcome.getId(), setOutcome.getStatus());
+                plugin.getPlayerManager().getPlayers().forEach(p -> {
+                    if (Rank.isStaff(p.getMainRank())) {
+                        if (!p.isRecording()) {
+                            p.sendMessage(format);
+                        }
+                    }
+                });
+            }
+        });
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
@@ -120,7 +170,7 @@ public class ReportManager implements CommandExecutor {
                         Report.Status status = null;
                         Report.Outcome outcome = null;
                         UUID assignee = null;
-                        for (String a : args) {
+                        for (String a: args) {
                             if (a.startsWith("t:")) {
                                 target = plugin.getPlayerManager().getPlayer(a.replace("t:", "")).getUniqueId();
                             }

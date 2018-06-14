@@ -2,6 +2,7 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.Prefixes;
+import net.firecraftmc.shared.classes.model.FirecraftServer;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
@@ -38,6 +39,22 @@ public class GamemodeManager implements CommandExecutor, Listener {
                 player.setAllowFlight(flight);
             }
         }.runTaskLater(plugin, 5L);
+
+        plugin.getSocket().addSocketListener(packet -> {
+            FirecraftServer server = packet.getServer();
+            if (packet instanceof FPSCSetGamemode) {
+                FPSCSetGamemode setGamemode = (FPSCSetGamemode) packet;
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(setGamemode.getPlayer());
+                String format = Utils.Chat.formatSetGamemode(server, staffMember, setGamemode.getMode());
+                Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
+            } else if (packet instanceof FPSCSetGamemodeOthers) {
+                FPSCSetGamemodeOthers setGamemodeOthers = (FPSCSetGamemodeOthers) packet;
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(setGamemodeOthers.getTarget());
+                FirecraftPlayer target = plugin.getPlayerManager().getPlayer(setGamemodeOthers.getTarget());
+                String format = Utils.Chat.formatSetGamemodeOthers(server, staffMember, setGamemodeOthers.getMode(), target);
+                Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
+            }
+        });
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {

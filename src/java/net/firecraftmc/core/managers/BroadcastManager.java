@@ -16,6 +16,18 @@ public class BroadcastManager implements CommandExecutor {
 
     public BroadcastManager(FirecraftCore plugin) {
         this.plugin = plugin;
+
+        plugin.getSocket().addSocketListener(packet -> {
+            if (packet instanceof FPacketSocketBroadcast) {
+                FPacketSocketBroadcast socketBroadcast = ((FPacketSocketBroadcast) packet);
+                String message = Messages.socketBroadcast(socketBroadcast.getMessage());
+                plugin.getPlayerManager().getPlayers().forEach(p -> {
+                    p.sendMessage("");
+                    p.sendMessage(message);
+                    p.sendMessage("");
+                });
+            }
+        });
     }
 
 

@@ -1,6 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
+import net.firecraftmc.shared.classes.model.FirecraftServer;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
@@ -55,6 +56,30 @@ public class TeleportationManager implements CommandExecutor, Listener {
                 });
             }
         }.runTaskTimer(plugin, 0L, 20L);
+
+        plugin.getSocket().addSocketListener(packet -> {
+            FirecraftServer server = packet.getServer();
+            if (packet instanceof FPSCTeleport) {
+                FPSCTeleport teleport = (FPSCTeleport) packet;
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(teleport.getPlayer());
+                FirecraftPlayer target = plugin.getPlayerManager().getPlayer(teleport.getTarget());
+                String format = Utils.Chat.formatTeleport(server, staffMember, target);
+                Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
+            } else if (packet instanceof FPSCTeleportOthers) {
+                FPSCTeleportOthers teleportOthers = (FPSCTeleportOthers) packet;
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(teleportOthers.getPlayer());
+                FirecraftPlayer target1 = plugin.getPlayerManager().getPlayer(teleportOthers.getTarget1());
+                FirecraftPlayer target2 = plugin.getPlayerManager().getPlayer(teleportOthers.getTarget2());
+                String format = Utils.Chat.formatTeleportOthers(server, staffMember, target1, target2);
+                Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
+            } else if (packet instanceof FPSCTeleportHere) {
+                FPSCTeleportHere tpHere = (FPSCTeleportHere) packet;
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(tpHere.getPlayer());
+                FirecraftPlayer target = plugin.getPlayerManager().getPlayer(tpHere.getTarget());
+                String format = Utils.Chat.formatTeleportHere(server, staffMember, target);
+                Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
+            }
+        });
     }
     
     @EventHandler

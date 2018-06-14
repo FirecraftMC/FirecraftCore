@@ -29,6 +29,20 @@ public class NickManager implements CommandExecutor {
 
     public NickManager(FirecraftCore plugin) {
         this.plugin = plugin;
+
+        plugin.getSocket().addSocketListener(packet -> {
+            if (packet instanceof FPStaffChatSetNick) {
+                FPStaffChatSetNick setNick = ((FPStaffChatSetNick) packet);
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(setNick.getPlayer());
+                String format = Utils.Chat.formatSetNick(setNick.getServer(), staffMember, setNick.getProfile());
+                Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
+            } else if (packet instanceof FPStaffChatResetNick) {
+                FPStaffChatResetNick resetNick = ((FPStaffChatResetNick) packet);
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(resetNick.getPlayer());
+                String format = Utils.Chat.formatResetNick(resetNick.getServer(), staffMember);
+                Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
+            }
+        });
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {

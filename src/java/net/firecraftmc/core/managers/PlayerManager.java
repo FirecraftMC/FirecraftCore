@@ -89,13 +89,23 @@ public class PlayerManager implements IPlayerManager, Listener {
         plugin.getSocket().addSocketListener(packet -> {
             if (packet instanceof FPacketRankUpdate) {
                 FPacketRankUpdate rankUpdate = (FPacketRankUpdate) packet;
-                FirecraftPlayer player = plugin.getPlayerManager().getPlayer(rankUpdate.getTarget());
+                FirecraftPlayer player = getPlayer(rankUpdate.getTarget());
                 if (player != null) {
                     Rank rank = plugin.getFCDatabase().getPlayer(player.getUniqueId()).getMainRank();
                     player.setMainRank(rank);
                     player.sendMessage(Messages.socketRankUpdate);
                     player.updatePlayerListName();
                 }
+            } else if (packet instanceof FPStaffChatJoin) {
+                FPStaffChatJoin staffJoin = ((FPStaffChatJoin) packet);
+                FirecraftPlayer staffMember = getPlayer(staffJoin.getPlayer());
+                String format = Utils.Chat.formatStaffJoin(plugin.getFirecraftServer(), staffMember);
+                Utils.Chat.sendStaffChatMessage(getPlayers(), staffMember, format);
+            }else if (packet instanceof FPStaffChatQuit) {
+                FPStaffChatQuit staffQuit = ((FPStaffChatQuit) packet);
+                FirecraftPlayer staffMember = getPlayer(staffQuit.getPlayer());
+                String format = Utils.Chat.formatStaffLeave(plugin.getFirecraftServer(), staffMember);
+                Utils.Chat.sendStaffChatMessage(getPlayers(), staffMember, format);
             }
         });
     }

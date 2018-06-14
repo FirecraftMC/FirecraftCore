@@ -38,6 +38,13 @@ public class VanishManager implements TabExecutor, Listener {
     public VanishManager(FirecraftCore plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+
+        plugin.getSocket().addSocketListener(packet -> {
+            FPSCVanishToggle toggleVanish = ((FPSCVanishToggle) packet);
+            FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(toggleVanish.getPlayer());
+            String format = Utils.Chat.formatVanishToggle(toggleVanish.getServer(), staffMember, staffMember.isVanished());
+            Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
+        });
     }
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {

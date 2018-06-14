@@ -29,6 +29,21 @@ public class ChatManager implements CommandExecutor,Listener {
     public ChatManager(FirecraftCore plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
+
+        plugin.getSocket().addSocketListener(packet -> {
+            if (packet instanceof FPStaffChatMessage) {
+                FPStaffChatMessage staffMessage = (FPStaffChatMessage) packet;
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(staffMessage.getPlayer());
+                String format = Utils.Chat.formatStaffMessage(staffMessage.getServer(), staffMember, staffMessage.getMessage());
+                plugin.getPlayerManager().getPlayers().forEach(p -> {
+                    if (Rank.isStaff(p.getMainRank())) {
+                        if (!p.isRecording()) {
+                            p.sendMessage(format);
+                        }
+                    }
+                });
+            }
+        });
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
