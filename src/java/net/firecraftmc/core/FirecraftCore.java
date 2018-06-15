@@ -46,13 +46,13 @@ public class FirecraftCore extends FirecraftPlugin {
         this.socket.addSocketListener((packet) -> {
             if (packet instanceof FPacketServerConnect) {
                 FPacketServerConnect serverConnect = (FPacketServerConnect) packet;
-                String format = Utils.Chat.formatServerConnect(serverConnect.getServer().toString());
+                String format = Utils.Chat.formatServerConnect(serverConnect.getServer());
                 getPlayerManager().getPlayers().forEach(player -> {
                     if (Rank.isStaff(player.getMainRank())) player.sendMessage(format);
                 });
             } else if (packet instanceof FPacketServerDisconnect) {
                 FPacketServerDisconnect serverConnect = (FPacketServerDisconnect) packet;
-                String format = Utils.Chat.formatServerDisconnect(serverConnect.getServer().toString());
+                String format = Utils.Chat.formatServerDisconnect(serverConnect.getServer());
                 getPlayerManager().getPlayers().forEach(player -> {
                     if (Rank.isStaff(player.getMainRank())) player.sendMessage(format);
                 });
