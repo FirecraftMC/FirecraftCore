@@ -1,6 +1,6 @@
 name: FirecraftCore
 main: net.firecraftmc.core.FirecraftCore
-version: 1.10-ALPHA
+version: 1.11-ALPHA
 load: STARTUP
 author: Firestar311
 commands:
@@ -86,3 +86,4 @@ commands:
     record:
     stafflist:
         aliases: [sl]
+    staffmode:
