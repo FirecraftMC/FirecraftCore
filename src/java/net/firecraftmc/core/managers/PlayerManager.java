@@ -606,7 +606,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 player.sendMessage("&8- &eYou will not receive messages that are for your rank.");
                 player.sendMessage("&8- &eYou will not receive private messages that are from non-staff.");
                 player.setChannel(Channel.GLOBAL);
-                player.setGamemode(GameMode.SURVIVAL);
+                player.setGameMode(GameMode.SURVIVAL);
                 if (player.isNicked()) {
                     player.resetNick(plugin);
                     player.sendMessage("&8- &eYour nickname has been removed.");
