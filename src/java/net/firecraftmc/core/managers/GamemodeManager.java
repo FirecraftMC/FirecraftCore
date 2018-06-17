@@ -26,19 +26,6 @@ public class GamemodeManager implements CommandExecutor, Listener {
     public GamemodeManager(FirecraftCore plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
-    }
-
-    @EventHandler
-    public void onPlayerChangeWorld(PlayerChangedWorldEvent e) {
-        Player player = e.getPlayer();
-        GameMode mode = player.getGameMode();
-        boolean flight = player.getAllowFlight();
-        new BukkitRunnable() {
-            public void run() {
-                player.setGameMode(mode);
-                player.setAllowFlight(flight);
-            }
-        }.runTaskLater(plugin, 5L);
 
         plugin.getSocket().addSocketListener(packet -> {
             FirecraftServer server = packet.getServer();
@@ -55,6 +42,19 @@ public class GamemodeManager implements CommandExecutor, Listener {
                 Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
             }
         });
+    }
+
+    @EventHandler
+    public void onPlayerChangeWorld(PlayerChangedWorldEvent e) {
+        Player player = e.getPlayer();
+        GameMode mode = player.getGameMode();
+        boolean flight = player.getAllowFlight();
+        new BukkitRunnable() {
+            public void run() {
+                player.setGameMode(mode);
+                player.setAllowFlight(flight);
+            }
+        }.runTaskLater(plugin, 5L);
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
@@ -139,7 +139,7 @@ public class GamemodeManager implements CommandExecutor, Listener {
                         }
                     }
 
-                    target.setGamemode(mode);
+                    target.setGameMode(mode);
                     FPSCSetGamemodeOthers setGamemode = new FPSCSetGamemodeOthers(plugin.getFirecraftServer(), player.getUniqueId(), mode, target.getUniqueId());
                     plugin.getSocket().sendPacket(setGamemode);
                     return;
@@ -172,7 +172,7 @@ public class GamemodeManager implements CommandExecutor, Listener {
                 return;
             }
 
-            player.setGamemode(mode);
+            player.setGameMode(mode);
             FPSCSetGamemode setGamemode = new FPSCSetGamemode(plugin.getFirecraftServer(), player.getUniqueId(), mode);
             plugin.getSocket().sendPacket(setGamemode);
         } else if (sender instanceof ConsoleCommandSender) {
