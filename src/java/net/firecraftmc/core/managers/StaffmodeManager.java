@@ -82,7 +82,7 @@ public class StaffmodeManager implements Listener, CommandExecutor {
 
             new BukkitRunnable() {
                 public void run() {
-                    player.sendMessage("&bYou have turned on staffmode mode, this means:");
+                    player.sendMessage("&bYou have turned on staff mode, this means:");
                     player.sendMessage("&8- &eYou are automatically in spectator gamemode");
                     player.sendMessage("&8- &eVanish has automatically been set. Use /vanish settings to toggle what you can and can't do.");
                     player.sendMessage("&8- &eYou can now use /tp <player> to teleport to other players.");
