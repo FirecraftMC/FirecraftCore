@@ -36,7 +36,7 @@ public class GamemodeManager implements CommandExecutor, Listener {
                 Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
             } else if (packet instanceof FPSCSetGamemodeOthers) {
                 FPSCSetGamemodeOthers setGamemodeOthers = (FPSCSetGamemodeOthers) packet;
-                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(setGamemodeOthers.getTarget());
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(setGamemodeOthers.getPlayer());
                 FirecraftPlayer target = plugin.getPlayerManager().getPlayer(setGamemodeOthers.getTarget());
                 String format = Utils.Chat.formatSetGamemodeOthers(server, staffMember, setGamemodeOthers.getMode(), target);
                 Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
