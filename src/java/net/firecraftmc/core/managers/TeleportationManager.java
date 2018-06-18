@@ -285,8 +285,8 @@ public class TeleportationManager implements CommandExecutor, Listener {
             long expire = currentTime + 60;
 
             this.requests.put(currentTime, new TPRequest(player.getUniqueId(), target.getUniqueId(), expire));
-            player.sendMessage(Messages.tpRequestReceive(target.getName()));
-            target.sendMessage(Messages.tpRequestSend(player.getName()));
+            target.sendMessage(Messages.tpRequestReceive(player.getName()));
+            player.sendMessage(Messages.tpRequestSend(target.getName()));
         } else if (cmd.getName().equalsIgnoreCase("tpaccept")) {
             Map.Entry<Long, TPRequest> entry = getRequestByRequested(player.getUniqueId());
             if (entry == null) {
