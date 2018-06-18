@@ -138,9 +138,24 @@ public class ChatManager implements CommandExecutor, Listener {
                 player.setChannel(Channel.GLOBAL);
                 player.sendMessage(Prefixes.CHAT + Messages.channelSwitch(Channel.GLOBAL));
             } else if (cmd.getName().equalsIgnoreCase("global")) {
-
+                if (!(args.length > 0)) {
+                    player.sendMessage(Prefixes.CHAT + "<ec>You must provide a message to send.");
+                    return true;
+                }
+                String format = Utils.Chat.formatGlobal(player, Utils.getReason(0, args));
+                for (FirecraftPlayer op : plugin.getPlayerManager().getPlayers()) {
+                    if (!op.isIgnoring(player.getUniqueId())) {
+                        op.sendMessage(format);
+                    }
+                }
             } else if (cmd.getName().equalsIgnoreCase("staff")) {
-
+                if (!(args.length > 0)) {
+                    player.sendMessage(Prefixes.CHAT + "<ec>You must provide a message to send.");
+                    return true;
+                }
+                String message = Utils.getReason(0, args);
+                FPStaffChatMessage staffChatMessage = new FPStaffChatMessage(plugin.getFirecraftServer(), player.getUniqueId(), message);
+                plugin.getSocket().sendPacket(staffChatMessage);
             } else {
                 player.sendMessage(Prefixes.CHAT + Messages.noOtherChannels);
                 return true;
