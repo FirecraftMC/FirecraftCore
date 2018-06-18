@@ -87,3 +87,6 @@ commands:
     stafflist:
         aliases: [sl]
     staffmode:
+    staff:
+        aliases: [s]
+    global:

@@ -23,7 +23,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import java.sql.ResultSet;
 import java.util.List;
 
-public class ChatManager implements CommandExecutor,Listener {
+public class ChatManager implements CommandExecutor, Listener {
     private final FirecraftCore plugin;
 
     public ChatManager(FirecraftCore plugin) {
@@ -45,7 +45,7 @@ public class ChatManager implements CommandExecutor,Listener {
             }
         });
     }
-    
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerChat(AsyncPlayerChatEvent e) {
         e.setCancelled(true);
@@ -54,7 +54,7 @@ public class ChatManager implements CommandExecutor,Listener {
             e.getPlayer().sendMessage(Prefixes.CHAT + Messages.chatNoData);
             return;
         }
-        
+
         if (!plugin.isWarnAcknowledged(player.getUniqueId())) {
             if (e.getMessage().equals(plugin.getAckCode(player.getUniqueId()))) {
                 player.sendMessage(Messages.acknowledgeWarning);
@@ -78,7 +78,7 @@ public class ChatManager implements CommandExecutor,Listener {
                 }
             }
         }
-        
+
         if (player.getChannel().equals(Channel.GLOBAL)) {
             if (player.isVanished() && !player.getVanishInfo().canChat()) {
                 player.sendMessage(Prefixes.CHAT + Messages.noTalkGlobal);
@@ -103,14 +103,14 @@ public class ChatManager implements CommandExecutor,Listener {
             plugin.getSocket().sendPacket(msg);
         }
     }
-    
+
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (sender instanceof ConsoleCommandSender) {
             sender.sendMessage(Messages.noPermission);
             return true;
         } else if (sender instanceof Player) {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
-        
+
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
             if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
             if (Utils.Command.checkCmdAliases(args, 0, "staff", "st", "s")) {
@@ -123,7 +123,7 @@ public class ChatManager implements CommandExecutor,Listener {
                     player.sendMessage(Prefixes.CHAT + Messages.recordingNoUse);
                     return true;
                 }
-            
+
                 if (player.getChannel().equals(Channel.STAFF)) {
                     player.sendMessage(Prefixes.CHAT + Messages.alreadyInChannel);
                     return true;
@@ -137,9 +137,14 @@ public class ChatManager implements CommandExecutor,Listener {
                 }
                 player.setChannel(Channel.GLOBAL);
                 player.sendMessage(Prefixes.CHAT + Messages.channelSwitch(Channel.GLOBAL));
+            } else if (cmd.getName().equalsIgnoreCase("global")) {
+
+            } else if (cmd.getName().equalsIgnoreCase("staff")) {
+
             } else {
                 player.sendMessage(Prefixes.CHAT + Messages.noOtherChannels);
                 return true;
+
             }
         }
         return true;
