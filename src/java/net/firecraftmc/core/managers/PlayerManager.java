@@ -49,7 +49,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
         new BukkitRunnable() {
             public void run() {
-                for (FirecraftPlayer p: onlinePlayers.values()) {
+                for (FirecraftPlayer p : onlinePlayers.values()) {
                     if (p.getActionBar() != null)
                         p.getActionBar().send(p.getPlayer());
                 }
@@ -139,20 +139,20 @@ public class PlayerManager implements IPlayerManager, Listener {
             FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(plugin.getFirecraftServer(), player.getUniqueId());
             plugin.getSocket().sendPacket(staffChatJoin);
         } else {
-            for (FirecraftPlayer p1: onlinePlayers.values()) {
+            for (FirecraftPlayer p1 : onlinePlayers.values()) {
                 if (!p1.isIgnoring(player.getUniqueId())) {
                     p1.sendMessage(player.getDisplayName() + " &ajoined the game.");
                 }
             }
         }
 
-        for (Player p1: Bukkit.getOnlinePlayers()) {
+        for (Player p1 : Bukkit.getOnlinePlayers()) {
             player.getPlayer().hidePlayer(p1);
             player.getPlayer().showPlayer(p1);
         }
 
         if (Bukkit.getOnlinePlayers().size() > 1) {
-            for (FirecraftPlayer p1: onlinePlayers.values()) {
+            for (FirecraftPlayer p1 : onlinePlayers.values()) {
                 if (p1.isVanished()) {
                     if (!p1.isNicked()) {
                         p.getPlayer().setPlayerListName(p.getName() + " §7§l[V]");
@@ -195,7 +195,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
         if (player.getFirstJoined() == 0) {
             player.setFirstJoined(System.currentTimeMillis());
-            for (FirecraftPlayer fp: onlinePlayers.values()) {
+            for (FirecraftPlayer fp : onlinePlayers.values()) {
                 fp.sendMessage("\n" + player.getDisplayName() + " &a&lhas joined FirecraftMC for the first time!\n ");
             }
         }
@@ -208,7 +208,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
                     if (reports.size() > 0) {
                         int unassignedCount = 0, assignedToSelfCount = 0;
-                        for (Report report: reports) {
+                        for (Report report : reports) {
                             if (report.getAssignee() == null) {
                                 unassignedCount++;
                             } else {
@@ -223,7 +223,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
 
                 if (!player.getUnseenReportActions().isEmpty()) {
-                    for (Integer reportChange: player.getUnseenReportActions()) {
+                    for (Integer reportChange : player.getUnseenReportActions()) {
                         String[] arr = plugin.getFCDatabase().getReportChange(reportChange).split(":");
                         if (arr.length == 2) {
                             Report report = plugin.getFCDatabase().getReport(Integer.parseInt(arr[0]));
@@ -250,7 +250,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             FPStaffChatQuit staffQuit = new FPStaffChatQuit(plugin.getFirecraftServer(), player.getUniqueId());
             plugin.getSocket().sendPacket(staffQuit);
         } else {
-            for (FirecraftPlayer fp: onlinePlayers.values()) {
+            for (FirecraftPlayer fp : onlinePlayers.values()) {
                 if (!fp.isIgnoring(player.getUniqueId())) {
                     fp.sendMessage(player.getDisplayName() + " &eleft the game.");
                 }
@@ -267,7 +267,7 @@ public class PlayerManager implements IPlayerManager, Listener {
         cachedPlayers.put(player.getUniqueId(), player);
 
         if (onlinePlayers.size() > 0) {
-            for (FirecraftPlayer p: onlinePlayers.values()) {
+            for (FirecraftPlayer p : onlinePlayers.values()) {
                 p.getScoreboard().updateScoreboard(p);
             }
         }
@@ -306,13 +306,13 @@ public class PlayerManager implements IPlayerManager, Listener {
      * @return The FirecraftPlayer object from memory or the database
      */
     public FirecraftPlayer getPlayer(String name) {
-        for (FirecraftPlayer fp: onlinePlayers.values()) {
+        for (FirecraftPlayer fp : onlinePlayers.values()) {
             if (fp.getName().equalsIgnoreCase(name)) {
                 return fp;
             }
         }
 
-        for (FirecraftPlayer fp: cachedPlayers.values()) {
+        for (FirecraftPlayer fp : cachedPlayers.values()) {
             if (fp.getName().equalsIgnoreCase(name)) {
                 return fp;
             }
@@ -516,7 +516,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             }
         } else if (cmd.getName().equalsIgnoreCase("list")) {
             TreeMap<Rank, List<String>> onlinePlayers = new TreeMap<>();
-            for (FirecraftPlayer fp: this.onlinePlayers.values()) {
+            for (FirecraftPlayer fp : this.onlinePlayers.values()) {
                 Rank r = fp.getMainRank();
                 if (onlinePlayers.get(r) == null) {
                     onlinePlayers.put(r, new ArrayList<>());
@@ -525,7 +525,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 onlinePlayers.get(r).add(fp.getNameNoPrefix());
             }
             int onlineCount = 0;
-            for (FirecraftPlayer fp: this.onlinePlayers.values()) {
+            for (FirecraftPlayer fp : this.onlinePlayers.values()) {
                 if (fp.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
                     if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
                         onlineCount++;
@@ -535,7 +535,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
             }
             player.sendMessage(Messages.listHeader(onlineCount));
-            for (Map.Entry<Rank, List<String>> entry: onlinePlayers.entrySet()) {
+            for (Map.Entry<Rank, List<String>> entry : onlinePlayers.entrySet()) {
                 if (entry.getValue().size() != 0) {
                     String line = generateListLine(entry.getKey(), entry.getValue());
                     if (entry.getKey().equals(Rank.FIRECRAFT_TEAM)) {
@@ -563,7 +563,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
             }
 
-            for (String i: args) {
+            for (String i : args) {
                 FirecraftPlayer target = getPlayer(i);
                 if (target == null) {
                     player.sendMessage("&cThe name {name} is not valid".replace("{name}", i));
@@ -584,7 +584,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 return true;
             }
 
-            for (String i: args) {
+            for (String i : args) {
                 FirecraftPlayer target = getPlayer(i);
                 if (target == null) {
                     player.sendMessage("&cThe name {name} is not valid".replace("{name}", i));
@@ -616,7 +616,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
                 if (player.isVanished()) {
                     player.unVanish();
-                    for (FirecraftPlayer p: plugin.getPlayerManager().getPlayers()) {
+                    for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
                         p.getPlayer().showPlayer(player.getPlayer());
                         if (!player.isNicked()) {
                             player.getPlayer().setPlayerListName(player.getName());
@@ -650,7 +650,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
             List<String> displayStrings = new ArrayList<>();
             int serverCount = 0, playerCount = 0;
-            for (String server: onlineStaff.keySet()) {
+            for (String server : onlineStaff.keySet()) {
                 serverCount++;
                 String base = " &8- &7" + server + "&7(&f" + onlineStaff.get(server).size() + "&7): ";
                 StringBuilder sb = new StringBuilder();
@@ -673,7 +673,7 @@ public class PlayerManager implements IPlayerManager, Listener {
             }
 
             player.sendMessage(Messages.staffListHeader(playerCount, serverCount));
-            for (String ss: displayStrings) {
+            for (String ss : displayStrings) {
                 player.sendMessage(ss);
             }
         } else if (cmd.getName().equalsIgnoreCase("stream")) {
@@ -688,14 +688,34 @@ public class PlayerManager implements IPlayerManager, Listener {
                     if (!(System.currentTimeMillis() >= nextUse)) {
                         long remaining = nextUse - System.currentTimeMillis();
                         String remainingFormat = Utils.Time.formatTime(remaining);
-                        player.sendMessage("<ec>You may use that command in " + remainingFormat);
+                        player.sendMessage("<ec>You may use that command again in " + remainingFormat);
                         return true;
                     }
                 }
 
+                String streamUrl = player.getStreamUrl();
+                if (streamUrl == null || streamUrl.equals("")) {
+                    player.sendMessage("<ec>You have not set a stream url yet, please use /stream seturl <url>");
+                    return true;
+                }
 
-            } else {
-
+                for (FirecraftPlayer p : onlinePlayers.values()) {
+                    p.sendMessage("&e&l" + player.getName() + " &b&lis streaming at &6&l" + streamUrl);
+                }
+                this.streamCmdNextUse.put(player.getUniqueId(), System.currentTimeMillis() + timeout);
+            } else if (args.length > 0) {
+                if (Utils.Command.checkCmdAliases(args, 0, "seturl", "su")) {
+                    if (args.length > 0) {
+                        player.setStreamUrl(args[1]);
+                        player.sendMessage("<nc>You have set your stream url to <vc>" + args[1]);
+                    } else {
+                        player.sendMessage("<ec>You must provide a url to set.");
+                        return true;
+                    }
+                } else {
+                    player.sendMessage("<ec>Invalid sub command.");
+                    return true;
+                }
             }
         }
         return true;

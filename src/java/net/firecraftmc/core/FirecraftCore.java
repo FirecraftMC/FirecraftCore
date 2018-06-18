@@ -20,6 +20,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.IOException;
+
 /**
  * The main plugin class for the core and where a lot of the implementation for FirecraftPlugin and other FirecraftShared stuff is.
  */
@@ -107,7 +109,11 @@ public class FirecraftCore extends FirecraftPlugin {
 
         if (socket != null) {
             socket.sendPacket(new FPacketServerDisconnect(server));
-            socket.close();
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         this.database.closeConnection();
