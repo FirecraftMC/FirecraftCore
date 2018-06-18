@@ -35,6 +35,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
     
     public TeleportationManager(FirecraftCore plugin) {
         this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
         
         new BukkitRunnable() {
             public void run() {
