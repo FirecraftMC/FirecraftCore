@@ -77,29 +77,35 @@ public class InventoryManager implements CommandExecutor, Listener {
         } else if (cmd.getName().equalsIgnoreCase("enderchest")) {
             if (player.getMainRank().isEqualToOrHigher(Rank.PHOENIX)) {
                 if (args.length > 0) {
-                    if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                        FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
-                        if (!target.isOnline()) {
-                            player.sendMessage(Messages.offlineNotSupported);
-                            return true;
-                        }
-
-                        if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-                            player.sendMessage(Messages.noEchestOpenHigher);
-                            return true;
-                        } else {
-                            Inventory inventory = Bukkit.createInventory(null, 27, target.getName() + "'s Enderchest");
-                            for (int i = 0; i <27; i++) {
-                                ItemStack stack = target.getPlayer().getEnderChest().getItem(i);
-                                if (stack != null) {
-                                    inventory.setItem(i, stack);
-                                }
-                            }
-                            player.getPlayer().openInventory(inventory);
-                            player.sendMessage(Messages.enderChestOthers(target.getName()));
+                    if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                        if (!plugin.getStaffmodeManager().inStaffMode(player)) {
+                            player.sendMessage(Messages.noPermission);
                             return true;
                         }
                     }
+
+                    FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
+                    if (!target.isOnline()) {
+                        player.sendMessage(Messages.offlineNotSupported);
+                        return true;
+                    }
+
+                    if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                        player.sendMessage(Messages.noEchestOpenHigher);
+                        return true;
+                    } else {
+                        Inventory inventory = Bukkit.createInventory(null, 27, target.getName() + "'s Enderchest");
+                        for (int i = 0; i < 27; i++) {
+                            ItemStack stack = target.getPlayer().getEnderChest().getItem(i);
+                            if (stack != null) {
+                                inventory.setItem(i, stack);
+                            }
+                        }
+                        player.getPlayer().openInventory(inventory);
+                        player.sendMessage(Messages.enderChestOthers(target.getName()));
+                        return true;
+                    }
+
                 } else {
                     player.getPlayer().openInventory(player.getPlayer().getEnderChest());
                     player.sendMessage(Messages.enderchestSelf);
@@ -129,17 +135,22 @@ public class InventoryManager implements CommandExecutor, Listener {
                 return true;
             }
 
-            if (player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
-                FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
-                if (target.getPlayer() == null) {
-                    player.sendMessage(Messages.offlineNotSupported);
+            if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                if (!plugin.getStaffmodeManager().inStaffMode(player)) {
+                    player.sendMessage(Messages.noPermission);
                     return true;
                 }
+            }
+            FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
+            if (target.getPlayer() == null) {
+                player.sendMessage(Messages.offlineNotSupported);
+                return true;
+            }
 
-                if (target.getMainRank().equals(player.getMainRank())) {
-                    player.sendMessage(Messages.noInvOpenHigher);
-                    return true;
-                }
+            if (target.getMainRank().equals(player.getMainRank())) {
+                player.sendMessage(Messages.noInvOpenHigher);
+                return true;
+            }
 
                 /*
                 00 01 02 03 04 05 06 07 08
@@ -149,37 +160,38 @@ public class InventoryManager implements CommandExecutor, Listener {
                 h c l b - - - - O
                  */
 
-                Inventory inventory = Bukkit.createInventory(null, 45, target.getName() + "'s Inventory");
-                for (int i = 0; i < 36; i++) {
-                    ItemStack item = target.getInventory().getItem(i);
-                    if (item != null) {
-                        inventory.setItem(i, item);
-                    }
+            Inventory inventory = Bukkit.createInventory(null, 45, target.getName() + "'s Inventory");
+            for (int i = 0; i < 36; i++) {
+                ItemStack item = target.getInventory().getItem(i);
+                if (item != null) {
+                    inventory.setItem(i, item);
                 }
-                if (target.getInventory().getHelmet() != null) {
-                    inventory.setItem(36, target.getInventory().getHelmet());
-                }
-                if (target.getInventory().getChestplate() != null) {
-                    inventory.setItem(37, target.getInventory().getChestplate());
-                }
-                if (target.getInventory().getLeggings() != null) {
-                    inventory.setItem(38, target.getInventory().getLeggings());
-                }
-                if (target.getInventory().getBoots() != null) {
-                    inventory.setItem(39, target.getInventory().getBoots());
-                }
-                try {
-                    if (target.getInventory().getItemInOffHand() != null) {
-                        inventory.setItem(44, target.getInventory().getItemInOffHand());
-                    }
-                } catch (Exception e) {}
-                player.getPlayer().openInventory(inventory);
-                player.sendMessage(Messages.invSeeViewOnly(target.getName()));
-            } else {
-                player.sendMessage(Messages.noPermission);
-                return true;
             }
+            if (target.getInventory().getHelmet() != null) {
+                inventory.setItem(36, target.getInventory().getHelmet());
+            }
+            if (target.getInventory().getChestplate() != null) {
+                inventory.setItem(37, target.getInventory().getChestplate());
+            }
+            if (target.getInventory().getLeggings() != null) {
+                inventory.setItem(38, target.getInventory().getLeggings());
+            }
+            if (target.getInventory().getBoots() != null) {
+                inventory.setItem(39, target.getInventory().getBoots());
+            }
+            try {
+                if (target.getInventory().getItemInOffHand() != null) {
+                    inventory.setItem(44, target.getInventory().getItemInOffHand());
+                }
+            } catch (Exception e) {
+            }
+            player.getPlayer().openInventory(inventory);
+            player.sendMessage(Messages.invSeeViewOnly(target.getName()));
+        } else {
+            player.sendMessage(Messages.noPermission);
+            return true;
         }
+
 
         return true;
     }

@@ -26,6 +26,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class FirecraftCore extends FirecraftPlugin {
 
     private WarpManager warpManager;
+    private StaffmodeManager staffmodeManager;
 
     /**
      * This is where all of the stuff is loaded into memory and the task methods are called.
@@ -137,7 +138,8 @@ public class FirecraftCore extends FirecraftPlugin {
         getCommand("vanish").setExecutor(new VanishManager(this));
         Utils.Command.registerCommands(this, new ReportManager(this), "report", "reportadmin");
         Utils.Command.registerCommands(this, new MessageManager(this), "message", "reply");
-        Utils.Command.registerCommands(this, new StaffmodeManager(this), "staffmode");
+        this.staffmodeManager = new StaffmodeManager(this);
+        getCommand("staffmode").setExecutor(staffmodeManager);
     }
 
     /**
@@ -177,5 +179,9 @@ public class FirecraftCore extends FirecraftPlugin {
                 }
             }
         }.runTaskLater(this, 10L);
+    }
+
+    public StaffmodeManager getStaffmodeManager() {
+        return staffmodeManager;
     }
 }

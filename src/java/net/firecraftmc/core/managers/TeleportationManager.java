@@ -53,6 +53,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
                             requested.sendMessage(Messages.tpRequestExpire_Target(requester.getDisplayName()));
                         }
                     }
+                    iter.remove();
                 });
             }
         }.runTaskTimer(plugin, 0L, 20L);
@@ -102,9 +103,11 @@ public class TeleportationManager implements CommandExecutor, Listener {
         if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
         
         if (cmd.getName().equalsIgnoreCase("teleport")) {
-            if (!player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
-                player.sendMessage(Messages.noPermission);
-                return true;
+            if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                if (!plugin.getStaffmodeManager().inStaffMode(player)) {
+                    player.sendMessage(Messages.noPermission);
+                    return true;
+                }
             }
 
             if (player.isRecording()) {
@@ -191,9 +194,19 @@ public class TeleportationManager implements CommandExecutor, Listener {
         } else if (cmd.getName().equalsIgnoreCase("tphere")) {
             if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
             
-            if (!(player.getMainRank().equals(Rank.TRIAL_ADMIN) || player.getMainRank().isHigher(Rank.TRIAL_ADMIN))) {
-                player.sendMessage(Messages.noPermission);
-                return true;
+            if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                System.out.println("Player is not " + Rank.MODERATOR.toString());
+                if (plugin.getStaffmodeManager().inStaffMode(player)) {
+                    System.out.println("Player is in staff mode.");
+                    if (!player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
+                        System.out.println("But they are not a moderator.");
+                        player.sendMessage(Messages.noPermission);
+                        return true;
+                    }
+                } else {
+                    player.sendMessage(Messages.noPermission);
+                    return true;
+                }
             }
             
             FirecraftPlayer target = null;
