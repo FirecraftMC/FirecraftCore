@@ -84,6 +84,7 @@ commands:
     ignore:
     unignore:
     record:
+    stream:
     stafflist:
         aliases: [sl]
     staffmode:
