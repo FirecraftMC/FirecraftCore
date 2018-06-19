@@ -10,6 +10,7 @@ import net.firecraftmc.shared.classes.interfaces.IPlayerManager;
 import net.firecraftmc.shared.classes.model.ActionBar;
 import net.firecraftmc.shared.classes.model.Report;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
+import net.firecraftmc.shared.classes.model.player.VanishInfo;
 import net.firecraftmc.shared.enforcer.punishments.Punishment;
 import net.firecraftmc.shared.enforcer.punishments.TemporaryBan;
 import net.firecraftmc.shared.packets.FPacketRankUpdate;
@@ -146,41 +147,6 @@ public class PlayerManager implements IPlayerManager, Listener {
             }
         }
 
-        for (Player p1 : Bukkit.getOnlinePlayers()) {
-            player.getPlayer().hidePlayer(p1);
-            player.getPlayer().showPlayer(p1);
-        }
-
-        if (Bukkit.getOnlinePlayers().size() > 1) {
-            for (FirecraftPlayer p1 : onlinePlayers.values()) {
-                if (p1.isVanished()) {
-                    if (!p1.isNicked()) {
-                        p.getPlayer().setPlayerListName(p.getName() + " §7§l[V]");
-                    } else {
-                        p.getPlayer().setPlayerListName(p1.getNick().getProfile().getName() + "§7§l[V]");
-                    }
-
-                    if (!player.getMainRank().isEqualToOrHigher(p1.getMainRank())) {
-                        player.getPlayer().hidePlayer(p.getPlayer());
-                    }
-                }
-
-                if (!p.getUniqueId().equals(player.getUniqueId())) {
-                    if (p.getPlayer().canSee(player.getPlayer())) {
-                        p1.getScoreboard().updateScoreboard(p1);
-                    }
-                }
-            }
-        }
-
-        if (player.isNicked()) {
-            new BukkitRunnable() {
-                public void run() {
-                    player.setNick(plugin, player.getNick().getProfile());
-                }
-            }.runTaskLater(plugin, 10L);
-        }
-
         if (plugin.getFCDatabase().hasActiveJail(player.getUniqueId())) {
             player.teleport(plugin.getJailLocation());
         }
@@ -234,7 +200,42 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
 
                 player.playerOnlineStuff();
+                FirecraftPlayer nick = plugin.getFCDatabase().getNickname(player.getUniqueId());
+                if (nick != null) {
+                    nick.setSkin(plugin.getFCDatabase().getSkin(nick.getUniqueId()));
+                    player.setNick(plugin, nick);
+                }
+
+                if (player.getVanishInfo() != null) {
+                    VanishInfo info = player.getVanishInfo();
+                    player.vanish();
+                    player.setVanishInfo(info);
+                    for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
+                        if (!player.isNicked()) {
+                            player.getPlayer().setPlayerListName(player.getName() + " §7§l[V]");
+                        } else {
+                            player.getPlayer().setPlayerListName(player.getNick().getProfile().getName() + "§7§l[V]");
+                        }
+
+                        if (!p.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                            p.getPlayer().hidePlayer(player.getPlayer());
+                        }
+                    }
+
+                    player.setActionBar(new ActionBar(Messages.actionBar_Vanished));
+                    player.getVanishInfo().setAllowFlightBeforeVanish(player.getPlayer().getAllowFlight());
+                    player.getPlayer().setAllowFlight(true);
+                }
                 player.updatePlayerListName();
+
+                for (FirecraftPlayer p : onlinePlayers.values()) {
+                    if (p.isVanished()) {
+                        if (!player.getMainRank().isEqualToOrHigher(p.getMainRank())) {
+                            player.getPlayer().hidePlayer(p.getPlayer());
+                        }
+                    }
+                }
+                player.getScoreboard().updateScoreboard(player);
             }
         }.runTaskLater(plugin, 10L);
         this.onlinePlayers.put(player.getUniqueId(), player);

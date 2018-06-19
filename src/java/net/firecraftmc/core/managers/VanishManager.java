@@ -77,6 +77,7 @@ public class VanishManager implements TabExecutor, Listener {
                     }
                     player.setActionBar(null);
                     player.getPlayer().setAllowFlight(flight);
+                    player.updatePlayerListName();
                 } else {
                     player.vanish();
                     for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
