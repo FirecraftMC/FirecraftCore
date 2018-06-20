@@ -10,6 +10,7 @@ import net.firecraftmc.shared.classes.interfaces.IPlayerManager;
 import net.firecraftmc.shared.classes.model.ActionBar;
 import net.firecraftmc.shared.classes.model.Report;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
+import net.firecraftmc.shared.classes.model.player.NickInfo;
 import net.firecraftmc.shared.classes.model.player.VanishInfo;
 import net.firecraftmc.shared.enforcer.punishments.Punishment;
 import net.firecraftmc.shared.enforcer.punishments.TemporaryBan;
@@ -200,10 +201,10 @@ public class PlayerManager implements IPlayerManager, Listener {
                 }
 
                 player.playerOnlineStuff();
-                FirecraftPlayer nick = plugin.getFCDatabase().getNickname(player.getUniqueId());
+                NickInfo nick = plugin.getFCDatabase().getNickname(player.getUniqueId());
                 if (nick != null) {
-                    nick.setSkin(plugin.getFCDatabase().getSkin(nick.getUniqueId()));
-                    player.setNick(plugin, nick);
+                    nick.getProfile().setSkin(plugin.getFCDatabase().getSkin(nick.getProfile().getUniqueId()));
+                    player.setNick(plugin, nick.getProfile(), nick.getRank());
                 }
 
                 if (player.getVanishInfo() != null) {

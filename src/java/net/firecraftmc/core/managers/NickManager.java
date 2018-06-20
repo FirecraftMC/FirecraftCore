@@ -54,7 +54,7 @@ public class NickManager implements CommandExecutor {
 
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
-            if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
+            if (!Utils.Command.checkArgCountGreater(sender, args, 0)) return true;
 
             if (player.isRecording()) {
                 player.sendMessage(Prefixes.NICKNAME + Messages.recordingNoUse);
@@ -78,10 +78,26 @@ public class NickManager implements CommandExecutor {
                 return true;
             }
 
+            Rank rank;
+            if (args.length > 1) {
+                rank = Rank.getRank(args[1]);
+                if (rank == null) {
+                    player.sendMessage(Prefixes.NICKNAME + "<ec>The rank you provided was invalid, using the rank of the player.");
+                    rank = nickname.getMainRank();
+                }
+
+                if (Rank.isStaff(rank) || rank.equals(Rank.QUALITY_ASSURANCE) || rank.equals(Rank.BUILD_TEAM)) {
+                    player.sendMessage(Prefixes.NICKNAME + "<ec>You cannot use a staff rank.");
+                    return true;
+                }
+            } else {
+                rank = nickname.getMainRank();
+            }
+
             nickname.setSkin(skin);
 
             try {
-                player.setNick(plugin, nickname);
+                player.setNick(plugin, nickname, rank);
             } catch (NicknameException e) {
                 player.sendMessage(Prefixes.NICKNAME + "<ec>There was an error setting your nickname.");
             }
@@ -132,10 +148,26 @@ public class NickManager implements CommandExecutor {
                     return true;
                 }
 
+                Rank rank;
+                if (args.length > 0) {
+                    rank = Rank.getRank(args[0]);
+                    if (rank == null) {
+                        player.sendMessage(Prefixes.NICKNAME + "<ec>The rank you provided was invalid, using the rank of the player.");
+                        rank = nickname.getMainRank();
+                    }
+
+                    if (Rank.isStaff(rank) || rank.equals(Rank.QUALITY_ASSURANCE) || rank.equals(Rank.BUILD_TEAM)) {
+                        player.sendMessage(Prefixes.NICKNAME + "<ec>You cannot use a staff rank.");
+                        return true;
+                    }
+                } else {
+                    rank = nickname.getMainRank();
+                }
+
                 nickname.setSkin(skin);
 
                 try {
-                    player.setNick(plugin, nickname);
+                    player.setNick(plugin, nickname, rank);
                 } catch (NicknameException e) {
                     player.sendMessage(Prefixes.NICKNAME + "<ec>There was an error setting your nickname.");
                 }
