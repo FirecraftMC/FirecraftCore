@@ -8,13 +8,22 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.LeavesDecayEvent;
 
-public class DevManager implements CommandExecutor {
+public class DevManager implements CommandExecutor, Listener {
     
     private FirecraftCore plugin;
+    private boolean decay = true;
     
     public DevManager(FirecraftCore plugin) {
         this.plugin = plugin;
+    }
+
+    @EventHandler
+    public void onLeafDecay(LeavesDecayEvent e) {
+        if (!decay) e.setCancelled(true);
     }
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
@@ -33,7 +42,7 @@ public class DevManager implements CommandExecutor {
             player.sendMessage(Messages.recordingNoUse);
             return true;
         }
-        
+
         if (args.length <= 0) {
             player.sendMessage(Messages.noSubCommand);
             return true;
@@ -45,6 +54,9 @@ public class DevManager implements CommandExecutor {
                 msg.append(args[i]).append(" ");
             }
             player.sendMessage(msg.toString());
+        } else if (args[0].equalsIgnoreCase("toggledecay")) {
+            this.decay = !this.decay;
+            player.sendMessage("<nc>You have toggled decaying of leaves to <vc>" + decay);
         } else {
             player.sendMessage(Messages.invalidSubCommand);
         }

@@ -18,6 +18,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -89,7 +90,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
         this.lastLocation.put(e.getPlayer().getUniqueId(), e.getFrom());
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerDeath(PlayerRespawnEvent e) {
         e.setRespawnLocation(plugin.getServerSpawn());
     }
