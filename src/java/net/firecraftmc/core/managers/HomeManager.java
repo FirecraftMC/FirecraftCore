@@ -2,6 +2,7 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.Prefixes;
+import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
@@ -116,6 +117,29 @@ public class HomeManager implements IHomeManager {
                 }
                 player.teleport(home.getLocation());
                 player.sendMessage(Prefixes.HOMES + Messages.homeTeleport(home.getName()));
+                return true;
+            }
+
+            if (args[0].contains(":")) {
+                if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                    player.sendMessage(Prefixes.HOMES + "<ec>You cannot teleport to other player's homes.");
+                    return true;
+                }
+
+                String[] arr = args[0].split(":");
+                FirecraftPlayer target = plugin.getPlayerManager().getPlayer(arr[0]);
+                if (target == null) {
+                    player.sendMessage(Prefixes.HOMES + "<ec>Could not find a player with that name.");
+                    return true;
+                }
+                Home targetHome = target.getHome(arr[1]);
+                if (targetHome == null) {
+                    player.sendMessage(Prefixes.HOMES + "<ec>That player does not have a home by that name.");
+                    return true;
+                }
+
+                player.teleport(targetHome.getLocation());
+                player.sendMessage(Prefixes.HOMES + "<nc>You teleported to <vc>" + target.getName() + "<nc>'s home named <vc>" + targetHome.getName());
                 return true;
             }
 
