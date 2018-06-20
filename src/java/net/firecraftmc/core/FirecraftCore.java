@@ -1,7 +1,9 @@
 package net.firecraftmc.core;
 
+import com.sun.corba.se.impl.legacy.connection.SocketFactoryContactInfoListImpl;
 import net.firecraftmc.core.managers.*;
 import net.firecraftmc.shared.classes.enums.Rank;
+import net.firecraftmc.shared.classes.interfaces.SocketListener;
 import net.firecraftmc.shared.classes.model.Database;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.FirecraftServer;
@@ -21,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * The main plugin class for the core and where a lot of the implementation for FirecraftPlugin and other FirecraftShared stuff is.
@@ -66,8 +69,13 @@ public class FirecraftCore extends FirecraftPlugin {
 
         new BukkitRunnable() {
             public void run() {
-                if (socket == null || socket.getState().equals(Thread.State.TERMINATED) || !socket.isOpen()) {
+                if (socket.getState().equals(Thread.State.TERMINATED) || !socket.isOpen()) {
+                    List<SocketListener> listeners = socket.getSocketListeners();
                     socket = new FirecraftSocket(FirecraftCore.this, host, getConfig().getInt("port"));
+                    for (SocketListener listener : listeners) {
+                        socket.addSocketListener(listener);
+                    }
+                    socket.start();
                 }
             }
         }.runTaskTimerAsynchronously(this, 0L, 20L);
@@ -114,7 +122,6 @@ public class FirecraftCore extends FirecraftPlugin {
             try {
                 socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
             }
         }
 
