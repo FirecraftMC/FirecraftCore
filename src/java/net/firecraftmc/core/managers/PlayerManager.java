@@ -465,6 +465,26 @@ public class PlayerManager implements IPlayerManager, Listener {
                         player.sendMessage(Messages.setMainRank(target.getName(), rank));
                         FPacketRankUpdate rankUpdate = new FPacketRankUpdate(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId());
                         plugin.getSocket().sendPacket(rankUpdate);
+                    } else if (Utils.Command.checkCmdAliases(args, 2, "channel", "c")) {
+
+                    } else if (Utils.Command.checkCmdAliases(args, 2, "nickname", "nick", "n")) {
+
+                    } else if (Utils.Command.checkCmdAliases(args, 2, "vanish", "v")) {
+
+                    } else if (Utils.Command.checkCmdAliases(args, 2, "firstjoined", "fj")) {
+
+                    } else if (Utils.Command.checkCmdAliases(args, 2, "lastseen", "ls")) {
+
+                    } else if (Utils.Command.checkCmdAliases(args, 2, "god", "g")) {
+
+                    } else if (Utils.Command.checkCmdAliases(args, 2, "socialspy", "ss")) {
+
+                    } else if (Utils.Command.checkCmdAliases(args, 2, "balance", "b")) {
+
+                    } else if (Utils.Command.checkCmdAliases(args, 2, "gamemode", "gm")) {
+
+                    } else if (Utils.Command.checkCmdAliases(args, 2, "streamurl", "su")) {
+
                     }
                 } else {
                     player.sendMessage(Messages.notEnoughArgs);
