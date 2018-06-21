@@ -104,12 +104,12 @@ public class PlayerManager implements IPlayerManager, Listener {
             } else if (packet instanceof FPStaffChatJoin) {
                 FPStaffChatJoin staffJoin = ((FPStaffChatJoin) packet);
                 FirecraftPlayer staffMember = getPlayer(staffJoin.getPlayer());
-                String format = Utils.Chat.formatStaffJoinLeave(plugin.getFirecraftServer(), staffMember, "joined");
+                String format = Utils.Chat.formatStaffJoinLeave(packet.getServer(), staffMember, "joined");
                 Utils.Chat.sendStaffChatMessage(getPlayers(), staffMember, format);
             } else if (packet instanceof FPStaffChatQuit) {
                 FPStaffChatQuit staffQuit = ((FPStaffChatQuit) packet);
                 FirecraftPlayer staffMember = getPlayer(staffQuit.getPlayer());
-                String format = Utils.Chat.formatStaffJoinLeave(plugin.getFirecraftServer(), staffMember, "left");
+                String format = Utils.Chat.formatStaffJoinLeave(packet.getServer(), staffMember, "left");
                 Utils.Chat.sendStaffChatMessage(getPlayers(), staffMember, format);
             }
         });
