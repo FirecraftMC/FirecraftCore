@@ -98,6 +98,7 @@ public class NickManager implements CommandExecutor {
 
             try {
                 player.setNick(plugin, nickname, rank);
+                plugin.getFCDatabase().updateNickname(player);
             } catch (NicknameException e) {
                 player.sendMessage(Prefixes.NICKNAME + "<ec>There was an error setting your nickname.");
             }
@@ -168,6 +169,7 @@ public class NickManager implements CommandExecutor {
 
                 try {
                     player.setNick(plugin, nickname, rank);
+                    plugin.getFCDatabase().updateNickname(player);
                 } catch (NicknameException e) {
                     player.sendMessage(Prefixes.NICKNAME + "<ec>There was an error setting your nickname.");
                 }

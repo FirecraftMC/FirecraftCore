@@ -81,6 +81,13 @@ public class MessageManager implements CommandExecutor {
                 if (target.getPlayer() == null) {
                     if (plugin.getFCDatabase().getOnlineStatus(target.getUniqueId())) {
                         if (player.getMainRank().isEqualToOrHigher(Rank.PHOENIX)) {
+                            if (target.isVanished()) {
+                                if (target.getMainRank().isHigher(player.getMainRank())) {
+                                    player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
+                                    return true;
+                                }
+                            }
+
                             if (target.isIgnoring(player.getUniqueId())) {
                                 player.sendMessage(Prefixes.MESSAGING + Messages.currentlyIgnoring);
                                 return true;

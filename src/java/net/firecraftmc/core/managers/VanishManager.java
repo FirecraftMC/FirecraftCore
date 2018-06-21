@@ -78,6 +78,7 @@ public class VanishManager implements TabExecutor, Listener {
                     player.setActionBar(null);
                     player.getPlayer().setAllowFlight(flight);
                     player.updatePlayerListName();
+                    plugin.getFCDatabase().updateVanish(player);
                 } else {
                     player.vanish();
                     for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
@@ -99,6 +100,7 @@ public class VanishManager implements TabExecutor, Listener {
                 }
                 FPSCVanishToggle toggleVanish = new FPSCVanishToggle(plugin.getFirecraftServer(), player.getUniqueId());
                 plugin.getSocket().sendPacket(toggleVanish);
+                plugin.getFCDatabase().updateVanish(player);
             } else {
                 if (!Utils.Command.checkCmdAliases(args, 0, "settings", "s")) {
                     player.sendMessage(Prefixes.VANISH + Messages.invalidSubCommand);
