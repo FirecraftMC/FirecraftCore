@@ -71,7 +71,7 @@ public class HomeManager implements IHomeManager {
         if (config.contains("homes." + uuid.toString())) {
             for (String h : config.getConfigurationSection("homes." + uuid.toString()).getKeys(false)) {
                 String basePath = "homes.{uuid}.{name}".replace("{uuid}", uuid.toString()).replace("{name}", h);
-                Home home = new Home(h, Utils.getLocationFromString(basePath));
+                Home home = new Home(h, Utils.getLocationFromString(config.getString(basePath)));
                 homes.add(home);
             }
         }
