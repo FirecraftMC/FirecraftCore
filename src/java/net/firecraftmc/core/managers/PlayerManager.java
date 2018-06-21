@@ -309,8 +309,14 @@ public class PlayerManager implements IPlayerManager, Listener {
      */
     public FirecraftPlayer getPlayer(String name) {
         for (FirecraftPlayer fp : onlinePlayers.values()) {
-            if (fp.getName().equalsIgnoreCase(name)) {
-                return fp;
+            if (fp.isNicked()) {
+                if (fp.getNick().getProfile().getName().equalsIgnoreCase(name)) {
+                    return fp;
+                }
+            } else {
+                if (fp.getName().equalsIgnoreCase(name)) {
+                    return fp;
+                }
             }
         }
 
