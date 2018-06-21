@@ -1,15 +1,14 @@
 package net.firecraftmc.core;
 
-import com.sun.corba.se.impl.legacy.connection.SocketFactoryContactInfoListImpl;
 import net.firecraftmc.core.managers.*;
+import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.abstraction.FirecraftPlugin;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.interfaces.SocketListener;
 import net.firecraftmc.shared.classes.model.Database;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.FirecraftServer;
 import net.firecraftmc.shared.classes.model.FirecraftSocket;
-import net.firecraftmc.shared.classes.Utils;
-import net.firecraftmc.shared.classes.abstraction.FirecraftPlugin;
+import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.wrapper.ItemPickupEvent1_12;
 import net.firecraftmc.shared.classes.wrapper.ItemPickupEvent1_8;
 import net.firecraftmc.shared.classes.wrapper.NickWrapper1_12_R1;
@@ -46,7 +45,6 @@ public class FirecraftCore extends FirecraftPlugin {
 
         String host = getConfig().getString("host");
         this.socket = new FirecraftSocket(this, host, getConfig().getInt("port"));
-        this.socket.start();
         this.server = new FirecraftServer(getConfig().getString("server.name"), ChatColor.valueOf(getConfig().getString("server.color")));
 
         this.socket.addSocketListener((packet) -> {
@@ -94,6 +92,9 @@ public class FirecraftCore extends FirecraftPlugin {
             this.playerManager.addPlayer(this.database.getPlayer(p.getUniqueId()));
             this.playerManager.getPlayer(p.getUniqueId()).playerOnlineStuff();
         }
+
+        this.socket.connect();
+        this.socket.start();
     }
 
     /**
