@@ -19,6 +19,7 @@ public class DevManager implements CommandExecutor, Listener {
     
     public DevManager(FirecraftCore plugin) {
         this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler
