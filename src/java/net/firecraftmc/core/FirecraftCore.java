@@ -96,8 +96,10 @@ public class FirecraftCore extends FirecraftPlugin {
 
         this.socket.connect();
         this.socket.start();
-        this.server.setIp(this.socket.getJavaSocket().getLocalAddress().toString().replace("/", ""));
-        this.database.saveServer(server);
+        if (server != null) {
+            this.server.setIp(this.socket.getJavaSocket().getLocalAddress().toString().replace("/", ""));
+            this.database.saveServer(server);
+        }
     }
 
     /**
