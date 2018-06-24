@@ -2,7 +2,7 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.Prefixes;
-import net.firecraftmc.shared.classes.model.FirecraftServer;
+import net.firecraftmc.shared.classes.model.server.FirecraftServer;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
@@ -28,7 +28,7 @@ public class GamemodeManager implements CommandExecutor, Listener {
         this.plugin = plugin;
 
         plugin.getSocket().addSocketListener(packet -> {
-            FirecraftServer server = packet.getServer();
+            FirecraftServer server = plugin.getServerManager().getServer(packet.getServerId());
             if (packet instanceof FPSCSetGamemode) {
                 FPSCSetGamemode setGamemode = (FPSCSetGamemode) packet;
                 FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(setGamemode.getPlayer());
@@ -140,7 +140,10 @@ public class GamemodeManager implements CommandExecutor, Listener {
                     }
 
                     target.setGameMode(mode);
-                    FPSCSetGamemodeOthers setGamemode = new FPSCSetGamemodeOthers(plugin.getFirecraftServer(), player.getUniqueId(), mode, target.getUniqueId());
+                    if (plugin.getFCServer() == null) {
+                        return;
+                    }
+                    FPSCSetGamemodeOthers setGamemode = new FPSCSetGamemodeOthers(plugin.getFCServer().getId(), player.getUniqueId(), mode, target.getUniqueId());
                     plugin.getSocket().sendPacket(setGamemode);
                     return;
                 }
@@ -173,7 +176,10 @@ public class GamemodeManager implements CommandExecutor, Listener {
             }
 
             player.setGameMode(mode);
-            FPSCSetGamemode setGamemode = new FPSCSetGamemode(plugin.getFirecraftServer(), player.getUniqueId(), mode);
+            if (plugin.getFCServer() == null) {
+                return;
+            }
+            FPSCSetGamemode setGamemode = new FPSCSetGamemode(plugin.getFCServer().getId(), player.getUniqueId(), mode);
             plugin.getSocket().sendPacket(setGamemode);
         } else if (sender instanceof ConsoleCommandSender) {
             sender.sendMessage(Prefixes.GAMEMODE + Messages.consoleNotImplemented);

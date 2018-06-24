@@ -6,8 +6,8 @@ import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.exceptions.NicknameException;
-import net.firecraftmc.shared.classes.model.ActionBar;
-import net.firecraftmc.shared.classes.model.Skin;
+import net.firecraftmc.shared.classes.model.player.ActionBar;
+import net.firecraftmc.shared.classes.model.player.Skin;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatResetNick;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatSetNick;
@@ -34,12 +34,12 @@ public class NickManager implements CommandExecutor {
             if (packet instanceof FPStaffChatSetNick) {
                 FPStaffChatSetNick setNick = ((FPStaffChatSetNick) packet);
                 FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(setNick.getPlayer());
-                String format = Utils.Chat.formatSetNick(setNick.getServer(), staffMember, setNick.getProfile());
+                String format = Utils.Chat.formatSetNick(plugin.getServerManager().getServer(packet.getServerId()), staffMember, setNick.getProfile());
                 Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
             } else if (packet instanceof FPStaffChatResetNick) {
                 FPStaffChatResetNick resetNick = ((FPStaffChatResetNick) packet);
                 FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(resetNick.getPlayer());
-                String format = Utils.Chat.formatResetNick(resetNick.getServer(), staffMember);
+                String format = Utils.Chat.formatResetNick(plugin.getServerManager().getServer(packet.getServerId()), staffMember);
                 Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
             }
         });
@@ -104,14 +104,18 @@ public class NickManager implements CommandExecutor {
             }
 
             player.setActionBar(new ActionBar(Messages.actionBar_Nicked));
-            FPStaffChatSetNick setNick = new FPStaffChatSetNick(plugin.getFirecraftServer(), player.getUniqueId(), nickname.getName());
-            plugin.getSocket().sendPacket(setNick);
             player.sendMessage(Prefixes.NICKNAME + "<nc>You have set your nickname to <vc>" + nickname.getName());
             new BukkitRunnable() {
                 public void run() {
                     player.updatePlayerListName();
                 }
             }.runTaskLater(plugin, 20L);
+            if (plugin.getFCServer() == null) {
+                player.sendMessage(Prefixes.CHAT + Messages.serverNotSet);
+                return true;
+            }
+            FPStaffChatSetNick setNick = new FPStaffChatSetNick(plugin.getFCServer().getId(), player.getUniqueId(), nickname.getName());
+            plugin.getSocket().sendPacket(setNick);
         } else if (cmd.getName().equalsIgnoreCase("nickrandom")) {
             if (sender instanceof Player) {
                 FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
@@ -175,7 +179,7 @@ public class NickManager implements CommandExecutor {
                 }
 
                 player.setActionBar(new ActionBar(Messages.actionBar_Nicked));
-                FPStaffChatSetNick setNick = new FPStaffChatSetNick(plugin.getFirecraftServer(), player.getUniqueId(), nickname.getName());
+                FPStaffChatSetNick setNick = new FPStaffChatSetNick(plugin.getFCServer().getId(), player.getUniqueId(), nickname.getName());
                 plugin.getSocket().sendPacket(setNick);
                 player.sendMessage(Prefixes.NICKNAME + "<nc>You have randomly set your nickname to <vc>" + nickname.getName());
                 new BukkitRunnable() {
@@ -207,15 +211,19 @@ public class NickManager implements CommandExecutor {
                 player.sendMessage(Prefixes.NICKNAME + Messages.resetNickError);
                 return true;
             }
-
-            FPStaffChatResetNick resetNick = new FPStaffChatResetNick(plugin.getFirecraftServer(), player.getUniqueId());
-            plugin.getSocket().sendPacket(resetNick);
             player.sendMessage(Prefixes.NICKNAME + "<nc>You have reset your nickname.");
             new BukkitRunnable() {
                 public void run() {
                     player.updatePlayerListName();
                 }
             }.runTaskLater(plugin, 20L);
+
+            if (plugin.getFCServer() == null) {
+                player.sendMessage(Prefixes.CHAT + Messages.serverNotSet);
+                return true;
+            }
+            FPStaffChatResetNick resetNick = new FPStaffChatResetNick(plugin.getFCServer().getId(), player.getUniqueId());
+            plugin.getSocket().sendPacket(resetNick);
         }
         return true;
     }

@@ -37,11 +37,11 @@ public class ReportManager implements CommandExecutor {
 
         plugin.getSocket().addSocketListener(packet -> {
             if (packet instanceof FPacketReport) {
-                Utils.Socket.handleReport(packet, plugin.getFirecraftServer(), plugin.getFCDatabase(), plugin.getPlayerManager().getPlayers());
+                Utils.Socket.handleReport(packet, plugin.getFCServer(), plugin.getFCDatabase(), plugin.getPlayerManager().getPlayers());
             } else if (packet instanceof FPReportAssignOthers) {
                 FPReportAssignOthers assignOthers = ((FPReportAssignOthers) packet);
                 FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(assignOthers.getPlayer());
-                String format = Utils.Chat.formatReportAssignOthers(plugin.getFirecraftServer().getName(), staffMember.getName(), assignOthers.getAssignee(), assignOthers.getId());
+                String format = Utils.Chat.formatReportAssignOthers(plugin.getFCServer().getName(), staffMember.getName(), assignOthers.getAssignee(), assignOthers.getId());
                 plugin.getPlayerManager().getPlayers().forEach(p -> {
                     if (Rank.isStaff(p.getMainRank())) {
                         if (!p.isRecording()) {
@@ -52,7 +52,7 @@ public class ReportManager implements CommandExecutor {
             } else if (packet instanceof FPReportAssignSelf) {
                 FPReportAssignSelf assignSelf = ((FPReportAssignSelf) packet);
                 FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(assignSelf.getPlayer());
-                String format = Utils.Chat.formatReportAssignSelf(plugin.getFirecraftServer().getName(), staffMember.getName(), assignSelf.getId());
+                String format = Utils.Chat.formatReportAssignSelf(plugin.getFCServer().getName(), staffMember.getName(), assignSelf.getId());
                 plugin.getPlayerManager().getPlayers().forEach(p -> {
                     if (Rank.isStaff(p.getMainRank())) {
                         if (!p.isRecording()) {
@@ -63,7 +63,7 @@ public class ReportManager implements CommandExecutor {
             } else if (packet instanceof FPReportSetOutcome) {
                 FPReportSetOutcome setOutcome = ((FPReportSetOutcome) packet);
                 FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(setOutcome.getPlayer());
-                String format = Utils.Chat.formatReportSetOutcome(plugin.getFirecraftServer().getName(), staffMember.getName(), setOutcome.getId(), setOutcome.getOutcome());
+                String format = Utils.Chat.formatReportSetOutcome(plugin.getFCServer().getName(), staffMember.getName(), setOutcome.getId(), setOutcome.getOutcome());
                 plugin.getPlayerManager().getPlayers().forEach(p -> {
                     if (Rank.isStaff(p.getMainRank())) {
                         if (!p.isRecording()) {
@@ -74,7 +74,7 @@ public class ReportManager implements CommandExecutor {
             } else if (packet instanceof FPReportSetStatus) {
                 FPReportSetStatus setOutcome = ((FPReportSetStatus) packet);
                 FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(setOutcome.getPlayer());
-                String format = Utils.Chat.formatReportSetStatus(plugin.getFirecraftServer().getName(), staffMember.getName(), setOutcome.getId(), setOutcome.getStatus());
+                String format = Utils.Chat.formatReportSetStatus(plugin.getFCServer().getName(), staffMember.getName(), setOutcome.getId(), setOutcome.getStatus());
                 plugin.getPlayerManager().getPlayers().forEach(p -> {
                     if (Rank.isStaff(p.getMainRank())) {
                         if (!p.isRecording()) {
@@ -124,7 +124,7 @@ public class ReportManager implements CommandExecutor {
                 player.sendMessage(Prefixes.REPORT + Messages.reportDatabaseError);
                 return true;
             }
-            FPacketReport packetReport = new FPacketReport(plugin.getFirecraftServer(), report.getId());
+            FPacketReport packetReport = new FPacketReport(plugin.getFCServer().getId(), report.getId());
             plugin.getSocket().sendPacket(packetReport);
             player.sendMessage(Prefixes.REPORT + Messages.successfulReportFile);
         } else if (cmd.getName().equalsIgnoreCase("reportadmin")) {
@@ -276,7 +276,7 @@ public class ReportManager implements CommandExecutor {
                 }
                 report.setStatus(status);
                 plugin.getFCDatabase().saveReport(report);
-                FPReportSetStatus setStatus = new FPReportSetStatus(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), report.getStatus());
+                FPReportSetStatus setStatus = new FPReportSetStatus(plugin.getFCServer().getId(), player.getUniqueId(), report.getId(), report.getStatus());
                 plugin.getSocket().sendPacket(setStatus);
                 addReportChange(report, "changed status " + status.toString());
             } else if (Utils.Command.checkCmdAliases(args, 0, "setoutcome", "so")) {
@@ -306,7 +306,7 @@ public class ReportManager implements CommandExecutor {
                 }
                 report.setOutcome(outcome);
                 plugin.getFCDatabase().saveReport(report);
-                FPReportSetOutcome setOutcome = new FPReportSetOutcome(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), report.getOutcome());
+                FPReportSetOutcome setOutcome = new FPReportSetOutcome(plugin.getFCServer().getId(), player.getUniqueId(), report.getId(), report.getOutcome());
                 plugin.getSocket().sendPacket(setOutcome);
                 addReportChange(report, "changed outcome " + outcome.toString());
             } else if (Utils.Command.checkCmdAliases(args, 0, "page", "p")) {
@@ -352,7 +352,7 @@ public class ReportManager implements CommandExecutor {
                         }
                     }
                     report.setAssignee(player.getUniqueId());
-                    FPReportAssignSelf selfAssign = new FPReportAssignSelf(plugin.getFirecraftServer(), player.getUniqueId(), report.getId());
+                    FPReportAssignSelf selfAssign = new FPReportAssignSelf(plugin.getFCServer().getId(), player.getUniqueId(), report.getId());
                     plugin.getSocket().sendPacket(selfAssign);
                     addReportChange(report, "assigned " + player.getName());
                 } else {
@@ -374,10 +374,10 @@ public class ReportManager implements CommandExecutor {
 
                     report.setAssignee(target.getUniqueId());
                     if (target.getUniqueId().equals(player.getUniqueId())) {
-                        FPReportAssignSelf selfAssign = new FPReportAssignSelf(plugin.getFirecraftServer(), player.getUniqueId(), report.getId());
+                        FPReportAssignSelf selfAssign = new FPReportAssignSelf(plugin.getFCServer().getId(), player.getUniqueId(), report.getId());
                         plugin.getSocket().sendPacket(selfAssign);
                     } else {
-                        FPReportAssignOthers assignOthers = new FPReportAssignOthers(plugin.getFirecraftServer(), player.getUniqueId(), report.getId(), target.getName());
+                        FPReportAssignOthers assignOthers = new FPReportAssignOthers(plugin.getFCServer().getId(), player.getUniqueId(), report.getId(), target.getName());
                         plugin.getSocket().sendPacket(assignOthers);
                     }
                     addReportChange(report, "assigned " + target.getName());

@@ -20,7 +20,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.sql.ResultSet;
 import java.util.List;
 
 public class ChatManager implements CommandExecutor, Listener {
@@ -34,7 +33,7 @@ public class ChatManager implements CommandExecutor, Listener {
             if (packet instanceof FPStaffChatMessage) {
                 FPStaffChatMessage staffMessage = (FPStaffChatMessage) packet;
                 FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(staffMessage.getPlayer());
-                String format = Utils.Chat.formatStaffMessage(staffMessage.getServer(), staffMember, staffMessage.getMessage());
+                String format = Utils.Chat.formatStaffMessage(plugin.getServerManager().getServer(staffMessage.getServerId()), staffMember, staffMessage.getMessage());
                 plugin.getPlayerManager().getPlayers().forEach(p -> {
                     if (Rank.isStaff(p.getMainRank())) {
                         if (!p.isRecording()) {
@@ -99,7 +98,11 @@ public class ChatManager implements CommandExecutor, Listener {
                 }
             }
         } else if (player.getChannel().equals(Channel.STAFF)) {
-            FPStaffChatMessage msg = new FPStaffChatMessage(plugin.getFirecraftServer(), player.getUniqueId(), e.getMessage());
+            if (plugin.getFCServer() == null) {
+                player.sendMessage(Prefixes.CHAT + Messages.serverNotSet);
+                return;
+            }
+            FPStaffChatMessage msg = new FPStaffChatMessage(plugin.getFCServer().getId(), player.getUniqueId(), e.getMessage());
             plugin.getSocket().sendPacket(msg);
         }
     }
@@ -154,7 +157,12 @@ public class ChatManager implements CommandExecutor, Listener {
                     return true;
                 }
                 String message = Utils.getReason(0, args);
-                FPStaffChatMessage staffChatMessage = new FPStaffChatMessage(plugin.getFirecraftServer(), player.getUniqueId(), message);
+
+                if (plugin.getFCServer() == null) {
+                    player.sendMessage(Prefixes.CHAT + Messages.serverNotSet);
+                    return true;
+                }
+                FPStaffChatMessage staffChatMessage = new FPStaffChatMessage(plugin.getFCServer().getId(), player.getUniqueId(), message);
                 plugin.getSocket().sendPacket(staffChatMessage);
             } else {
                 player.sendMessage(Prefixes.CHAT + Messages.noOtherChannels);

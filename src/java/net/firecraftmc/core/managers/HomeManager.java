@@ -7,7 +7,7 @@ import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.interfaces.IHomeManager;
-import net.firecraftmc.shared.classes.model.Home;
+import net.firecraftmc.shared.classes.model.player.Home;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;

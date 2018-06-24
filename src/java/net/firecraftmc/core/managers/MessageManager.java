@@ -97,7 +97,11 @@ public class MessageManager implements CommandExecutor {
                                 return true;
                             }
                             String message = Utils.getReason(1, args);
-                            FPacketPrivateMessage pMPacket = new FPacketPrivateMessage(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId(), message);
+                            if (plugin.getFCServer() == null) {
+                                player.sendMessage(Prefixes.CHAT + Messages.serverNotSet);
+                                return true;
+                            }
+                            FPacketPrivateMessage pMPacket = new FPacketPrivateMessage(plugin.getFCServer().getId(), player.getUniqueId(), target.getUniqueId(), message);
                             plugin.getSocket().sendPacket(pMPacket);
                             player.sendMessage(Utils.Chat.formatPrivateMessage("You", target.getName(), message));
                             player.setLastMessage(target.getUniqueId());
@@ -144,7 +148,11 @@ public class MessageManager implements CommandExecutor {
             if (Bukkit.getPlayer(player.getLastMessage()) == null) {
                 if (plugin.getFCDatabase().getOnlineStatus(player.getLastMessage())) {
                     String message = Utils.getReason(0, args);
-                    FPacketPrivateMessage pMPacket = new FPacketPrivateMessage(plugin.getFirecraftServer(), player.getUniqueId(), player.getLastMessage(), message);
+                    if (plugin.getFCServer() == null) {
+                        player.sendMessage(Prefixes.CHAT + Messages.serverNotSet);
+                        return true;
+                    }
+                    FPacketPrivateMessage pMPacket = new FPacketPrivateMessage(plugin.getFCServer().getId(), player.getUniqueId(), player.getLastMessage(), message);
                     plugin.getSocket().sendPacket(pMPacket);
                     player.sendMessage(Utils.Chat.formatPrivateMessage("You", plugin.getFCDatabase().getPlayerName(player.getLastMessage()), message));
                     player.setLastMessage(player.getLastMessage());

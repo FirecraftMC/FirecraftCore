@@ -5,7 +5,7 @@ import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.model.ActionBar;
+import net.firecraftmc.shared.classes.model.player.ActionBar;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.packets.staffchat.FPSCStaffmodeToggle;
 import org.bukkit.GameMode;
@@ -34,7 +34,7 @@ public class StaffmodeManager implements Listener, CommandExecutor {
             if (packet instanceof FPSCStaffmodeToggle) {
                 FPSCStaffmodeToggle toggle = ((FPSCStaffmodeToggle) packet);
                 FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(toggle.getPlayer());
-                String format = Utils.Chat.formatStaffModeToggle(plugin.getFirecraftServer(), staffMember, toggle.getValue());
+                String format = Utils.Chat.formatStaffModeToggle(plugin.getFCServer(), staffMember, toggle.getValue());
                 Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
             }
         });
@@ -62,7 +62,7 @@ public class StaffmodeManager implements Listener, CommandExecutor {
                 p.getPlayer().showPlayer(player.getPlayer());
                 p.getScoreboard().updateScoreboard(p);
             }
-            FPSCStaffmodeToggle toggle = new FPSCStaffmodeToggle(plugin.getFirecraftServer(), player.getUniqueId(), false);
+            FPSCStaffmodeToggle toggle = new FPSCStaffmodeToggle(plugin.getFCServer().getId(), player.getUniqueId(), false);
             plugin.getSocket().sendPacket(toggle);
         } else {
             staffmode.add(player.getUniqueId());
@@ -77,7 +77,7 @@ public class StaffmodeManager implements Listener, CommandExecutor {
                     p.getScoreboard().updateScoreboard(p);
                 }
             }
-            FPSCStaffmodeToggle toggle = new FPSCStaffmodeToggle(plugin.getFirecraftServer(), player.getUniqueId(), true);
+            FPSCStaffmodeToggle toggle = new FPSCStaffmodeToggle(plugin.getFCServer().getId(), player.getUniqueId(), true);
             plugin.getSocket().sendPacket(toggle);
 
             new BukkitRunnable() {

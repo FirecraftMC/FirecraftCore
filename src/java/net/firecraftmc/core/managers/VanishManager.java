@@ -6,7 +6,7 @@ import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.model.ActionBar;
+import net.firecraftmc.shared.classes.model.player.ActionBar;
 import net.firecraftmc.shared.packets.staffchat.FPSCVanishToggle;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -43,7 +43,7 @@ public class VanishManager implements TabExecutor, Listener {
             if (packet instanceof FPSCVanishToggle) {
                 FPSCVanishToggle toggleVanish = ((FPSCVanishToggle) packet);
                 FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(toggleVanish.getPlayer());
-                String format = Utils.Chat.formatVanishToggle(toggleVanish.getServer(), staffMember, staffMember.isVanished());
+                String format = Utils.Chat.formatVanishToggle(plugin.getServerManager().getServer(toggleVanish.getServerId()), staffMember, staffMember.isVanished());
                 Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
             }
         });
@@ -98,7 +98,7 @@ public class VanishManager implements TabExecutor, Listener {
                     player.getVanishInfo().setAllowFlightBeforeVanish(player.getPlayer().getAllowFlight());
                     player.getPlayer().setAllowFlight(true);
                 }
-                FPSCVanishToggle toggleVanish = new FPSCVanishToggle(plugin.getFirecraftServer(), player.getUniqueId());
+                FPSCVanishToggle toggleVanish = new FPSCVanishToggle(plugin.getFCServer().getId(), player.getUniqueId());
                 plugin.getSocket().sendPacket(toggleVanish);
                 plugin.getFCDatabase().updateVanish(player);
             } else {

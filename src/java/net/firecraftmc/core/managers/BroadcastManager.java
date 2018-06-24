@@ -67,7 +67,8 @@ public class BroadcastManager implements CommandExecutor {
             }
         } else if (cmd.getName().equalsIgnoreCase("socketbroadcast")) {
             if (player.getMainRank().isEqualToOrHigher(Rank.HEAD_ADMIN)) {
-                FPacketSocketBroadcast socketBroadcast = new FPacketSocketBroadcast(plugin.getFirecraftServer(), sb.toString());
+                if (plugin.getFCServer() == null) return true;
+                FPacketSocketBroadcast socketBroadcast = new FPacketSocketBroadcast(plugin.getFCServer().getId(), sb.toString());
                 plugin.getSocket().sendPacket(socketBroadcast);
             } else {
                 player.sendMessage(Prefixes.BROADCAST + Messages.noPermission);

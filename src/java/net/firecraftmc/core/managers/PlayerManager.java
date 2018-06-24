@@ -3,11 +3,12 @@ package net.firecraftmc.core.managers;
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftMC;
 import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Channel;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.interfaces.IPlayerManager;
-import net.firecraftmc.shared.classes.model.ActionBar;
+import net.firecraftmc.shared.classes.model.player.ActionBar;
 import net.firecraftmc.shared.classes.model.Report;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.player.NickInfo;
@@ -66,7 +67,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                     Player p = Bukkit.getPlayer(uuid);
                     if (p != null) {
                         Punishment punishment = toKickForPunishment.get(uuid);
-                        String punisher = plugin.getFCDatabase().getPlayerName(Utils.convertToUUID(punishment.getPunisher()));
+                        String punisher = plugin.getFCDatabase().getPlayerName(UUID.fromString(punishment.getPunisher()));
                         String reason = punishment.getReason();
                         if (punishment.getType().equals(Punishment.Type.BAN))
                             p.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, "Permanent", punishment.getId())));
@@ -104,12 +105,12 @@ public class PlayerManager implements IPlayerManager, Listener {
             } else if (packet instanceof FPStaffChatJoin) {
                 FPStaffChatJoin staffJoin = ((FPStaffChatJoin) packet);
                 FirecraftPlayer staffMember = getPlayer(staffJoin.getPlayer());
-                String format = Utils.Chat.formatStaffJoinLeave(packet.getServer(), staffMember, "joined");
+                String format = Utils.Chat.formatStaffJoinLeave(plugin.getServerManager().getServer(packet.getServerId()), staffMember, "joined");
                 Utils.Chat.sendStaffChatMessage(getPlayers(), staffMember, format);
             } else if (packet instanceof FPStaffChatQuit) {
                 FPStaffChatQuit staffQuit = ((FPStaffChatQuit) packet);
                 FirecraftPlayer staffMember = getPlayer(staffQuit.getPlayer());
-                String format = Utils.Chat.formatStaffJoinLeave(packet.getServer(), staffMember, "left");
+                String format = Utils.Chat.formatStaffJoinLeave(plugin.getServerManager().getServer(packet.getServerId()), staffMember, "left");
                 Utils.Chat.sendStaffChatMessage(getPlayers(), staffMember, format);
             }
         });
@@ -119,9 +120,28 @@ public class PlayerManager implements IPlayerManager, Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         e.setJoinMessage(null);
         Player p = e.getPlayer();
-        FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(plugin.getFirecraftServer(), p.getUniqueId());
-        plugin.getSocket().sendPacket(serverPlayerJoin);
+
         FirecraftPlayer player = plugin.getFCDatabase().getPlayer(p.getUniqueId());
+
+        if (plugin.getFCServer() != null) {
+            FPacketServerPlayerJoin serverPlayerJoin = new FPacketServerPlayerJoin(plugin.getFCServer().getId(), p.getUniqueId());
+            plugin.getSocket().sendPacket(serverPlayerJoin);
+            plugin.getFCDatabase().updateOnlineStatus(player.getUniqueId(), true, plugin.getFCServer().getName());
+            player.setServer(plugin.getFCServer());
+            if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
+                    player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS)) {
+                FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(plugin.getFCServer().getId(), player.getUniqueId());
+                plugin.getSocket().sendPacket(staffChatJoin);
+            } else {
+                for (FirecraftPlayer p1 : onlinePlayers.values()) {
+                    if (!p1.isIgnoring(player.getUniqueId())) {
+                        p1.sendMessage(player.getDisplayName() + " &ajoined the game.");
+                    }
+                }
+            }
+        } else {
+            player.sendMessage("<ec>&lThe server information is currently not set, please contact a member of The Firecraft Team.");
+        }
 
         if (player == null) {
             p.kickPlayer(Messages.getDataErrorKick);
@@ -131,21 +151,6 @@ public class PlayerManager implements IPlayerManager, Listener {
         if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
             String prefix = plugin.getFCDatabase().getFTPrefix(player.getUniqueId());
             if (prefix != null) player.setFctPrefix(prefix);
-        }
-
-        plugin.getFCDatabase().updateOnlineStatus(player.getUniqueId(), true, plugin.getFirecraftServer().getName());
-
-        player.setServer(plugin.getFirecraftServer());
-        if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
-                player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS)) {
-            FPStaffChatJoin staffChatJoin = new FPStaffChatJoin(plugin.getFirecraftServer(), player.getUniqueId());
-            plugin.getSocket().sendPacket(staffChatJoin);
-        } else {
-            for (FirecraftPlayer p1 : onlinePlayers.values()) {
-                if (!p1.isIgnoring(player.getUniqueId())) {
-                    p1.sendMessage(player.getDisplayName() + " &ajoined the game.");
-                }
-            }
         }
 
         if (plugin.getFCDatabase().hasActiveJail(player.getUniqueId())) {
@@ -247,20 +252,23 @@ public class PlayerManager implements IPlayerManager, Listener {
         e.setQuitMessage(null);
         FirecraftPlayer player = getPlayer(e.getPlayer().getUniqueId());
         player.refreshOnlineStatus();
-        if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
-                player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS)) {
-            FPStaffChatQuit staffQuit = new FPStaffChatQuit(plugin.getFirecraftServer(), player.getUniqueId());
-            plugin.getSocket().sendPacket(staffQuit);
-        } else {
-            for (FirecraftPlayer fp : onlinePlayers.values()) {
-                if (!fp.isIgnoring(player.getUniqueId())) {
-                    fp.sendMessage(player.getDisplayName() + " &eleft the game.");
+
+        if (plugin.getFCServer() != null) {
+            if (Rank.isStaff(player.getMainRank()) || player.getMainRank().equals(Rank.BUILD_TEAM) ||
+                    player.getMainRank().equals(Rank.VIP) || player.getMainRank().equals(Rank.FAMOUS)) {
+                FPStaffChatQuit staffQuit = new FPStaffChatQuit(plugin.getFCServer().getId(), player.getUniqueId());
+                plugin.getSocket().sendPacket(staffQuit);
+            } else {
+                for (FirecraftPlayer fp : onlinePlayers.values()) {
+                    if (!fp.isIgnoring(player.getUniqueId())) {
+                        fp.sendMessage(player.getDisplayName() + " &eleft the game.");
+                    }
                 }
             }
-        }
 
-        FPacketServerPlayerLeave playerLeave = new FPacketServerPlayerLeave(plugin.getFirecraftServer(), player.getUniqueId());
-        plugin.getSocket().sendPacket(playerLeave);
+            FPacketServerPlayerLeave playerLeave = new FPacketServerPlayerLeave(plugin.getFCServer().getId(), player.getUniqueId());
+            plugin.getSocket().sendPacket(playerLeave);
+        }
 
         plugin.getHomeManager().saveHomes(player);
         plugin.getFCDatabase().updateOnlineStatus(player.getUniqueId(), false, "");
@@ -369,13 +377,13 @@ public class PlayerManager implements IPlayerManager, Listener {
     }
 
     /**
-     * Adds a punishment so that the player can be kicked if they are online, supports cross server kicking/banning
+     * Adds a punishment so that the player can be kicked if they are online, supports cross serverid kicking/banning
      *
      * @param punishment The Punishment received from the socket
      */
     public void addToKickForPunishment(Punishment punishment) {
-        if (!punishment.getServer().equalsIgnoreCase(plugin.getFirecraftServer().getName()))
-            this.toKickForPunishment.put(Utils.convertToUUID(punishment.getTarget()), punishment);
+        if (!punishment.getServer().equalsIgnoreCase(plugin.getFCServer().getName()))
+            this.toKickForPunishment.put(UUID.fromString(punishment.getTarget()), punishment);
     }
 
     /**
@@ -470,7 +478,7 @@ public class PlayerManager implements IPlayerManager, Listener {
 
                         plugin.getFCDatabase().updateDataColumn(target.getUniqueId(), "mainrank", rank.toString());
                         player.sendMessage(Messages.setMainRank(target.getName(), rank));
-                        FPacketRankUpdate rankUpdate = new FPacketRankUpdate(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId());
+                        FPacketRankUpdate rankUpdate = new FPacketRankUpdate(plugin.getFCServer().getId(), player.getUniqueId(), target.getUniqueId());
                         plugin.getSocket().sendPacket(rankUpdate);
                     } else if (Utils.Command.checkCmdAliases(args, 2, "channel", "c")) {
 
@@ -628,7 +636,7 @@ public class PlayerManager implements IPlayerManager, Listener {
                 return true;
             }
 
-            player.setServer(plugin.getFirecraftServer());
+            player.setServer(plugin.getFCServer());
             player.setRecording(!player.isRecording());
             if (player.isRecording()) {
                 player.sendMessage("&bYou have turned on recording mode, this means:");

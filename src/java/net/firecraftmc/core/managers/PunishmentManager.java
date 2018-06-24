@@ -4,7 +4,7 @@ import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.classes.model.FirecraftServer;
+import net.firecraftmc.shared.classes.model.server.FirecraftServer;
 import net.firecraftmc.shared.enforcer.punishments.*;
 import net.firecraftmc.shared.packets.FPacketAcknowledgeWarning;
 import net.firecraftmc.shared.packets.FPacketPunish;
@@ -39,7 +39,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
             else if (packet instanceof FPacketPunishRemove)
                 Utils.Socket.handleRemovePunish(packet, plugin.getFCDatabase(), plugin.getPlayerManager().getPlayers());
             else if (packet instanceof FPacketAcknowledgeWarning) {
-                String format = Utils.Chat.formatAckWarning(packet.getServer().getName(), ((FPacketAcknowledgeWarning) packet).getWarnedName());
+                String format = Utils.Chat.formatAckWarning(plugin.getServerManager().getServer(packet.getServerId()).getName(), ((FPacketAcknowledgeWarning) packet).getWarnedName());
                 plugin.getPlayerManager().getPlayers().forEach(p -> p.sendMessage(format));
             }
         });
@@ -152,7 +152,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 try {
                     if (set.next()) {
                         puId = set.getInt("id");
-                        UUID punisherId = Utils.convertToUUID(set.getString("punisher"));
+                        UUID punisherId = UUID.fromString(set.getString("punisher"));
                         punisher = plugin.getFCDatabase().getPlayer(punisherId);
                         ty = Punishment.Type.valueOf(set.getString("type"));
 
@@ -178,7 +178,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
 
                     if (ty.equals(Punishment.Type.BAN) || ty.equals(Punishment.Type.TEMP_BAN)) {
                         plugin.getFCDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString()).replace("{id}", puId + ""));
-                        FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
+                        FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFCServer().getId(), puId);
                         plugin.getSocket().sendPacket(punishRemove);
                     }
                 } else if (cmd.getName().equalsIgnoreCase("unmute")) {
@@ -189,7 +189,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
 
                     if (ty.equals(Punishment.Type.MUTE) || ty.equals(Punishment.Type.TEMP_MUTE)) {
                         plugin.getFCDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString()).replace("{id}", puId + ""));
-                        FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
+                        FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFCServer().getId(), puId);
                         plugin.getSocket().sendPacket(punishRemove);
                     }
                 } else if (cmd.getName().equalsIgnoreCase("unjail")) {
@@ -200,7 +200,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
 
                     if (ty.equals(Punishment.Type.JAIL)) {
                         plugin.getFCDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString()).replace("{id}", puId + ""));
-                        FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFirecraftServer(), puId);
+                        FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFCServer().getId(), puId);
                         plugin.getSocket().sendPacket(punishRemove);
                     }
                 }
@@ -210,7 +210,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
             long date = System.currentTimeMillis();
             String punisherId = player.getUniqueId().toString();
             String targetId = t.getUniqueId().toString();
-            FirecraftServer server = plugin.getFirecraftServer();
+            FirecraftServer server = plugin.getFCServer();
             if (cmd.getName().equalsIgnoreCase("ban")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                     player.sendMessage(Prefixes.ENFORCER + Messages.noPermission);
@@ -232,7 +232,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 if (permanentBan != null) {
                     if (Bukkit.getPlayer(t.getUniqueId()) != null)
                         t.kickPlayer(Utils.color(Messages.banMessage(punisherId, reason, "Permanent", permanentBan.getId())));
-                    FPacketPunish punish = new FPacketPunish(server, permanentBan.getId());
+                    FPacketPunish punish = new FPacketPunish(server.getId(), permanentBan.getId());
                     plugin.getSocket().sendPacket(punish);
                 } else {
                     player.sendMessage(Prefixes.ENFORCER + Messages.punishmentCreateIssue);
@@ -275,7 +275,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 if (Bukkit.getPlayer(t.getUniqueId()) != null) {
                     t.kickPlayer(Utils.color(Messages.banMessage(punisherId, reason, temporaryBan.formatExpireTime(), temporaryBan.getId())));
                 }
-                FPacketPunish punish = new FPacketPunish(server, temporaryBan.getId());
+                FPacketPunish punish = new FPacketPunish(server.getId(), temporaryBan.getId());
                 plugin.getSocket().sendPacket(punish);
             } else if (cmd.getName().equalsIgnoreCase("ipban")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.HEAD_ADMIN)) {
@@ -300,7 +300,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 permMute.setActive(true);
                 Punishment permanentMute = plugin.getFCDatabase().addPunishment(permMute);
                 if (permanentMute != null) {
-                    FPacketPunish punish = new FPacketPunish(server, permanentMute.getId());
+                    FPacketPunish punish = new FPacketPunish(server.getId(), permanentMute.getId());
                     plugin.getSocket().sendPacket(punish);
                 } else {
                     player.sendMessage(Prefixes.ENFORCER + Messages.punishmentCreateIssue);
@@ -345,7 +345,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 if (Bukkit.getPlayer(t.getUniqueId()) != null) {
                     t.sendMessage(Messages.tempMuteTarget(player.getName()));
                 }
-                FPacketPunish punish = new FPacketPunish(server, temporaryMute.getId());
+                FPacketPunish punish = new FPacketPunish(server.getId(), temporaryMute.getId());
                 plugin.getSocket().sendPacket(punish);
             } else if (cmd.getName().equalsIgnoreCase("jail")) {
                 if (!player.getMainRank().equals(Rank.HELPER)) {
@@ -368,7 +368,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 j.setActive(true);
                 Punishment jail = plugin.getFCDatabase().addPunishment(j);
                 if (jail != null) {
-                    FPacketPunish punish = new FPacketPunish(server, jail.getId());
+                    FPacketPunish punish = new FPacketPunish(server.getId(), jail.getId());
                     plugin.getSocket().sendPacket(punish);
                     if (Bukkit.getPlayer(t.getUniqueId()) != null) {
                         t.sendMessage(Messages.jailed(player.getName(), reason));
@@ -396,7 +396,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 if (Bukkit.getPlayer(t.getUniqueId()) != null)
                     t.kickPlayer(Messages.kickMessage(player.getName(), reason));
                 if (kick != null) {
-                    FPacketPunish punish = new FPacketPunish(server, kick.getId());
+                    FPacketPunish punish = new FPacketPunish(server.getId(), kick.getId());
                     plugin.getSocket().sendPacket(punish);
                 } else {
                     player.sendMessage(Prefixes.ENFORCER + Messages.punishmentCreateIssue);
@@ -417,7 +417,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 w.setActive(true);
                 Warn warn = (Warn) plugin.getFCDatabase().addPunishment(w);
                 if (warn != null) {
-                    FPacketPunish punish = new FPacketPunish(server, warn.getId());
+                    FPacketPunish punish = new FPacketPunish(server.getId(), warn.getId());
                     plugin.getSocket().sendPacket(punish);
                     if (Bukkit.getPlayer(t.getUniqueId()) != null) {
                         String code = Utils.generateAckCode(Utils.codeCharacters);

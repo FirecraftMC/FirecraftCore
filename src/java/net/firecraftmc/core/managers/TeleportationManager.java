@@ -1,12 +1,12 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.model.FirecraftServer;
+import net.firecraftmc.shared.classes.model.server.FirecraftServer;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.model.TPRequest;
+import net.firecraftmc.shared.classes.model.player.TPRequest;
 import net.firecraftmc.shared.packets.staffchat.FPSCTeleport;
 import net.firecraftmc.shared.packets.staffchat.FPSCTeleportHere;
 import net.firecraftmc.shared.packets.staffchat.FPSCTeleportOthers;
@@ -61,7 +61,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
         }.runTaskTimer(plugin, 0L, 20L);
 
         plugin.getSocket().addSocketListener(packet -> {
-            FirecraftServer server = packet.getServer();
+            FirecraftServer server = plugin.getServerManager().getServer(packet.getServerId());
             if (packet instanceof FPSCTeleport) {
                 FPSCTeleport teleport = (FPSCTeleport) packet;
                 FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(teleport.getPlayer());
@@ -132,7 +132,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
                 }
                 
                 player.teleport(target.getLocation());
-                FPSCTeleport teleport = new FPSCTeleport(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId());
+                FPSCTeleport teleport = new FPSCTeleport(plugin.getFCServer().getId(), player.getUniqueId(), target.getUniqueId());
                 plugin.getSocket().sendPacket(teleport);
             } else if (args.length == 2) {
                 if (player.getMainRank().equals(Rank.MODERATOR)) {
@@ -180,7 +180,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
                 }
                 
                 t1.teleport(t2.getLocation());
-                FPSCTeleportOthers teleport = new FPSCTeleportOthers(plugin.getFirecraftServer(), player.getUniqueId(), t1.getUniqueId(), t2.getUniqueId());
+                FPSCTeleportOthers teleport = new FPSCTeleportOthers(plugin.getFCServer().getId(), player.getUniqueId(), t1.getUniqueId(), t2.getUniqueId());
                 plugin.getSocket().sendPacket(teleport);
             } else {
                 player.sendMessage(Messages.notEnoughArgs);
@@ -231,7 +231,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
             }
             
             target.teleport(player.getLocation());
-            FPSCTeleportHere tpHere = new FPSCTeleportHere(plugin.getFirecraftServer(), player.getUniqueId(), target.getUniqueId());
+            FPSCTeleportHere tpHere = new FPSCTeleportHere(plugin.getFCServer().getId(), player.getUniqueId(), target.getUniqueId());
             plugin.getSocket().sendPacket(tpHere);
         } else if (cmd.getName().equalsIgnoreCase("tpall")) {
             if (player.getMainRank().equals(Rank.HEAD_ADMIN) || player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {

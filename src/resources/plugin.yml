@@ -92,3 +92,5 @@ commands:
         aliases: [s]
     global:
         aliases: [g]
+    firecraftserver:
+        aliases: [fcserver, fcs]

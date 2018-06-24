@@ -6,7 +6,6 @@ import net.firecraftmc.shared.classes.abstraction.FirecraftPlugin;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.interfaces.SocketListener;
 import net.firecraftmc.shared.classes.model.Database;
-import net.firecraftmc.shared.classes.model.FirecraftServer;
 import net.firecraftmc.shared.classes.model.FirecraftSocket;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.wrapper.ItemPickupEvent1_12;
@@ -17,7 +16,6 @@ import net.firecraftmc.shared.packets.FPacketServerConnect;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -45,25 +43,32 @@ public class FirecraftCore extends FirecraftPlugin {
 
         String host = getConfig().getString("host");
         this.socket = new FirecraftSocket(this, host, getConfig().getInt("port"));
-        this.server = new FirecraftServer(getConfig().getString("server.name"), ChatColor.valueOf(getConfig().getString("server.color")));
 
         this.socket.addSocketListener((packet) -> {
             if (packet instanceof FPacketServerConnect) {
                 FPacketServerConnect serverConnect = (FPacketServerConnect) packet;
-                String format = Utils.Chat.formatServerConnect(serverConnect.getServer());
+                String format = Utils.Chat.formatServerConnect(serverManager.getServer(serverConnect.getServerId()));
                 if (playerManager != null) {
                     getPlayerManager().getPlayers().forEach(player -> {
                         if (Rank.isStaff(player.getMainRank())) player.sendMessage(format);
                     });
                 }
             } else if (packet instanceof FPacketServerDisconnect) {
-                FPacketServerDisconnect serverConnect = (FPacketServerDisconnect) packet;
-                String format = Utils.Chat.formatServerDisconnect(serverConnect.getServer());
+                FPacketServerDisconnect serverDisconnect = (FPacketServerDisconnect) packet;
+                String format = Utils.Chat.formatServerDisconnect(serverManager.getServer(serverDisconnect.getServerId()));
                 getPlayerManager().getPlayers().forEach(player -> {
                     if (Rank.isStaff(player.getMainRank())) player.sendMessage(format);
                 });
             }
         });
+
+        database = new Database(getConfig().getString("mysql.user"), getConfig().getString("mysql.database"),
+                getConfig().getString("mysql.password"), getConfig().getInt("mysql.port"), getConfig().getString("mysql.hostname"));
+        database.openConnection();
+
+        if (getConfig().contains("server")) {
+            this.server = database.getServer(getConfig().getString("server"));
+        }
 
         new BukkitRunnable() {
             public void run() {
@@ -80,10 +85,6 @@ public class FirecraftCore extends FirecraftPlugin {
 
         this.registerAllCommands();
 
-        database = new Database(getConfig().getString("mysql.user"), getConfig().getString("mysql.database"),
-                getConfig().getString("mysql.password"), getConfig().getInt("mysql.port"), getConfig().getString("mysql.hostname"));
-        database.openConnection();
-
         this.versionSpecificTasks();
 
         this.postWorldTasks();
@@ -95,12 +96,15 @@ public class FirecraftCore extends FirecraftPlugin {
 
         this.socket.connect();
         this.socket.start();
+        this.server.setIp(this.socket.getJavaSocket().getLocalAddress().toString().replace("/", ""));
+        this.database.saveServer(server);
     }
 
     /**
      * All close methods are called here and stuff is saved to the database/files where needed.
      */
     public void onDisable() {
+        getConfig().set("server", server.getId());
         getConfig().set("spawn", Utils.convertLocationToString(serverSpawn));
 
         if (jailLocation != null) {
@@ -112,19 +116,22 @@ public class FirecraftCore extends FirecraftPlugin {
         for (FirecraftPlayer player : playerManager.getPlayers()) {
             this.homeManager.saveHomes(player);
             this.database.savePlayer(player);
-            FPStaffChatQuit staffQuit = new FPStaffChatQuit(server, player.getUniqueId());
+            FPStaffChatQuit staffQuit = new FPStaffChatQuit(server.getId(), player.getUniqueId());
             socket.sendPacket(staffQuit);
         }
 
         this.playerManager.getPlayers().clear();
 
         if (socket != null) {
-            socket.sendPacket(new FPacketServerDisconnect(server));
+            socket.sendPacket(new FPacketServerDisconnect(server.getId()));
             try {
                 socket.close();
             } catch (IOException e) {
             }
         }
+
+        server.setIp("");
+        database.saveServer(server);
 
         this.database.closeConnection();
 
@@ -156,6 +163,8 @@ public class FirecraftCore extends FirecraftPlugin {
         Utils.Command.registerCommands(this, new MessageManager(this), "message", "reply");
         this.staffmodeManager = new StaffmodeManager(this);
         getCommand("staffmode").setExecutor(staffmodeManager);
+        this.serverManager = new ServerManager(this);
+        getCommand("firecraftserver").setExecutor(serverManager);
     }
 
     /**
