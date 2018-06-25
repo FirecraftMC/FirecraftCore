@@ -8,26 +8,26 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library" scope="PROVIDED">
+    <orderEntry type="module" module-name="FirecraftShared" exported="" scope="PROVIDED" />
+    <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Documents/Servers/Jar Library/Spigot/spigot-1.12.2-R0.1-SNAPSHOT-b1631.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../BuildTools/spigot-1.12.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/Documents/Servers/Jar Library/Spigot/spigot-1.12.2-R0.1-SNAPSHOT-b1631.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../BuildTools/spigot-1.12.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="FirecraftShared" exported="" scope="PROVIDED" />
-    <orderEntry type="module-library" scope="PROVIDED">
+    <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Documents/Servers/Jar Library/Spigot/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../BuildTools/spigot-1.8.8.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/Documents/Servers/Jar Library/Spigot/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../BuildTools/spigot-1.8.8.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
