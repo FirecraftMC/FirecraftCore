@@ -96,3 +96,4 @@ commands:
         aliases: [fcserver, fcs]
     clearchat:
     cc:
+    feed:
