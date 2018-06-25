@@ -9,6 +9,7 @@ import net.firecraftmc.shared.classes.enums.Channel;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.enforcer.punishments.Punishment;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -21,6 +22,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.List;
+import java.util.Random;
 
 public class ChatManager implements CommandExecutor, Listener {
     private final FirecraftCore plugin;
@@ -164,6 +166,25 @@ public class ChatManager implements CommandExecutor, Listener {
                 }
                 FPStaffChatMessage staffChatMessage = new FPStaffChatMessage(plugin.getFCServer().getId(), player.getUniqueId(), message);
                 plugin.getSocket().sendPacket(staffChatMessage);
+            } else if (cmd.getName().equalsIgnoreCase("clearchat") || cmd.getName().equalsIgnoreCase("cc")) {
+                if (player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
+                    Random random = new Random();
+                    int lines = random.nextInt(100) + 150;
+                    for (Player pl : Bukkit.getServer().getOnlinePlayers()) {
+                        FirecraftPlayer fcPl = plugin.getPlayerManager().getPlayer(pl.getUniqueId());
+                        if (fcPl.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
+                            fcPl.sendMessage(Prefixes.CHAT + Messages.chatCleared);
+                            continue;
+                        } else {
+                            for (int x = 0; x < lines; x++) {
+                                fcPl.sendMessage(" ");
+                            }
+                            fcPl.sendMessage(Prefixes.CHAT + Messages.chatCleared);
+                        }
+                    }
+                } else {
+                    player.sendMessage(Prefixes.CHAT + Messages.noPermission);
+                }
             } else {
                 player.sendMessage(Prefixes.CHAT + Messages.noOtherChannels);
                 return true;
