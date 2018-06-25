@@ -173,16 +173,15 @@ public class ChatManager implements CommandExecutor, Listener {
                         FirecraftPlayer fcPl = plugin.getPlayerManager().getPlayer(pl.getUniqueId());
                         if (fcPl.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
                             fcPl.sendMessage(Prefixes.CHAT + Messages.chatCleared);
-                            continue;
                         } else {
                             for (int x = 0; x < lines; x++) {
                                 Random rand = new Random();
                                 int spaces = rand.nextInt(15);
-                                String line = " ";
-                                for (int y = 0; x < spaces; x++) {
-                                    line = line + " ";
+                                StringBuilder line = new StringBuilder(" ");
+                                for (int y = 0; y < spaces; y++) {
+                                    line.append(" ");
                                 }
-                                fcPl.sendMessage(line);
+                                fcPl.sendMessage(line.toString());
                             }
                             fcPl.sendMessage(Prefixes.CHAT + Messages.chatCleared);
                         }
