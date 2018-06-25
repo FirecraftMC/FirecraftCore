@@ -1,12 +1,12 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.Prefixes;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Channel;
 import net.firecraftmc.shared.classes.enums.Rank;
+import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.enforcer.punishments.Punishment;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatMessage;
 import org.bukkit.Bukkit;
@@ -168,8 +168,7 @@ public class ChatManager implements CommandExecutor, Listener {
                 plugin.getSocket().sendPacket(staffChatMessage);
             } else if (cmd.getName().equalsIgnoreCase("clearchat") || cmd.getName().equalsIgnoreCase("cc")) {
                 if (player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
-                    Random random = new Random();
-                    int lines = random.nextInt(100) + 150;
+                    int lines = 150;
                     for (Player pl : Bukkit.getServer().getOnlinePlayers()) {
                         FirecraftPlayer fcPl = plugin.getPlayerManager().getPlayer(pl.getUniqueId());
                         if (fcPl.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
@@ -177,7 +176,13 @@ public class ChatManager implements CommandExecutor, Listener {
                             continue;
                         } else {
                             for (int x = 0; x < lines; x++) {
-                                fcPl.sendMessage(" ");
+                                Random rand = new Random();
+                                int spaces = rand.nextInt(15);
+                                String line = " ";
+                                for (int y = 0; x < spaces; x++) {
+                                    line = line + " ";
+                                }
+                                fcPl.sendMessage(line);
                             }
                             fcPl.sendMessage(Prefixes.CHAT + Messages.chatCleared);
                         }

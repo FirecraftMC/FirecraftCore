@@ -94,3 +94,5 @@ commands:
         aliases: [g]
     firecraftserver:
         aliases: [fcserver, fcs]
+    clearchat:
+    cc:
