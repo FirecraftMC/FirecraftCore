@@ -85,13 +85,13 @@ public class NickManager implements CommandExecutor {
                     player.sendMessage(Prefixes.NICKNAME + "<ec>The rank you provided was invalid, using the rank of the player.");
                     rank = nickname.getMainRank();
                 }
-
-                if (Rank.isStaff(rank) || rank.equals(Rank.QUALITY_ASSURANCE) || rank.equals(Rank.BUILD_TEAM)) {
-                    player.sendMessage(Prefixes.NICKNAME + "<ec>You cannot use a staff rank.");
-                    return true;
-                }
             } else {
                 rank = nickname.getMainRank();
+            }
+
+            if (Rank.isStaff(rank) || rank.equals(Rank.QUALITY_ASSURANCE) || rank.equals(Rank.BUILD_TEAM)) {
+                player.sendMessage(Prefixes.NICKNAME + "<ec>You cannot use a staff rank.");
+                return true;
             }
 
             nickname.setSkin(skin);
