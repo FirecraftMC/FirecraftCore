@@ -97,6 +97,8 @@ public class FirecraftCore extends FirecraftPlugin {
                 }
             }
         }.runTaskTimerAsynchronously(this, 0L, 20L);
+
+        this.registerVaultHook();
     }
 
     /**
@@ -168,6 +170,8 @@ public class FirecraftCore extends FirecraftPlugin {
         getCommand("staffmode").setExecutor(staffmodeManager);
         this.serverManager = new ServerManager(this);
         getCommand("firecraftserver").setExecutor(serverManager);
+        this.economyManager = new EconomyManager(this);
+        Utils.Command.registerCommands(this, economyManager, "economy", "pay", "withdraw", "balance", "baltop");
     }
 
     /**

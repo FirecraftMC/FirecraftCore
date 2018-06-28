@@ -1,6 +1,6 @@
 name: FirecraftCore
 main: net.firecraftmc.core.FirecraftCore
-version: 1.11-ALPHA
+version: 1.12-ALPHA
 load: STARTUP
 author: Firestar311
 commands:
@@ -104,3 +104,9 @@ commands:
     jails:
     feed:
     heal:
+    economy:
+        aliases: [eco, econ]
+    pay:
+    withdraw:
+    balance:
+    baltop:
