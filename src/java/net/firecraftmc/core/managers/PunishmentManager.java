@@ -428,6 +428,28 @@ public class PunishmentManager implements CommandExecutor, Listener {
                     player.sendMessage(Prefixes.ENFORCER + Messages.punishmentCreateIssue);
                     return true;
                 }
+            } else {
+                if (!(args.length == 0)) {
+                    player.sendMessage(Prefixes.ENFORCER + Messages.notEnoughArgs);
+                    return true;
+                }
+
+                FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
+
+                if (cmd.getName().equalsIgnoreCase("history")) {
+                    List<Punishment> punishments = plugin.getFCDatabase().getPunishments(target.getUniqueId());
+
+                } else if (cmd.getName().equalsIgnoreCase("bans")) {
+
+                } else if (cmd.getName().equalsIgnoreCase("mutes")) {
+
+                } else if (cmd.getName().equalsIgnoreCase("kicks")) {
+
+                } else if (cmd.getName().equalsIgnoreCase("warns")) {
+
+                } else if (cmd.getName().equalsIgnoreCase("jails")) {
+
+                }
             }
         } else {
             sender.sendMessage(Prefixes.ENFORCER + "§cNot implemented yet.");

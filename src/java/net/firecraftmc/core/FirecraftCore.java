@@ -152,7 +152,7 @@ public class FirecraftCore extends FirecraftPlugin {
         Utils.Command.registerCommands(this, new TeleportationManager(this), "teleport", "tphere", "back", "tpall", "tpaccept", "tpdeny", "tpa", "setspawn", "spawn");
         this.getCommand("dev").setExecutor(new DevManager(this));
         this.getCommand("signedit").setExecutor(new SignEditManager(this));
-        Utils.Command.registerCommands(this, new PunishmentManager(this), "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail");
+        Utils.Command.registerCommands(this, new PunishmentManager(this), "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail", "history", "bans", "mutes", "kicks", "warns", "jails");
         Utils.Command.registerCommands(this, new ItemManager(this), "setname", "setlore");
         this.getCommand("weather").setExecutor(new WeatherManager(this));
         Utils.Command.registerCommands(this, new TimeManager(this), "time", "day", "night");

@@ -96,3 +96,9 @@ commands:
         aliases: [fcserver, fcs]
     clearchat:
     cc:
+    history:
+    bans:
+    mutes:
+    kicks:
+    warns:
+    jails:
