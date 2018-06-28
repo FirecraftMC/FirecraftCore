@@ -102,3 +102,5 @@ commands:
     kicks:
     warns:
     jails:
+    feed:
+    heal:
