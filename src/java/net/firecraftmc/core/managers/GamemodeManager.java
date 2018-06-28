@@ -1,14 +1,15 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.Prefixes;
-import net.firecraftmc.shared.classes.model.server.FirecraftServer;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Rank;
+import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
+import net.firecraftmc.shared.classes.model.server.FirecraftServer;
 import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemode;
 import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemodeOthers;
+import net.firecraftmc.shared.packets.staffchat.FPacketStaffChat;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,17 +30,18 @@ public class GamemodeManager implements CommandExecutor, Listener {
 
         plugin.getSocket().addSocketListener(packet -> {
             FirecraftServer server = plugin.getServerManager().getServer(packet.getServerId());
-            if (packet instanceof FPSCSetGamemode) {
-                FPSCSetGamemode setGamemode = (FPSCSetGamemode) packet;
-                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(setGamemode.getPlayer());
-                String format = Utils.Chat.formatSetGamemode(server, staffMember, setGamemode.getMode());
-                Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
-            } else if (packet instanceof FPSCSetGamemodeOthers) {
-                FPSCSetGamemodeOthers setGamemodeOthers = (FPSCSetGamemodeOthers) packet;
-                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(setGamemodeOthers.getPlayer());
-                FirecraftPlayer target = plugin.getPlayerManager().getPlayer(setGamemodeOthers.getTarget());
-                String format = Utils.Chat.formatSetGamemodeOthers(server, staffMember, setGamemodeOthers.getMode(), target);
-                Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
+            if (packet instanceof FPacketStaffChat) {
+                FirecraftPlayer staffMember = plugin.getPlayerManager().getPlayer(((FPacketStaffChat) packet).getPlayer());
+                if (packet instanceof FPSCSetGamemode) {
+                    FPSCSetGamemode setGamemode = (FPSCSetGamemode) packet;
+                    String format = Utils.Chat.formatSetGamemode(server, staffMember, setGamemode.getMode());
+                    Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
+                } else if (packet instanceof FPSCSetGamemodeOthers) {
+                    FPSCSetGamemodeOthers setGamemodeOthers = (FPSCSetGamemodeOthers) packet;
+                    FirecraftPlayer target = plugin.getPlayerManager().getPlayer(setGamemodeOthers.getTarget());
+                    String format = Utils.Chat.formatSetGamemodeOthers(server, staffMember, setGamemodeOthers.getMode(), target);
+                    Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
+                }
             }
         });
     }

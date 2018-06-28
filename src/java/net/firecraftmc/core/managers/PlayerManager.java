@@ -3,23 +3,22 @@ package net.firecraftmc.core.managers;
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.FirecraftMC;
 import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Channel;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.interfaces.IPlayerManager;
-import net.firecraftmc.shared.classes.model.player.ActionBar;
 import net.firecraftmc.shared.classes.model.Report;
+import net.firecraftmc.shared.classes.model.player.ActionBar;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.player.NickInfo;
 import net.firecraftmc.shared.classes.model.player.VanishInfo;
-import net.firecraftmc.shared.enforcer.punishments.Punishment;
-import net.firecraftmc.shared.enforcer.punishments.TemporaryBan;
 import net.firecraftmc.shared.packets.FPacketRankUpdate;
 import net.firecraftmc.shared.packets.FPacketServerPlayerJoin;
 import net.firecraftmc.shared.packets.FPacketServerPlayerLeave;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatJoin;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
+import net.firecraftmc.shared.punishments.Punishment;
+import net.firecraftmc.shared.punishments.TemporaryBan;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -27,7 +26,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -36,7 +34,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-public class PlayerManager implements IPlayerManager, Listener {
+public class PlayerManager implements IPlayerManager {
 
     private final ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>(), cachedPlayers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, Punishment> toKickForPunishment = new ConcurrentHashMap<>();
@@ -550,86 +548,6 @@ public class PlayerManager implements IPlayerManager, Listener {
                 player.sendMessage(Messages.noPermission);
                 return true;
             }
-        } else if (cmd.getName().equalsIgnoreCase("list")) {
-            TreeMap<Rank, List<String>> onlinePlayers = new TreeMap<>();
-            for (FirecraftPlayer fp : this.onlinePlayers.values()) {
-                Rank r = fp.getMainRank();
-                if (onlinePlayers.get(r) == null) {
-                    onlinePlayers.put(r, new ArrayList<>());
-                }
-
-                onlinePlayers.get(r).add(fp.getNameNoPrefix());
-            }
-            int onlineCount = 0;
-            for (FirecraftPlayer fp : this.onlinePlayers.values()) {
-                if (fp.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                    if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                        onlineCount++;
-                    }
-                } else {
-                    onlineCount++;
-                }
-            }
-            player.sendMessage(Messages.listHeader(onlineCount));
-            for (Map.Entry<Rank, List<String>> entry : onlinePlayers.entrySet()) {
-                if (entry.getValue().size() != 0) {
-                    String line = generateListLine(entry.getKey(), entry.getValue());
-                    if (entry.getKey().equals(Rank.FIRECRAFT_TEAM)) {
-                        if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                            player.sendMessage(line);
-                            continue;
-                        } else {
-                            continue;
-                        }
-                    }
-                    player.sendMessage(line);
-
-                }
-            }
-        } else if (cmd.getName().equalsIgnoreCase("ignore")) {
-            if (!(args.length > 0)) {
-                player.sendMessage(Messages.notEnoughArgs);
-                return true;
-            }
-
-            if (Rank.isStaff(player.getMainRank())) {
-                if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                    player.sendMessage("&cStaff members cannot ignored other players.");
-                    return true;
-                }
-            }
-
-            for (String i : args) {
-                FirecraftPlayer target = getPlayer(i);
-                if (target == null) {
-                    player.sendMessage("&cThe name {name} is not valid".replace("{name}", i));
-                    continue;
-                }
-
-                if (Rank.isStaff(target.getMainRank())) {
-                    player.sendMessage("&cYou cannot ignore a staff memnber.");
-                    continue;
-                }
-
-                player.addIgnored(target.getUniqueId());
-                player.sendMessage(Messages.ignoreAction("added", "to", i));
-            }
-        } else if (cmd.getName().equalsIgnoreCase("unignore")) {
-            if (!(args.length > 0)) {
-                player.sendMessage(Messages.notEnoughArgs);
-                return true;
-            }
-
-            for (String i : args) {
-                FirecraftPlayer target = getPlayer(i);
-                if (target == null) {
-                    player.sendMessage("&cThe name {name} is not valid".replace("{name}", i));
-                    continue;
-                }
-
-                player.removeIgnored(target.getUniqueId());
-                player.sendMessage(Messages.ignoreAction("removed", "from", i));
-            }
         } else if (cmd.getName().equalsIgnoreCase("record")) {
             if (!player.getMainRank().isEqualToOrHigher(Rank.FAMOUS)) {
                 player.sendMessage(Messages.noPermission);
@@ -670,47 +588,6 @@ public class PlayerManager implements IPlayerManager, Listener {
                 player.sendMessage(Messages.recordingModeOff);
                 player.updatePlayerListName();
                 player.setActionBar(null);
-            }
-        } else if (cmd.getName().equalsIgnoreCase("stafflist")) {
-            if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
-                player.sendMessage(Messages.noPermission);
-                return true;
-            }
-
-            HashMap<String, List<FirecraftPlayer>> onlineStaff = plugin.getFCDatabase().getOnlineStaffMembers();
-
-            if (onlineStaff.isEmpty()) {
-                player.sendMessage("&cThere was an issue with getting the list of online staff members.");
-                return true;
-            }
-
-            List<String> displayStrings = new ArrayList<>();
-            int serverCount = 0, playerCount = 0;
-            for (String server : onlineStaff.keySet()) {
-                serverCount++;
-                String base = " &8- &7" + server + "&7(&f" + onlineStaff.get(server).size() + "&7): ";
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < onlineStaff.get(server).size(); i++) {
-                    FirecraftPlayer fp = onlineStaff.get(server).get(i);
-                    if (fp.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                        if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                            continue;
-                        }
-                    }
-                    sb.append(fp.getNameNoPrefix());
-                    if (i != onlineStaff.get(server).size() - 1) {
-                        sb.append("&7, ");
-                    }
-                    playerCount++;
-                }
-                if (!sb.toString().equals("")) {
-                    displayStrings.add(base + sb.toString());
-                }
-            }
-
-            player.sendMessage(Messages.staffListHeader(playerCount, serverCount));
-            for (String ss : displayStrings) {
-                player.sendMessage(ss);
             }
         } else if (cmd.getName().equalsIgnoreCase("stream")) {
             if (!player.getMainRank().isEqualToOrHigher(Rank.FAMOUS)) {
@@ -755,24 +632,5 @@ public class PlayerManager implements IPlayerManager, Listener {
             }
         }
         return true;
-    }
-
-    /**
-     * Just a shortcut method to prevent repeat code.
-     *
-     * @param rank    The rank to generate for
-     * @param players The players in the rank
-     * @return A string representation of the players in that rank that are online.
-     */
-    private String generateListLine(Rank rank, List<String> players) {
-        StringBuilder base = new StringBuilder(" &8- &7" + rank.getTeamName() + " (&f" + players.size() + "&7): ");
-        for (int i = 0; i < players.size(); i++) {
-            String name = players.get(i);
-            base.append(name);
-            if (i != players.size() - 1) {
-                base.append("&7, ");
-            }
-        }
-        return base.toString();
     }
 }

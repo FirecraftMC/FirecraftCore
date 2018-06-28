@@ -7,8 +7,8 @@ import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Channel;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.enforcer.punishments.Punishment;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatMessage;
+import net.firecraftmc.shared.punishments.Punishment;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -88,8 +88,8 @@ public class ChatManager implements CommandExecutor, Listener {
             String format = Utils.Chat.formatGlobal(player, e.getMessage());
             if (player.getMainRank().isEqualToOrHigher(Rank.INFERNO)) {
                 if (format.toLowerCase().contains("[item]")) {
-                    if (player.getInventory().getItemInMainHand() != null && player.getInventory().getItemInMainHand().getType() != Material.AIR) {
-                        String itemName = player.getInventory().getItemInMainHand().getItemMeta().getDisplayName();
+                    if (player.getInventory().getItemInHand() != null && player.getInventory().getItemInHand().getType() != Material.AIR) {
+                        String itemName = player.getInventory().getItemInHand().getItemMeta().getDisplayName();
                         format = format.replace("[item]", itemName);
                     }
                 }

@@ -5,22 +5,21 @@ import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Rank;
+import net.firecraftmc.shared.classes.interfaces.IStaffmodeManager;
 import net.firecraftmc.shared.classes.model.player.ActionBar;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.packets.staffchat.FPSCStaffmodeToggle;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class StaffmodeManager implements Listener, CommandExecutor {
+public class StaffmodeManager implements IStaffmodeManager {
 
     private FirecraftCore plugin;
 

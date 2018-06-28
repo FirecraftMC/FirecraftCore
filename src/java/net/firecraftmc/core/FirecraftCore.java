@@ -27,9 +27,6 @@ import java.util.List;
  */
 public class FirecraftCore extends FirecraftPlugin {
 
-    private WarpManager warpManager;
-    private StaffmodeManager staffmodeManager;
-
     /**
      * This is where all of the stuff is loaded into memory and the task methods are called.
      */
@@ -70,19 +67,6 @@ public class FirecraftCore extends FirecraftPlugin {
             this.server = database.getServer(getConfig().getString("server"));
         }
 
-        new BukkitRunnable() {
-            public void run() {
-                if (socket.getState().equals(Thread.State.TERMINATED) || !socket.isOpen()) {
-                    List<SocketListener> listeners = socket.getSocketListeners();
-                    socket = new FirecraftSocket(FirecraftCore.this, host, getConfig().getInt("port"));
-                    for (SocketListener listener : listeners) {
-                        socket.addSocketListener(listener);
-                    }
-                    socket.start();
-                }
-            }
-        }.runTaskTimerAsynchronously(this, 0L, 20L);
-
         this.registerAllCommands();
 
         this.versionSpecificTasks();
@@ -100,6 +84,19 @@ public class FirecraftCore extends FirecraftPlugin {
             this.server.setIp(this.socket.getJavaSocket().getLocalAddress().toString().replace("/", ""));
             this.database.saveServer(server);
         }
+
+        new BukkitRunnable() {
+            public void run() {
+                if (socket.getState().equals(Thread.State.TERMINATED) || !socket.isOpen()) {
+                    List<SocketListener> listeners = socket.getSocketListeners();
+                    socket = new FirecraftSocket(FirecraftCore.this, host, getConfig().getInt("port"));
+                    for (SocketListener listener : listeners) {
+                        socket.addSocketListener(listener);
+                    }
+                    socket.start();
+                }
+            }
+        }.runTaskTimerAsynchronously(this, 0L, 20L);
     }
 
     /**
@@ -145,7 +142,9 @@ public class FirecraftCore extends FirecraftPlugin {
      */
     private void registerAllCommands() {
         this.playerManager = new PlayerManager(this);
-        Utils.Command.registerCommands(this, playerManager, "players", "fct", "list", "ignore", "unignore", "record", "stream", "stafflist");
+        Utils.Command.registerCommands(this, playerManager, "players", "fct", "ignore", "unignore", "record", "stream");
+        Utils.Command.registerCommands(this, new ListManager(this), "list", "stafflist");
+        Utils.Command.registerCommands(this, new IgnoreManager(this), "ignore", "unignore");
         Utils.Command.registerCommands(this, new ChatManager(this), "chat", "staff", "global", "clearchat", "cc");
         Utils.Command.registerCommands(this, new NickManager(this), "nick", "unnick", "nickrandom");
         Utils.Command.registerCommands(this, new GamemodeManager(this), "gamemode", "gmc", "gms", "gma", "gmsp");
@@ -208,9 +207,5 @@ public class FirecraftCore extends FirecraftPlugin {
                 }
             }
         }.runTaskLater(this, 10L);
-    }
-
-    public StaffmodeManager getStaffmodeManager() {
-        return staffmodeManager;
     }
 }
