@@ -117,8 +117,8 @@ public class ChatManager implements CommandExecutor, Listener {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
 
             if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
-            if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
             if (Utils.Command.checkCmdAliases(args, 0, "staff", "st", "s")) {
+                if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
                 if (!Rank.isStaff(player.getMainRank())) {
                     player.sendMessage(Prefixes.CHAT + Messages.onlyStaff);
                     return true;
