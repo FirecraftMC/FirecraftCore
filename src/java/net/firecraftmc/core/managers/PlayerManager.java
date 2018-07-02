@@ -8,6 +8,7 @@ import net.firecraftmc.shared.classes.enums.Channel;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.interfaces.IPlayerManager;
 import net.firecraftmc.shared.classes.model.Report;
+import net.firecraftmc.shared.classes.model.Transaction;
 import net.firecraftmc.shared.classes.model.player.ActionBar;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.player.NickInfo;
@@ -170,6 +171,9 @@ public class PlayerManager implements IPlayerManager {
             }
         }
         player.setLastSeen(System.currentTimeMillis());
+
+        List<Transaction> transactions = plugin.getFCDatabase().getTransactions();
+        transactions.forEach(transaction -> player.getProfile().addTransaction(transaction));
 
         new BukkitRunnable() {
             public void run() {

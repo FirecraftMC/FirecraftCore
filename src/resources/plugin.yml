@@ -109,4 +109,5 @@ commands:
     pay:
     withdraw:
     balance:
+        aliases: [bal]
     baltop:

@@ -128,7 +128,20 @@ public class EconomyManager implements IEconomyManager, Listener {
             player.getInventory().addItem(itemStack);
             player.sendMessage(Prefixes.ECONOMY + "<nc>You have withdrawn <vc>$" + amount + " <nc>from your account and received a bank note.");
         } else if (cmd.getName().equalsIgnoreCase("balance")) {
+            if (args.length == 0) {
+                player.sendMessage(Prefixes.ECONOMY + "<nc>Your current balance is <vc>$" + player.getBalance());
+            } else if (args.length == 1) {
+                FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
+                if (target == null) {
+                    player.sendMessage(Prefixes.ECONOMY + "<ec>That player could not be found.");
+                    return true;
+                }
 
+                player.sendMessage(Prefixes.ECONOMY + "<nc>The balance of <vc>" + target.getName() + " <nc>is <vc>$" + target.getBalance());
+            } else {
+                player.sendMessage(Prefixes.ECONOMY + "<ec>Invalid amount of arguments.");
+                return true;
+            }
         } else if (cmd.getName().equalsIgnoreCase("baltop")) {
 
         }
