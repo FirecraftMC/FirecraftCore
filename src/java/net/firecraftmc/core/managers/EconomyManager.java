@@ -70,6 +70,7 @@ public class EconomyManager implements IEconomyManager, Listener {
                 if (target.isOnline()) {
                     target.sendMessage(Prefixes.ECONOMY + "<nc>You were given <vc>$" + amount + " <nc>by <vc>" + player.getName());
                 }
+                plugin.getFCDatabase().saveTransaction(transaction);
             }
         } else if (cmd.getName().equalsIgnoreCase("pay")) {
             if (!(args.length == 2)) {
@@ -97,6 +98,8 @@ public class EconomyManager implements IEconomyManager, Listener {
             deposit.setTarget(player.getUniqueId());
             player.sendMessage(Prefixes.ECONOMY + "<nc>You paid <vc>$" + amount + " <nc>to <vc>" + target.getName());
             target.sendMessage(Prefixes.ECONOMY + "<vc>" + player.getName() + " <nc>paid you <vc>$" + amount);
+            plugin.getFCDatabase().saveTransaction(withdrawal);
+            plugin.getFCDatabase().saveTransaction(deposit);
         } else if (cmd.getName().equalsIgnoreCase("withdraw")) {
             //TODO Economy Ticket system with unique ids Should be something that connects to the database, probably in it's own class with listeners eventually
             if (!(args.length == 1)) {
@@ -117,7 +120,7 @@ public class EconomyManager implements IEconomyManager, Listener {
                 return true;
             }
 
-            withdraw(player.getProfile(), amount);
+            Transaction withdraw = withdraw(player.getProfile(), amount);
             ItemStack itemStack = new ItemStack(Material.PAPER, 1);
             itemStack.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 1);
             ItemMeta meta = itemStack.getItemMeta();
@@ -127,6 +130,7 @@ public class EconomyManager implements IEconomyManager, Listener {
             itemStack.setItemMeta(meta);
             player.getInventory().addItem(itemStack);
             player.sendMessage(Prefixes.ECONOMY + "<nc>You have withdrawn <vc>$" + amount + " <nc>from your account and received a bank note.");
+            plugin.getFCDatabase().saveTransaction(withdraw);
         } else if (cmd.getName().equalsIgnoreCase("balance")) {
             if (args.length == 0) {
                 player.sendMessage(Prefixes.ECONOMY + "<nc>Your current balance is <vc>$" + player.getBalance());
