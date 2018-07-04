@@ -8,10 +8,7 @@ import net.firecraftmc.shared.classes.interfaces.SocketListener;
 import net.firecraftmc.shared.classes.model.Database;
 import net.firecraftmc.shared.classes.model.FirecraftSocket;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.classes.wrapper.ItemPickupEvent1_12;
-import net.firecraftmc.shared.classes.wrapper.ItemPickupEvent1_8;
-import net.firecraftmc.shared.classes.wrapper.NickWrapper1_12_R1;
-import net.firecraftmc.shared.classes.wrapper.NickWrapper1_8_R3;
+import net.firecraftmc.shared.classes.wrapper.*;
 import net.firecraftmc.shared.packets.FPacketServerConnect;
 import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
@@ -181,9 +178,11 @@ public class FirecraftCore extends FirecraftPlugin {
         String versionString = Utils.Reflection.getVersion();
         if (versionString.equalsIgnoreCase("v1_8_R3")) {
             this.nickWrapper = new NickWrapper1_8_R3();
+            this.nbtWrapper = new NBTWrapper1_8_R3();
             this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_8(this), this);
         } else if (versionString.equalsIgnoreCase("v1_12_R1")) {
             this.nickWrapper = new NickWrapper1_12_R1();
+            this.nbtWrapper = new NBTWrapper1_12_R1();
             this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_12(this), this);
         }
     }

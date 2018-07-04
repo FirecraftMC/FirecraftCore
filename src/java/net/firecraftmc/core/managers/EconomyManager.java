@@ -235,15 +235,11 @@ public class EconomyManager implements IEconomyManager {
         return true;
     }
 
-    public Transaction deposit(FirecraftProfile profile, double amount) {
-        Transaction transaction = new Transaction(profile.getUniqueId(), TransactionType.DEPOSIT, amount, System.currentTimeMillis());
-        profile.addTransaction(transaction);
-        return transaction;
+    public static Transaction deposit(FirecraftProfile profile, double amount) {
+        return IEconomyManager.deposit(profile, amount);
     }
 
-    public Transaction withdraw(FirecraftProfile profile, double amount) {
-        Transaction transaction = new Transaction(profile.getUniqueId(), TransactionType.WITHDRAWAL, amount, System.currentTimeMillis());
-        profile.addTransaction(transaction);
-        return transaction;
+    public static Transaction withdraw(FirecraftProfile profile, double amount) {
+        return IEconomyManager.withdraw(profile, amount);
     }
 }
