@@ -172,7 +172,7 @@ public class PlayerManager implements IPlayerManager {
         }
         player.setLastSeen(System.currentTimeMillis());
 
-        List<Transaction> transactions = plugin.getFCDatabase().getTransactions();
+        List<Transaction> transactions = plugin.getFCDatabase().getTransactions(player.getUniqueId());
         transactions.forEach(transaction -> player.getProfile().addTransaction(transaction));
 
         new BukkitRunnable() {
