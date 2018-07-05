@@ -1,6 +1,7 @@
 package net.firecraftmc.core;
 
 import net.firecraftmc.core.managers.*;
+import net.firecraftmc.shared.classes.FirecraftMC;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.interfaces.*;
@@ -15,6 +16,7 @@ import net.firecraftmc.shared.packets.FPacketServerDisconnect;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -53,6 +55,8 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
             getConfig().set("host", "172.18.0.2");
             saveConfig();
         }
+
+        FirecraftMC.setFirecraftCore(this);
 
         String host = getConfig().getString("host");
         this.socket = new FirecraftSocket(this, host, getConfig().getInt("port"));
@@ -363,5 +367,9 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
 
     public NBTWrapper getNbtWrapper() {
         return nbtWrapper;
+    }
+
+    public FileConfiguration getConfig() {
+        return super.getConfig();
     }
 }
