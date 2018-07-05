@@ -1,6 +1,7 @@
 package net.firecraftmc.core;
 
 import net.firecraftmc.core.managers.*;
+import net.firecraftmc.shared.classes.FCEconVault;
 import net.firecraftmc.shared.classes.FirecraftMC;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Rank;
@@ -27,32 +28,30 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * The main plugin class for the core and where a lot of the implementation for FirecraftPlugin and other FirecraftShared stuff is.
+ * The main plugin class for the core and where a lot of the implementation for IFirecraftCore and other FirecraftShared stuff is.
  */
 public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
 
-    protected IPlayerManager playerManager;
-    protected NickWrapper nickWrapper;
-    protected NBTWrapper nbtWrapper;
-    protected FirecraftSocket socket;
-    protected FirecraftServer server;
-    protected Location serverSpawn;
-    protected Location jailLocation;
-    protected Database database;
-    private final HashMap<UUID, String> ackCodes = new HashMap<>();
-    protected IHomeManager homeManager;
-    protected IServerManager serverManager;
-    protected IStaffmodeManager staffmodeManager = null;
-    protected IWarpManager warpManager = null;
-    protected IEconomyManager economyManager = null;
+    private IPlayerManager playerManager;
+    private NickWrapper nickWrapper;
+    private NBTWrapper nbtWrapper;
+    private FirecraftSocket socket;
+    private FirecraftServer server;
+    private Location serverSpawn;
+    private Location jailLocation;
+    private Database database;
+    private HashMap<UUID, String> ackCodes = new HashMap<>();
+    private IHomeManager homeManager;
+    private IServerManager serverManager;
+    private IStaffmodeManager staffmodeManager = null;
+    private IWarpManager warpManager = null;
+    private IEconomyManager economyManager = null;
+    private ICommandManager commandManager = null;
 
-    /**
-     * This is where all of the stuff is loaded into memory and the task methods are called.
-     */
     public void onEnable() {
         this.saveDefaultConfig();
         if (!getConfig().contains("host")) {
-            getConfig().set("host", "172.18.0.2");
+            getConfig().set("host", "localhost");
             saveConfig();
         }
 
@@ -87,6 +86,8 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
             this.server = database.getServer(getConfig().getString("server"));
         }
 
+        this.commandManager = new CommandManager(this);
+
         this.registerAllCommands();
 
         this.versionSpecificTasks();
@@ -117,11 +118,15 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
                 }
             }
         }.runTaskTimerAsynchronously(this, 0L, 20L);
+
+        new BukkitRunnable() {
+            public void run() {
+                FCEconVault fcEconVault = new FCEconVault(FirecraftCore.this);
+                fcEconVault.registerServices();
+            }
+        }.runTaskLater(this, 20L);
     }
 
-    /**
-     * All close methods are called here and stuff is saved to the database/files where needed.
-     */
     public void onDisable() {
         getConfig().set("server", server.getId());
         getConfig().set("spawn", Utils.convertLocationToString(serverSpawn));
@@ -157,9 +162,6 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         saveConfig();
     }
 
-    /**
-     * This method handles the registration of all commands and their managers.
-     */
     private void registerAllCommands() {
         this.playerManager = new PlayerManager(this);
         Utils.Command.registerCommands(this, playerManager, "players", "fct", "ignore", "unignore", "record", "stream");
@@ -192,9 +194,6 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         Utils.Command.registerCommands(this, economyManager, "economy", "pay", "withdraw", "balance", "baltop");
     }
 
-    /**
-     * Handles the Version Specific classes needed for proper operation.
-     */
     private void versionSpecificTasks() {
         String versionString = Utils.Reflection.getVersion();
         if (versionString.equalsIgnoreCase("v1_8_R3")) {
@@ -208,9 +207,6 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         }
     }
 
-    /**
-     * Handles Post-World Tasks that can only be done when the world is loaded into memory (Plugin is enabled on Startup)
-     */
     private void postWorldTasks() {
         new BukkitRunnable() {
             public void run() {
@@ -233,114 +229,60 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         }.runTaskLater(this, 10L);
     }
 
-    /**
-     * Gets the NickWrapper for the current version of Minecraft
-     * @return NickWrapper which is an abstract class
-     */
     public final NickWrapper getNickWrapper() {
         return nickWrapper;
     }
 
-    /**
-     * Gets the Socket Connection to the Socket Server.
-     * @return FirecraftSocket object
-     */
     public final FirecraftSocket getSocket() {
         return socket;
     }
 
-    /**
-     * Gets the manager used for player data and player related events
-     * @return PlayerManager implementation
-     */
     public final IPlayerManager getPlayerManager() {
         return playerManager;
     }
 
-    /**
-     * @return FirecraftServer containing the name and color
-     */
     public final FirecraftServer getFCServer() {
         return server;
     }
 
-    /**
-     * @return The serverid spawn location
-     */
     public final Location getSpawn() {
         return serverSpawn;
     }
 
-    /**
-     * Sets the serverid spawn location
-     * @param serverSpawn The location to be used as the new spawn
-     */
     public final void setSpawn(Location serverSpawn) {
         this.serverSpawn = serverSpawn;
     }
 
-    /**
-     * @return Get the Jail Location used in the Punishment Manager
-     */
     public Location getJailLocation() {
         return jailLocation;
     }
 
-    /**
-     * @param jailLocation Set the jail location used by Helpers
-     */
     public final void setJailLocation(Location jailLocation) {
         this.jailLocation = jailLocation;
     }
 
-    /**
-     * @return The Database database connection
-     */
     public final Database getFCDatabase() {
         return database;
     }
 
-    /**
-     * Checks to see if the player has acknowledged their warning
-     * @param uuid The Unique ID of the player to check
-     * @return If they have acknowledged their warning
-     */
     public final boolean isWarnAcknowledged(UUID uuid) {
         return !this.ackCodes.containsKey(uuid);
     }
 
-    /**
-     * Gets the code that was generated when the player joined in order for them to acknowledge it.
-     * @param uuid The unique id of the player
-     * @return The code generated
-     */
     public final String getAckCode(UUID uuid) {
         return this.ackCodes.get(uuid);
     }
 
-    /**
-     * Performs tasks that are related to acknowledging a warning
-     * @param uuid The Unique ID of the player
-     * @param name The Name of the player (Used in the broadcast message)
-     */
     public final void acknowledgeWarn(UUID uuid, String name) {
         this.ackCodes.remove(uuid);
         this.database.updateSQL("UPDATE `punishments` SET `acknowledged`='true' WHERE `target`='{uuid}' AND `type`='WARN';".replace("{uuid}", uuid.toString().replace("-", "")));
         this.socket.sendPacket(new FPacketAcknowledgeWarning(server.getId(), name));
     }
 
-    /**
-     * Adds a code used for warnings
-     * @param uuid The Unique Id of the warned player
-     * @param code The code generated
-     */
     public final void addAckCode(UUID uuid, String code) {
         this.ackCodes.put(uuid, code);
     }
 
-    /**
-     * @return The HomeManager class used for homes (Implemented in FirecraftCore)
-     */
     public final IHomeManager getHomeManager() {
         return homeManager;
     }
@@ -371,5 +313,9 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
 
     public FileConfiguration getConfig() {
         return super.getConfig();
+    }
+
+    public ICommandManager getCommandManager() {
+        return commandManager;
     }
 }
