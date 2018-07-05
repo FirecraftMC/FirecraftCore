@@ -1,12 +1,12 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.model.server.FirecraftServer;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Rank;
+import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.player.TPRequest;
+import net.firecraftmc.shared.classes.model.server.FirecraftServer;
 import net.firecraftmc.shared.packets.staffchat.FPSCTeleport;
 import net.firecraftmc.shared.packets.staffchat.FPSCTeleportHere;
 import net.firecraftmc.shared.packets.staffchat.FPSCTeleportOthers;
@@ -92,7 +92,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
     
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerDeath(PlayerRespawnEvent e) {
-        e.setRespawnLocation(plugin.getServerSpawn());
+        e.setRespawnLocation(plugin.getSpawn());
     }
     
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
@@ -329,7 +329,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
                     player.sendMessage(Messages.recordingNoUse);
                     return true;
                 }
-                plugin.setServerSpawn(player.getLocation());
+                plugin.setSpawn(player.getLocation());
                 player.sendMessage(Messages.setSpawn);
                 return true;
             } else {
@@ -337,7 +337,7 @@ public class TeleportationManager implements CommandExecutor, Listener {
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("spawn")) {
-            player.teleport(plugin.getServerSpawn());
+            player.teleport(plugin.getSpawn());
             player.sendMessage(Messages.sendToSpawn);
         }
         

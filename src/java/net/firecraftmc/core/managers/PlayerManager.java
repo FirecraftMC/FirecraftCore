@@ -85,7 +85,7 @@ public class PlayerManager implements IPlayerManager {
                 while (listIterator.hasNext()) {
                     UUID uuid = listIterator.next();
                     Player p = Bukkit.getPlayer(uuid);
-                    p.teleport(plugin.getServerSpawn());
+                    p.teleport(plugin.getSpawn());
                     listIterator.remove();
                 }
             }
