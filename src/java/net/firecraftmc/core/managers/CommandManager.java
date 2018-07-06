@@ -1,7 +1,9 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
+import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.interfaces.ICommandManager;
+import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.command.FirecraftCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -25,7 +27,18 @@ public class CommandManager implements ICommandManager {
                 if (sender instanceof ConsoleCommandSender) {
                     command.executeConsole((ConsoleCommandSender) sender, args);
                 } else if (sender instanceof Player) {
-                    command.executePlayer(plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId()), args);
+                    FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
+                    if (command.canUse(player)) {
+                        if (command.respectsRecordMode()) {
+                            if (player.isRecording()) {
+                                player.sendMessage(Messages.recordingNoUse);
+                                return true;
+                            }
+                        }
+                        command.executePlayer(player, args);
+                    } else {
+                        player.sendMessage(Messages.noPermission);
+                    }
                 }
             }
         }
@@ -46,6 +59,12 @@ public class CommandManager implements ICommandManager {
 
     public void addCommand(FirecraftCommand command) {
         this.commands.add(command);
+    }
+
+    public void addCommands(FirecraftCommand... cmds) {
+        for (FirecraftCommand cmd : cmds) {
+            addCommand(cmd);
+        }
     }
 
     public void removeCommand(String name) {

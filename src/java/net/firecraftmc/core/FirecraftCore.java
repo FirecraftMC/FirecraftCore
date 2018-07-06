@@ -167,11 +167,11 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         Utils.Command.registerCommands(this, playerManager, "players", "fct", "ignore", "unignore", "record", "stream");
         Utils.Command.registerCommands(this, new ListManager(this), "list", "stafflist");
         Utils.Command.registerCommands(this, new IgnoreManager(this), "ignore", "unignore");
-        Utils.Command.registerCommands(this, new ChatManager(this), "chat", "staff", "global", "clearchat", "cc");
+        Utils.Command.registerCommands(this, commandManager, "chat", "staff", "global", "clearchat", "cc");
         Utils.Command.registerCommands(this, new NickManager(this), "nick", "unnick", "nickrandom");
         Utils.Command.registerCommands(this, new GamemodeManager(this), "gamemode", "gmc", "gms", "gma", "gmsp");
         Utils.Command.registerCommands(this, new TeleportationManager(this), "teleport", "tphere", "back", "tpall", "tpaccept", "tpdeny", "tpa", "setspawn", "spawn");
-        this.getCommand("dev").setExecutor(new DevManager(this));
+        this.getCommand("dev").setExecutor(commandManager);
         this.getCommand("feed").setExecutor(new FeedManager(this));
         this.getCommand("heal").setExecutor(new HealManager(this));
         this.getCommand("signedit").setExecutor(new SignEditManager(this));
@@ -179,7 +179,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         Utils.Command.registerCommands(this, new ItemManager(this), "setname", "setlore");
         this.getCommand("weather").setExecutor(new WeatherManager(this));
         Utils.Command.registerCommands(this, new TimeManager(this), "time", "day", "night");
-        Utils.Command.registerCommands(this, new BroadcastManager(this), "broadcast", "socketbroadcast");
+        Utils.Command.registerCommands(this, commandManager, "broadcast", "socketbroadcast");
         Utils.Command.registerCommands(this, new InventoryManager(this), "clearinventory", "enderchest", "workbench", "invsee");
         this.homeManager = new HomeManager(this);
         Utils.Command.registerCommands(this, this.homeManager, "sethome", "delhome", "home");

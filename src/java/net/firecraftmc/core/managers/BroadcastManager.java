@@ -1,22 +1,16 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.Prefixes;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.enums.Rank;
+import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
+import net.firecraftmc.shared.command.FirecraftCommand;
 import net.firecraftmc.shared.packets.FPacketSocketBroadcast;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import org.bukkit.command.ConsoleCommandSender;
 
-public class BroadcastManager implements CommandExecutor {
-    private FirecraftCore plugin;
-
+public class BroadcastManager {
     public BroadcastManager(FirecraftCore plugin) {
-        this.plugin = plugin;
-
         plugin.getSocket().addSocketListener(packet -> {
             if (packet instanceof FPacketSocketBroadcast) {
                 FPacketSocketBroadcast socketBroadcast = ((FPacketSocketBroadcast) packet);
@@ -28,54 +22,57 @@ public class BroadcastManager implements CommandExecutor {
                 });
             }
         });
-    }
 
+        FirecraftCommand broadcast = new FirecraftCommand("broadcast", "Broadcasts a message to all players on the server.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (args.length == 0) {
+                    player.sendMessage(Prefixes.BROADCAST + Messages.notEnoughArgs);
+                    return;
+                }
 
-    public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(Messages.onlyPlayers);
-            return true;
-        }
+                StringBuilder sb = new StringBuilder();
+                for (String a : args) {
+                    sb.append(a).append(" ");
+                }
 
-        FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
-
-        if (player.isRecording()) {
-            player.sendMessage(Prefixes.BROADCAST + Messages.recordingNoUse);
-            return true;
-        }
-
-        if (args.length == 0) {
-            player.sendMessage(Prefixes.BROADCAST + Messages.notEnoughArgs);
-            return true;
-        }
-
-        StringBuilder sb = new StringBuilder();
-        for (String a : args) {
-            sb.append(a).append(" ");
-        }
-
-        if (cmd.getName().equalsIgnoreCase("broadcast")) {
-            if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                 for (FirecraftPlayer fp : plugin.getPlayerManager().getPlayers()) {
                     fp.sendMessage("");
                     fp.sendMessage(Messages.broadcast(sb.toString()));
                     fp.sendMessage("");
                 }
-            } else {
-                player.sendMessage(Prefixes.BROADCAST + Messages.noPermission);
-                return true;
             }
-        } else if (cmd.getName().equalsIgnoreCase("socketbroadcast")) {
-            if (player.getMainRank().isEqualToOrHigher(Rank.HEAD_ADMIN)) {
-                if (plugin.getFCServer() == null) return true;
+
+            public void executeConsole(ConsoleCommandSender sender, String[] args) {
+                sender.sendMessage("§cNot supported.");
+            }
+        };
+        broadcast.addAlias("bc");
+        broadcast.addRanks(Rank.FIRECRAFT_TEAM, Rank.HEAD_ADMIN, Rank.ADMIN);
+
+        FirecraftCommand socketBroadcast = new FirecraftCommand("socketbroadcast", "Broadcast a message to all servers.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (args.length == 0) {
+                    player.sendMessage(Prefixes.BROADCAST + Messages.notEnoughArgs);
+                    return;
+                }
+
+                StringBuilder sb = new StringBuilder();
+                for (String a : args) {
+                    sb.append(a).append(" ");
+                }
+
+                if (plugin.getFCServer() == null) return;
                 FPacketSocketBroadcast socketBroadcast = new FPacketSocketBroadcast(plugin.getFCServer().getId(), sb.toString());
                 plugin.getSocket().sendPacket(socketBroadcast);
-            } else {
-                player.sendMessage(Prefixes.BROADCAST + Messages.noPermission);
-                return true;
             }
-        }
 
-        return true;
+            public void executeConsole(ConsoleCommandSender sender, String[] args) {
+                sender.sendMessage("§cNot supported.");
+            }
+        };
+        socketBroadcast.addRanks(Rank.FIRECRAFT_TEAM, Rank.HEAD_ADMIN);
+        socketBroadcast.addAlias("sbc");
+
+        plugin.getCommandManager().addCommands(broadcast, socketBroadcast);
     }
 }

@@ -7,13 +7,11 @@ import net.firecraftmc.shared.classes.Utils;
 import net.firecraftmc.shared.classes.enums.Channel;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
+import net.firecraftmc.shared.command.FirecraftCommand;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatMessage;
 import net.firecraftmc.shared.punishments.Punishment;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,7 +22,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import java.util.List;
 import java.util.Random;
 
-public class ChatManager implements CommandExecutor, Listener {
+public class ChatManager implements Listener {
     private final FirecraftCore plugin;
 
     public ChatManager(FirecraftCore plugin) {
@@ -45,6 +43,114 @@ public class ChatManager implements CommandExecutor, Listener {
                 });
             }
         });
+
+        FirecraftCommand chat = new FirecraftCommand("chat", "The command for chat channels.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (Utils.Command.checkCmdAliases(args, 0, "staff", "st", "s")) {
+                    if (args.length != 1) {
+                        player.sendMessage(Prefixes.CHAT + "§cYou must provide a channel to switch to.");
+                    }
+                    if (!Rank.isStaff(player.getMainRank())) {
+                        player.sendMessage(Prefixes.CHAT + Messages.onlyStaff);
+                        return;
+                    }
+
+                    if (player.getChannel().equals(Channel.STAFF)) {
+                        player.sendMessage(Prefixes.CHAT + Messages.alreadyInChannel);
+                        return;
+                    }
+                    player.setChannel(Channel.STAFF);
+                    player.sendMessage(Prefixes.CHAT + Messages.channelSwitch(Channel.STAFF));
+                } else if (Utils.Command.checkCmdAliases(args, 0, "global", "gl", "g")) {
+                    if (player.getChannel().equals(Channel.GLOBAL)) {
+                        player.sendMessage(Prefixes.CHAT + Messages.alreadyInChannel);
+                        return;
+                    }
+                    player.setChannel(Channel.GLOBAL);
+                    player.sendMessage(Prefixes.CHAT + Messages.channelSwitch(Channel.GLOBAL));
+                }
+            }
+
+            public void executeConsole(ConsoleCommandSender sender, String[] args) {
+                sender.sendMessage(Messages.onlyPlayers);
+            }
+        };
+        chat.addAlias("c");
+
+        FirecraftCommand globalShortcut = new FirecraftCommand("global", "Quick access command for global chat.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (!(args.length > 0)) {
+                    player.sendMessage(Prefixes.CHAT + "<ec>You must provide a message to send.");
+                    return;
+                }
+                String format = Utils.Chat.formatGlobal(player, Utils.getReason(0, args));
+                for (FirecraftPlayer op : plugin.getPlayerManager().getPlayers()) {
+                    if (!op.isIgnoring(player.getUniqueId())) {
+                        op.sendMessage(format);
+                    }
+                }
+            }
+
+            public void executeConsole(ConsoleCommandSender sender, String[] args) {
+                sender.sendMessage(Messages.onlyPlayers);
+            }
+        };
+        globalShortcut.addAlias("g");
+
+        FirecraftCommand staffShortcut = new FirecraftCommand("staff", "Quick access command for staff chat") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (!(args.length > 0)) {
+                    player.sendMessage(Prefixes.CHAT + "<ec>You must provide a message to send.");
+                    return;
+                }
+                String message = Utils.getReason(0, args);
+
+                if (plugin.getFCServer() == null) {
+                    player.sendMessage(Prefixes.CHAT + Messages.serverNotSet);
+                    return;
+                }
+                FPStaffChatMessage staffChatMessage = new FPStaffChatMessage(plugin.getFCServer().getId(), player.getUniqueId(), message);
+                plugin.getSocket().sendPacket(staffChatMessage);
+            }
+
+            @Override
+            public void executeConsole(ConsoleCommandSender sender, String[] args) {
+                sender.sendMessage(Messages.onlyPlayers);
+            }
+        };
+        staffShortcut.addAlias("s");
+        staffShortcut.addRanks(Rank.FIRECRAFT_TEAM, Rank.HEAD_ADMIN, Rank.ADMIN, Rank.TRIAL_ADMIN, Rank.MODERATOR, Rank.HELPER);
+
+        FirecraftCommand clearChat = new FirecraftCommand("clearchat", "Clears the chat of everyone but staff members.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                int lines = 150;
+                for (Player pl : Bukkit.getServer().getOnlinePlayers()) {
+                    FirecraftPlayer fcPl = plugin.getPlayerManager().getPlayer(pl.getUniqueId());
+                    if (fcPl.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
+                        fcPl.sendMessage(Prefixes.CHAT + Messages.chatCleared);
+                    } else {
+                        for (int x = 0; x < lines; x++) {
+                            Random rand = new Random();
+                            int spaces = rand.nextInt(15);
+                            StringBuilder line = new StringBuilder(" ");
+                            for (int y = 0; y < spaces; y++) {
+                                line.append(" ");
+                            }
+                            fcPl.sendMessage(line.toString());
+                        }
+                        fcPl.sendMessage(Prefixes.CHAT + Messages.chatCleared);
+                    }
+                }
+            }
+
+            public void executeConsole(ConsoleCommandSender sender, String[] args) {
+                sender.sendMessage(Messages.noPermission);
+            }
+        };
+        clearChat.addAlias("cc");
+        clearChat.addRanks(Rank.FIRECRAFT_TEAM, Rank.HEAD_ADMIN, Rank.ADMIN, Rank.TRIAL_ADMIN, Rank.MODERATOR);
+
+        plugin.getCommandManager().addCommands(chat, globalShortcut, staffShortcut, clearChat);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -107,94 +213,5 @@ public class ChatManager implements CommandExecutor, Listener {
             FPStaffChatMessage msg = new FPStaffChatMessage(plugin.getFCServer().getId(), player.getUniqueId(), e.getMessage());
             plugin.getSocket().sendPacket(msg);
         }
-    }
-
-    public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
-        if (sender instanceof ConsoleCommandSender) {
-            sender.sendMessage(Messages.noPermission);
-            return true;
-        } else if (sender instanceof Player) {
-            FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
-
-            if (!Utils.checkFirecraftPlayer((Player) sender, player)) return true;
-            if (Utils.Command.checkCmdAliases(args, 0, "staff", "st", "s")) {
-                if (!Utils.Command.checkArgCountExact(sender, args, 1)) return true;
-                if (!Rank.isStaff(player.getMainRank())) {
-                    player.sendMessage(Prefixes.CHAT + Messages.onlyStaff);
-                    return true;
-                }
-
-                if (player.isRecording()) {
-                    player.sendMessage(Prefixes.CHAT + Messages.recordingNoUse);
-                    return true;
-                }
-
-                if (player.getChannel().equals(Channel.STAFF)) {
-                    player.sendMessage(Prefixes.CHAT + Messages.alreadyInChannel);
-                    return true;
-                }
-                player.setChannel(Channel.STAFF);
-                player.sendMessage(Prefixes.CHAT + Messages.channelSwitch(Channel.STAFF));
-            } else if (Utils.Command.checkCmdAliases(args, 0, "global", "gl", "g")) {
-                if (player.getChannel().equals(Channel.GLOBAL)) {
-                    player.sendMessage(Prefixes.CHAT + Messages.alreadyInChannel);
-                    return true;
-                }
-                player.setChannel(Channel.GLOBAL);
-                player.sendMessage(Prefixes.CHAT + Messages.channelSwitch(Channel.GLOBAL));
-            } else if (cmd.getName().equalsIgnoreCase("global")) {
-                if (!(args.length > 0)) {
-                    player.sendMessage(Prefixes.CHAT + "<ec>You must provide a message to send.");
-                    return true;
-                }
-                String format = Utils.Chat.formatGlobal(player, Utils.getReason(0, args));
-                for (FirecraftPlayer op : plugin.getPlayerManager().getPlayers()) {
-                    if (!op.isIgnoring(player.getUniqueId())) {
-                        op.sendMessage(format);
-                    }
-                }
-            } else if (cmd.getName().equalsIgnoreCase("staff")) {
-                if (!(args.length > 0)) {
-                    player.sendMessage(Prefixes.CHAT + "<ec>You must provide a message to send.");
-                    return true;
-                }
-                String message = Utils.getReason(0, args);
-
-                if (plugin.getFCServer() == null) {
-                    player.sendMessage(Prefixes.CHAT + Messages.serverNotSet);
-                    return true;
-                }
-                FPStaffChatMessage staffChatMessage = new FPStaffChatMessage(plugin.getFCServer().getId(), player.getUniqueId(), message);
-                plugin.getSocket().sendPacket(staffChatMessage);
-            } else if (cmd.getName().equalsIgnoreCase("clearchat") || cmd.getName().equalsIgnoreCase("cc")) {
-                if (player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
-                    int lines = 150;
-                    for (Player pl : Bukkit.getServer().getOnlinePlayers()) {
-                        FirecraftPlayer fcPl = plugin.getPlayerManager().getPlayer(pl.getUniqueId());
-                        if (fcPl.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
-                            fcPl.sendMessage(Prefixes.CHAT + Messages.chatCleared);
-                        } else {
-                            for (int x = 0; x < lines; x++) {
-                                Random rand = new Random();
-                                int spaces = rand.nextInt(15);
-                                StringBuilder line = new StringBuilder(" ");
-                                for (int y = 0; y < spaces; y++) {
-                                    line.append(" ");
-                                }
-                                fcPl.sendMessage(line.toString());
-                            }
-                            fcPl.sendMessage(Prefixes.CHAT + Messages.chatCleared);
-                        }
-                    }
-                } else {
-                    player.sendMessage(Prefixes.CHAT + Messages.noPermission);
-                }
-            } else {
-                player.sendMessage(Prefixes.CHAT + Messages.noOtherChannels);
-                return true;
-
-            }
-        }
-        return true;
     }
 }
