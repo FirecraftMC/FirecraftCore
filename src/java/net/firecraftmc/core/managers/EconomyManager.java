@@ -10,9 +10,11 @@ import net.firecraftmc.shared.classes.interfaces.IEconomyManager;
 import net.firecraftmc.shared.classes.model.Transaction;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.player.FirecraftProfile;
+import net.firecraftmc.shared.command.FirecraftCommand;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,6 +32,18 @@ public class EconomyManager implements IEconomyManager {
     public EconomyManager(FirecraftCore plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+
+        FirecraftCommand economy = new FirecraftCommand("economy", "The economy base command.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+
+            }
+
+            public void executeConsole(ConsoleCommandSender sender, String[] args) {
+                sender.sendMessage(Messages.onlyPlayers);
+            }
+        };
+        economy.addAliases("econ", "eco");
+        economy.addRanks(Rank.FIRECRAFT_TEAM, Rank.HEAD_ADMIN, Rank.ADMIN);
     }
 
     @EventHandler
