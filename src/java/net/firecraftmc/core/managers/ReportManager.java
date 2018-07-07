@@ -106,11 +106,7 @@ public class ReportManager implements CommandExecutor {
             } catch (Exception e) {
             }
 
-            if (uuid != null) {
-                target = plugin.getPlayerManager().getPlayer(uuid);
-            } else {
-                target = plugin.getPlayerManager().getPlayer(args[0]);
-            }
+            target = uuid != null ? plugin.getPlayerManager().getPlayer(uuid) : plugin.getPlayerManager().getPlayer(args[0]);
 
             if (target == null) {
                 player.sendMessage(Prefixes.REPORT + Messages.reportInvalidTarget);

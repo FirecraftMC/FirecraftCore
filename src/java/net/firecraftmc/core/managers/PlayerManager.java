@@ -180,7 +180,7 @@ public class PlayerManager implements IPlayerManager {
                 if (Rank.isStaff(player.getMainRank())) {
                     List<Report> reports = plugin.getFCDatabase().getNotClosedReports();
 
-                    if (reports.size() > 0) {
+                    if (!reports.isEmpty()) {
                         int unassignedCount = 0, assignedToSelfCount = 0;
                         for (Report report : reports) {
                             if (report.getAssignee() == null) {
@@ -278,18 +278,14 @@ public class PlayerManager implements IPlayerManager {
         onlinePlayers.remove(player.getUniqueId());
         cachedPlayers.put(player.getUniqueId(), player);
 
-        if (onlinePlayers.size() > 0) {
+        if (!onlinePlayers.isEmpty()) {
             for (FirecraftPlayer p : onlinePlayers.values()) {
                 p.getScoreboard().updateScoreboard(p);
             }
         }
         long time = System.currentTimeMillis();
         long playTime;
-        if (player.getLastSeen() == 0) {
-            playTime = time - player.getFirstJoined();
-        } else {
-            playTime = time - player.getLastSeen();
-        }
+        playTime = player.getLastSeen() == 0 ? time - player.getFirstJoined() : time - player.getLastSeen();
         player.setTimePlayed(player.getTimePlayed() + playTime);
         player.setLastSeen(time);
         player.setOnline(false);
@@ -525,11 +521,7 @@ public class PlayerManager implements IPlayerManager {
                         }
 
                         String prefix;
-                        if (!player.getUniqueId().equals(FirecraftMC.firestar311)) {
-                            prefix = "&4&l" + ChatColor.stripColor(Utils.color(args[1]));
-                        } else {
-                            prefix = "&4&l" + args[1];
-                        }
+                        prefix = !player.getUniqueId().equals(FirecraftMC.firestar311) ? "&4&l" + ChatColor.stripColor(Utils.color(args[1])) : "&4&l" + args[1];
 
                         if (plugin.getFCDatabase().setFTPrefix(player.getUniqueId(), prefix)) {
                             player.setFctPrefix(prefix);

@@ -212,11 +212,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
             public void run() {
                 warpManager = new WarpManager(FirecraftCore.this);
                 Utils.Command.registerCommands(FirecraftCore.this, warpManager, "setwarp", "delwarp", "warp");
-                if (getConfig().contains("spawn")) {
-                    serverSpawn = Utils.getLocationFromString(getConfig().getString("spawn"));
-                } else {
-                    serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
-                }
+                serverSpawn = getConfig().contains("spawn") ? Utils.getLocationFromString(getConfig().getString("spawn")) : Bukkit.getWorlds().get(0).getSpawnLocation();
 
                 if (serverSpawn == null) {
                     serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();

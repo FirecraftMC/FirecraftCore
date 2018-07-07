@@ -38,15 +38,13 @@ public class ListManager implements CommandExecutor {
                 }
 
                 onlineCount++;
-                if (onlinePlayers.get(r) == null) {
-                    onlinePlayers.put(r, new ArrayList<>());
-                }
+                onlinePlayers.computeIfAbsent(r, k -> new ArrayList<>());
 
                 onlinePlayers.get(r).add(fp.getNameNoPrefix());
             }
             player.sendMessage(Messages.listHeader(onlineCount));
             for (Map.Entry<Rank, List<String>> entry : onlinePlayers.entrySet()) {
-                if (entry.getValue().size() != 0) {
+                if (!entry.getValue().isEmpty()) {
                     String line = generateListLine(entry.getKey(), entry.getValue());
                     if (entry.getKey().equals(Rank.FIRECRAFT_TEAM)) {
                         if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {

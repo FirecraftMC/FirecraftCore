@@ -224,7 +224,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
 
                 String reason = Utils.getReason(1, args);
 
-                if (reason.length() == 0) {
+                if (reason.isEmpty()) {
                     player.sendMessage(Prefixes.ENFORCER + Messages.punishNoReason);
                     return true;
                 }
@@ -251,11 +251,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 String[] a = time.split("d".toUpperCase());
 
                 if (a.length == 1) {
-                    if (a[0].contains("H") || a[0].contains("M") || a[0].contains("S")) {
-                        expireTime += "T" + a[0];
-                    } else {
-                        expireTime += a[0] + "d";
-                    }
+                    expireTime += a[0].contains("H") || a[0].contains("M") || a[0].contains("S") ? "T" + a[0] : a[0] + "d";
                 } else if (a.length == 2) {
                     expireTime = a[0] + "dT" + a[1];
                 }
@@ -263,7 +259,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 long expire = Duration.parse(expireTime).toMillis();
                 long expireDate = date + expire;
                 String reason = Utils.getReason(2, args);
-                if (reason.length() == 0) {
+                if (reason.isEmpty()) {
                     player.sendMessage(Prefixes.ENFORCER + Messages.punishNoReason);
                     return true;
                 }
@@ -294,7 +290,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 Punishment.Type type = Punishment.Type.MUTE;
 
                 String reason = Utils.getReason(1, args);
-                if (reason.length() == 0) {
+                if (reason.isEmpty()) {
                     player.sendMessage(Prefixes.ENFORCER + Messages.punishNoReason);
                     return true;
                 }
@@ -321,11 +317,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 String[] a = time.split("d".toUpperCase());
 
                 if (a.length == 1) {
-                    if (a[0].contains("H") || a[0].contains("M") || a[0].contains("S")) {
-                        expireTime += "T" + a[0];
-                    } else {
-                        expireTime += a[0] + "d";
-                    }
+                    expireTime += a[0].contains("H") || a[0].contains("M") || a[0].contains("S") ? "T" + a[0] : a[0] + "d";
                 } else if (a.length == 2) {
                     expireTime = a[0] + "dT" + a[1];
                 }
@@ -333,7 +325,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 long expire = Duration.parse(expireTime).toMillis();
                 long expireDate = date + expire;
                 String reason = Utils.getReason(2, args);
-                if (reason.length() == 0) {
+                if (reason.isEmpty()) {
                     player.sendMessage(Prefixes.ENFORCER + Messages.punishNoReason);
                     return true;
                 }
@@ -363,7 +355,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 }
 
                 String reason = Utils.getReason(1, args);
-                if (reason.length() == 0) {
+                if (reason.isEmpty()) {
                     player.sendMessage(Prefixes.ENFORCER + Messages.punishNoReason);
                     return true;
                 }
@@ -389,7 +381,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
 
                 Punishment.Type type = Punishment.Type.KICK;
                 String reason = Utils.getReason(1, args);
-                if (reason.length() == 0) {
+                if (reason.isEmpty()) {
                     player.sendMessage(Prefixes.ENFORCER + Messages.punishNoReason);
                     return true;
                 }
@@ -412,7 +404,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 }
 
                 String reason = Utils.getReason(1, args);
-                if (reason.length() == 0) {
+                if (reason.isEmpty()) {
                     player.sendMessage(Prefixes.ENFORCER + Messages.punishNoReason);
                     return true;
                 }

@@ -48,9 +48,7 @@ public class CommandManager implements ICommandManager {
 
     public FirecraftCommand getCommand(String cmd) {
         for (FirecraftCommand command : commands) {
-            if (command.getName().equalsIgnoreCase(cmd)) {
-                return command;
-            } else if (command.hasAlias(cmd)) {
+            if (command.getName().equalsIgnoreCase(cmd) || command.hasAlias(cmd)) {
                 return command;
             }
         }
