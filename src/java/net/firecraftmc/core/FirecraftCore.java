@@ -1,9 +1,7 @@
 package net.firecraftmc.core;
 
 import net.firecraftmc.core.managers.*;
-import net.firecraftmc.shared.classes.FCEconVault;
-import net.firecraftmc.shared.classes.FirecraftMC;
-import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.interfaces.*;
 import net.firecraftmc.shared.classes.model.Database;
@@ -11,9 +9,7 @@ import net.firecraftmc.shared.classes.model.FirecraftSocket;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.server.FirecraftServer;
 import net.firecraftmc.shared.classes.wrapper.*;
-import net.firecraftmc.shared.packets.FPacketAcknowledgeWarning;
-import net.firecraftmc.shared.packets.FPacketServerConnect;
-import net.firecraftmc.shared.packets.FPacketServerDisconnect;
+import net.firecraftmc.shared.packets.*;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,13 +19,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-/**
- * The main plugin class for the core and where a lot of the implementation for IFirecraftCore and other FirecraftShared stuff is.
- */
 public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
 
     private IPlayerManager playerManager;
@@ -164,6 +155,11 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
 
     private void registerAllCommands() {
         this.playerManager = new PlayerManager(this);
+        new BroadcastManager(this);
+        new ChatManager(this);
+        new DevManager(this);
+        this.economyManager = new EconomyManager(this);
+        new FeedManager(this);
         Utils.Command.registerCommands(this, playerManager, "players", "fct", "ignore", "unignore", "record", "stream");
         Utils.Command.registerCommands(this, new ListManager(this), "list", "stafflist");
         Utils.Command.registerCommands(this, new IgnoreManager(this), "ignore", "unignore");
@@ -172,7 +168,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         Utils.Command.registerCommands(this, new GamemodeManager(this), "gamemode", "gmc", "gms", "gma", "gmsp");
         Utils.Command.registerCommands(this, new TeleportationManager(this), "teleport", "tphere", "back", "tpall", "tpaccept", "tpdeny", "tpa", "setspawn", "spawn");
         this.getCommand("dev").setExecutor(commandManager);
-        this.getCommand("feed").setExecutor(new FeedManager(this));
+        this.getCommand("feed").setExecutor(commandManager);
         this.getCommand("heal").setExecutor(new HealManager(this));
         this.getCommand("signedit").setExecutor(new SignEditManager(this));
         Utils.Command.registerCommands(this, new PunishmentManager(this), "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail", "history", "bans", "mutes", "kicks", "warns", "jails");
@@ -190,8 +186,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         getCommand("staffmode").setExecutor(staffmodeManager);
         this.serverManager = new ServerManager(this);
         getCommand("firecraftserver").setExecutor(serverManager);
-        this.economyManager = new EconomyManager(this);
-        Utils.Command.registerCommands(this, economyManager, "economy", "pay", "withdraw", "balance", "baltop");
+        Utils.Command.registerCommands(this, commandManager, "economy", "pay", "withdraw", "balance", "baltop");
     }
 
     private void versionSpecificTasks() {

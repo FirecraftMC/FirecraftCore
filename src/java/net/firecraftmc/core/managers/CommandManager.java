@@ -5,9 +5,7 @@ import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.interfaces.ICommandManager;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.command.FirecraftCommand;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
@@ -25,14 +23,14 @@ public class CommandManager implements ICommandManager {
         for (FirecraftCommand command : commands) {
             if (command.getName().equalsIgnoreCase(cmd.getName())) {
                 if (sender instanceof ConsoleCommandSender) {
-                    command.executeConsole((ConsoleCommandSender) sender, args);
+                    sender.sendMessage(Messages.onlyPlayers);
                 } else if (sender instanceof Player) {
                     FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
                     if (command.canUse(player)) {
                         if (command.respectsRecordMode()) {
                             if (player.isRecording()) {
                                 player.sendMessage(Messages.recordingNoUse);
-                                return true;
+                                continue;
                             }
                         }
                         command.executePlayer(player, args);

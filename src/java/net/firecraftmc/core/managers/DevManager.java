@@ -12,11 +12,9 @@ import org.bukkit.event.block.LeavesDecayEvent;
 
 public class DevManager implements Listener {
     
-    private FirecraftCore plugin;
     private boolean decay = true;
     
     public DevManager(FirecraftCore plugin) {
-        this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
         if (plugin.getConfig().contains("decay")) {

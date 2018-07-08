@@ -1,20 +1,13 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.classes.Prefixes;
-import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.server.FirecraftServer;
-import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemode;
-import net.firecraftmc.shared.packets.staffchat.FPSCSetGamemodeOthers;
-import net.firecraftmc.shared.packets.staffchat.FPacketStaffChat;
+import net.firecraftmc.shared.packets.staffchat.*;
 import org.bukkit.GameMode;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -104,13 +97,6 @@ public class GamemodeManager implements CommandExecutor, Listener {
         return true;
     }
 
-    /**
-     * Just a little utility method to prevent repeat code
-     *
-     * @param sender The CommandSender from the command
-     * @param mode   The target Gamemode
-     * @param args   The command arguments
-     */
     private void gamemodeShortcut(CommandSender sender, GameMode mode, String[] args) {
         if (sender instanceof Player) {
             FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
