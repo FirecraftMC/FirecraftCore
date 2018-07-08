@@ -1,9 +1,7 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.classes.Prefixes;
-import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.enums.Channel;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
@@ -12,11 +10,8 @@ import net.firecraftmc.shared.packets.staffchat.FPStaffChatMessage;
 import net.firecraftmc.shared.punishments.Punishment;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.List;
@@ -70,12 +65,9 @@ public class ChatManager implements Listener {
                     player.sendMessage(Prefixes.CHAT + Messages.channelSwitch(Channel.GLOBAL));
                 }
             }
-
-            public void executeConsole(ConsoleCommandSender sender, String[] args) {
-                sender.sendMessage(Messages.onlyPlayers);
-            }
         };
         chat.addAlias("c");
+        chat.addRanks(Rank.values());
 
         FirecraftCommand globalShortcut = new FirecraftCommand("global", "Quick access command for global chat.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -90,12 +82,9 @@ public class ChatManager implements Listener {
                     }
                 }
             }
-
-            public void executeConsole(ConsoleCommandSender sender, String[] args) {
-                sender.sendMessage(Messages.onlyPlayers);
-            }
         };
         globalShortcut.addAlias("g");
+        chat.addRanks(Rank.values());
 
         FirecraftCommand staffShortcut = new FirecraftCommand("staff", "Quick access command for staff chat") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -112,14 +101,9 @@ public class ChatManager implements Listener {
                 FPStaffChatMessage staffChatMessage = new FPStaffChatMessage(plugin.getFCServer().getId(), player.getUniqueId(), message);
                 plugin.getSocket().sendPacket(staffChatMessage);
             }
-
-            @Override
-            public void executeConsole(ConsoleCommandSender sender, String[] args) {
-                sender.sendMessage(Messages.onlyPlayers);
-            }
         };
         staffShortcut.addAlias("s");
-        staffShortcut.addRanks(Rank.FIRECRAFT_TEAM, Rank.HEAD_ADMIN, Rank.ADMIN, Rank.TRIAL_ADMIN, Rank.MODERATOR, Rank.HELPER);
+        staffShortcut.addRanks(Rank.ADMINISTRATION).addRanks(Rank.MODERATION);
 
         FirecraftCommand clearChat = new FirecraftCommand("clearchat", "Clears the chat of everyone but staff members.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -142,13 +126,9 @@ public class ChatManager implements Listener {
                     }
                 }
             }
-
-            public void executeConsole(ConsoleCommandSender sender, String[] args) {
-                sender.sendMessage(Messages.noPermission);
-            }
         };
         clearChat.addAlias("cc");
-        clearChat.addRanks(Rank.FIRECRAFT_TEAM, Rank.HEAD_ADMIN, Rank.ADMIN, Rank.TRIAL_ADMIN, Rank.MODERATOR);
+        clearChat.addRanks(Rank.ADMINISTRATION).addRank(Rank.MODERATOR);
 
         plugin.getCommandManager().addCommands(chat, globalShortcut, staffShortcut, clearChat);
     }

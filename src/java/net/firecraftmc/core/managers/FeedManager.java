@@ -31,6 +31,6 @@ public class FeedManager {
                 }
             }
         };
-        feed.addRanks(Rank.FIRECRAFT_TEAM, Rank.HEAD_ADMIN, Rank.ADMIN, Rank.MODERATOR, Rank.HELPER,  Rank.PHOENIX, Rank.EMBER);
+        feed.addRanks(Rank.ADMINISTRATION).addRanks(Rank.MODERATION).addRanks(Rank.SPECIAL).addRanks(Rank.MEDIA).addRanks(Rank.DONORS);
     }
 }

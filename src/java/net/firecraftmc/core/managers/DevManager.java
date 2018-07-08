@@ -2,10 +2,8 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.command.FirecraftCommand;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.LeavesDecayEvent;
@@ -40,12 +38,7 @@ public class DevManager implements Listener {
                     player.sendMessage("<ec>You must provide a sub command.");
                 }
             }
-
-            public void executeConsole(ConsoleCommandSender sender, String[] args) {
-                sender.sendMessage(Messages.onlyPlayers);
-            }
         };
-        dev.addRank(Rank.FIRECRAFT_TEAM);
 
         FirecraftCommand testMsgSub = new FirecraftCommand("testmsg", "Command that displays the message given with no formatting.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -54,10 +47,6 @@ public class DevManager implements Listener {
                     msg.append(args[i]).append(" ");
                 }
                 player.sendMessage(msg.toString());
-            }
-
-            public void executeConsole(ConsoleCommandSender sender, String[] args) {
-                sender.sendMessage(Messages.onlyPlayers);
             }
         };
         testMsgSub.addAlias("tm");
@@ -69,10 +58,6 @@ public class DevManager implements Listener {
                 plugin.saveConfig();
                 plugin.reloadConfig();
                 player.sendMessage("<nc>You have toggled decaying of leaves to <vc>" + decay);
-            }
-
-            public void executeConsole(ConsoleCommandSender sender, String[] args) {
-                sender.sendMessage(Messages.onlyPlayers);
             }
         };
         dev.addSubcommand(testMsgSub);

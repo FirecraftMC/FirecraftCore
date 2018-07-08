@@ -7,7 +7,6 @@ import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.command.FirecraftCommand;
 import net.firecraftmc.shared.packets.FPacketSocketBroadcast;
-import org.bukkit.command.ConsoleCommandSender;
 
 public class BroadcastManager {
     public BroadcastManager(FirecraftCore plugin) {
@@ -41,13 +40,9 @@ public class BroadcastManager {
                     fp.sendMessage("");
                 }
             }
-
-            public void executeConsole(ConsoleCommandSender sender, String[] args) {
-                sender.sendMessage("§cNot supported.");
-            }
         };
         broadcast.addAlias("bc");
-        broadcast.addRanks(Rank.FIRECRAFT_TEAM, Rank.HEAD_ADMIN, Rank.ADMIN);
+        broadcast.addRanks(Rank.HEAD_ADMIN, Rank.ADMIN);
 
         FirecraftCommand socketBroadcast = new FirecraftCommand("socketbroadcast", "Broadcast a message to all servers.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -65,12 +60,8 @@ public class BroadcastManager {
                 FPacketSocketBroadcast socketBroadcast = new FPacketSocketBroadcast(plugin.getFCServer().getId(), sb.toString());
                 plugin.getSocket().sendPacket(socketBroadcast);
             }
-
-            public void executeConsole(ConsoleCommandSender sender, String[] args) {
-                sender.sendMessage("§cNot supported.");
-            }
         };
-        socketBroadcast.addRanks(Rank.FIRECRAFT_TEAM, Rank.HEAD_ADMIN);
+        socketBroadcast.addRanks(Rank.HEAD_ADMIN);
         socketBroadcast.addAlias("sbc");
 
         plugin.getCommandManager().addCommands(broadcast, socketBroadcast);

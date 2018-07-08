@@ -38,7 +38,7 @@ public class EconomyManager implements IEconomyManager {
             }
         };
         economy.addAliases("econ", "eco");
-        economy.addRanks(Rank.FIRECRAFT_TEAM, Rank.HEAD_ADMIN, Rank.ADMIN);
+        economy.addRanks(Rank.HEAD_ADMIN, Rank.ADMIN);
 
         FirecraftCommand ecoGive = new FirecraftCommand("give", "Give players money") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -120,6 +120,7 @@ public class EconomyManager implements IEconomyManager {
                 plugin.getFCDatabase().saveTransaction(deposit);
             }
         };
+        pay.addRanks(Rank.values());
         
         FirecraftCommand withdraw = new FirecraftCommand("withdraw", "Withdraw an amount from your balance.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -155,6 +156,7 @@ public class EconomyManager implements IEconomyManager {
                 plugin.getFCDatabase().saveTransaction(withdraw);
             }
         };
+        withdraw.addRanks(Rank.values());
         
         FirecraftCommand balance = new FirecraftCommand("balance", "Get your current balance.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -174,6 +176,7 @@ public class EconomyManager implements IEconomyManager {
             }
         };
         balance.addAlias("bal");
+        balance.addRanks(Rank.values());
         
         FirecraftCommand baltop = new FirecraftCommand("baltop", "Get a list of the top balances") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -213,6 +216,7 @@ public class EconomyManager implements IEconomyManager {
                 }
             }
         };
+        baltop.addRanks(Rank.values());
         
         plugin.getCommandManager().addCommands(economy, pay, withdraw, balance, baltop);
     }
