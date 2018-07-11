@@ -66,8 +66,7 @@ public class ChatManager implements Listener {
                 }
             }
         };
-        chat.addAlias("c");
-        chat.addRanks(Rank.values());
+        chat.addAlias("c").setBaseRank(Rank.DEFAULT);
 
         FirecraftCommand globalShortcut = new FirecraftCommand("global", "Quick access command for global chat.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -83,8 +82,7 @@ public class ChatManager implements Listener {
                 }
             }
         };
-        globalShortcut.addAlias("g");
-        chat.addRanks(Rank.values());
+        globalShortcut.addAlias("g").setBaseRank(Rank.DEFAULT);
 
         FirecraftCommand staffShortcut = new FirecraftCommand("staff", "Quick access command for staff chat") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -102,8 +100,7 @@ public class ChatManager implements Listener {
                 plugin.getSocket().sendPacket(staffChatMessage);
             }
         };
-        staffShortcut.addAlias("s");
-        staffShortcut.addRanks(Rank.ADMINISTRATION).addRanks(Rank.MODERATION);
+        staffShortcut.addAlias("s").setBaseRank(Rank.HELPER);
 
         FirecraftCommand clearChat = new FirecraftCommand("clearchat", "Clears the chat of everyone but staff members.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -127,8 +124,7 @@ public class ChatManager implements Listener {
                 }
             }
         };
-        clearChat.addAlias("cc");
-        clearChat.addRanks(Rank.ADMINISTRATION).addRank(Rank.MODERATOR);
+        clearChat.addAlias("cc").setBaseRank(Rank.MODERATOR);
 
         plugin.getCommandManager().addCommands(chat, globalShortcut, staffShortcut, clearChat);
     }

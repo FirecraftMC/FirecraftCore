@@ -31,6 +31,6 @@ public class FeedManager {
                 }
             }
         };
-        feed.addRanks(Rank.ADMINISTRATION).addRanks(Rank.MODERATION).addRanks(Rank.SPECIAL).addRanks(Rank.MEDIA).addRanks(Rank.DONORS);
+        feed.setBaseRank(Rank.EMBER);
     }
 }

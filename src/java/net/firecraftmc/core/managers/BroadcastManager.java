@@ -41,8 +41,7 @@ public class BroadcastManager {
                 }
             }
         };
-        broadcast.addAlias("bc");
-        broadcast.addRanks(Rank.HEAD_ADMIN, Rank.ADMIN);
+        broadcast.addAlias("bc").setBaseRank(Rank.ADMIN);
 
         FirecraftCommand socketBroadcast = new FirecraftCommand("socketbroadcast", "Broadcast a message to all servers.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -61,8 +60,7 @@ public class BroadcastManager {
                 plugin.getSocket().sendPacket(socketBroadcast);
             }
         };
-        socketBroadcast.addRanks(Rank.HEAD_ADMIN);
-        socketBroadcast.addAlias("sbc");
+        socketBroadcast.addAlias("sbc").setBaseRank(Rank.HEAD_ADMIN);
 
         plugin.getCommandManager().addCommands(broadcast, socketBroadcast);
     }

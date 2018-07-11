@@ -31,6 +31,6 @@ public class HealManager {
                 }
             }
         };
-        heal.addRanks(Rank.ADMINISTRATION).addRanks(Rank.MODERATION).addRanks(Rank.SPECIAL).addRanks(Rank.MEDIA).addRanks(Rank.DONORS);
+        heal.setBaseRank(Rank.EMBER);
     }
 }

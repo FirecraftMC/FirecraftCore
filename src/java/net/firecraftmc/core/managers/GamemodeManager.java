@@ -53,8 +53,7 @@ public class GamemodeManager implements Listener {
                 }
             }
         };
-        gamemode.addRanks(Rank.ADMINISTRATION).addRank(Rank.BUILD_TEAM);
-        gamemode.addAlias("gm");
+        gamemode.addAlias("gm").setBaseRank(Rank.TRIAL_ADMIN).addRank(Rank.BUILD_TEAM);
         
         FirecraftCommand gmc = new FirecraftCommand("gmc", "Quick access gamemode creative command") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -63,7 +62,7 @@ public class GamemodeManager implements Listener {
                 }
             }
         };
-        gmc.addRanks(Rank.ADMINISTRATION).addRank(Rank.BUILD_TEAM);
+        gmc.setBaseRank(Rank.TRIAL_ADMIN).addRank(Rank.BUILD_TEAM);
         
         FirecraftCommand gms = new FirecraftCommand("gms", "Quick access gamemode creative command") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -72,7 +71,7 @@ public class GamemodeManager implements Listener {
                 }
             }
         };
-        gms.addRanks(Rank.ADMINISTRATION).addRank(Rank.BUILD_TEAM);
+        gms.setBaseRank(Rank.TRIAL_ADMIN).addRank(Rank.BUILD_TEAM);
         
         FirecraftCommand gmsp = new FirecraftCommand("gmsp", "Quick access gamemode creative command") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -81,7 +80,7 @@ public class GamemodeManager implements Listener {
                 }
             }
         };
-        gmsp.addRanks(Rank.ADMINISTRATION).addRank(Rank.BUILD_TEAM);
+        gmsp.setBaseRank(Rank.TRIAL_ADMIN).addRank(Rank.BUILD_TEAM);
         
         FirecraftCommand gma = new FirecraftCommand("gma", "Quick access gamemode creative command") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -90,7 +89,7 @@ public class GamemodeManager implements Listener {
                 }
             }
         };
-        gma.addRanks(Rank.ADMINISTRATION).addRank(Rank.BUILD_TEAM);
+        gma.setBaseRank(Rank.TRIAL_ADMIN).addRank(Rank.BUILD_TEAM);
         
         
         plugin.getCommandManager().addCommands(gamemode, gmc, gms, gmsp, gma);
