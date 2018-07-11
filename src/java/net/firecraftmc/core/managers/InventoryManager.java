@@ -1,14 +1,11 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.enums.Rank;
+import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
+import net.firecraftmc.shared.command.FirecraftCommand;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -16,12 +13,136 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-public class InventoryManager implements CommandExecutor, Listener {
-    private FirecraftCore plugin;
-
+public class InventoryManager implements Listener {
+    
     public InventoryManager(FirecraftCore plugin) {
-        this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    
+        FirecraftCommand clearInventory = new FirecraftCommand("clearinventory", "Clears your inventory or another player's") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (args.length == 1) {
+                    if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                        FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
+                        if (!target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                            target.getInventory().clear();
+                            target.sendMessage("<nc>Your inventory was cleared by <vc>" + player.getName());
+                            player.sendMessage("<nc>You cleared <vc>" + target.getName() + "'s <nc>inventory.");
+                        } else {
+                            player.sendMessage("<ec>You can only clear the inventory of players that are lower in rank.");
+                        }
+                    } else {
+                        player.sendMessage("<ec>Only Admins or higher can clear other player's inventories.");
+                    }
+                } else {
+                    player.getInventory().clear();
+                    player.sendMessage("<nc>You cleared your inventory.");
+                }
+            }
+        };
+        clearInventory.addAlias("ci").setBaseRank(Rank.PHOENIX);
+        
+        FirecraftCommand enderChest = new FirecraftCommand("enderchest", "Open your ender chest or that of another player.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (args.length == 1) {
+                    if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                        if (!plugin.getStaffmodeManager().inStaffMode(player)) {
+                            player.sendMessage("<ec>You do not have permission to open the ender chests of other players.");
+                            return;
+                        }
+                    }
+                    
+                    FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
+                    if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                        if (!Rank.bothFT(player, target)) {
+                            player.sendMessage("<ec>You can only view the ender chests of players that are of lower rank.");
+                            return;
+                        }
+                    }
+                    
+                    Inventory inv = Bukkit.createInventory(null, 27, target.getName() + "'s Enderchest");
+                    for (int i = 0; i < 27; i++) {
+                        ItemStack stack = target.getPlayer().getEnderChest().getItem(i);
+                        if (stack != null) {
+                            inv.setItem(i, stack);
+                        }
+                    }
+                    player.getPlayer().openInventory(inv);
+                    player.sendMessage("<nc>You opened <vc>" + target.getName() + "'s <nc>enderchest (view-only)");
+                } else {
+                    player.getPlayer().openInventory(player.getPlayer().getEnderChest());
+                    player.sendMessage("<nc>Here is your enderchest.");
+                }
+            }
+        };
+        enderChest.addAlias("ec").setBaseRank(Rank.PHOENIX);
+        
+        FirecraftCommand workbench = new FirecraftCommand("workbench", "Opens a portable workbench.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                Inventory workbench = Bukkit.createInventory(null, InventoryType.WORKBENCH, "Workbench");
+                player.getPlayer().openInventory(workbench);
+                player.sendMessage("<nc>Here is a workbench");
+            }
+        };
+        workbench.addAliases("wb", "craft").setBaseRank(Rank.EMBER);
+        
+        FirecraftCommand invsee = new FirecraftCommand("invsee", "View the inventory of another player.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (!(args.length > 0)) {
+                    player.sendMessage(Messages.notEnoughArgs);
+                    return;
+                }
+    
+                if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                    if (!plugin.getStaffmodeManager().inStaffMode(player)) {
+                        player.sendMessage("<vc>You do not have permission to view the inventories of other players.");
+                        return;
+                    }
+                }
+                FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
+                if (target.getPlayer() == null) {
+                    player.sendMessage("<ec>Sorry, but viewing offline player's inventories is not supported.");
+                    return;
+                }
+    
+                if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                    if (!Rank.bothFT(target, player)) {
+                        player.sendMessage("<ec>You cannot open the inventory of a player with the same rank or higher than yours.");
+                        return;
+                    }
+                }
+
+                Inventory inventory = Bukkit.createInventory(null, 45, target.getName() + "'s Inventory");
+                for (int i = 0; i < 36; i++) {
+                    ItemStack item = target.getInventory().getItem(i);
+                    if (item != null) {
+                        inventory.setItem(i, item);
+                    }
+                }
+                if (target.getInventory().getHelmet() != null) {
+                    inventory.setItem(36, target.getInventory().getHelmet());
+                }
+                if (target.getInventory().getChestplate() != null) {
+                    inventory.setItem(37, target.getInventory().getChestplate());
+                }
+                if (target.getInventory().getLeggings() != null) {
+                    inventory.setItem(38, target.getInventory().getLeggings());
+                }
+                if (target.getInventory().getBoots() != null) {
+                    inventory.setItem(39, target.getInventory().getBoots());
+                }
+                try {
+                    if (target.getInventory().getItemInOffHand() != null) {
+                        inventory.setItem(44, target.getInventory().getItemInOffHand());
+                    }
+                } catch (Exception e) {
+                }
+                player.getPlayer().openInventory(inventory);
+                player.sendMessage("<nc>Here is <vc>" + target.getName() + "'s <nc>inventory (view-only)");
+            }
+        };
+        invsee.setBaseRank(Rank.MODERATOR);
+        
+        plugin.getCommandManager().addCommands(clearInventory, enderChest, workbench, invsee);
     }
 
     @EventHandler
@@ -35,164 +156,5 @@ public class InventoryManager implements CommandExecutor, Listener {
                 }
             }
         }
-    }
-
-    public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(Messages.onlyPlayers);
-            return true;
-        }
-
-        FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
-
-        if (cmd.getName().equalsIgnoreCase("clearinventory")) {
-            if (player.isRecording()) {
-                player.sendMessage(Messages.recordingNoUse);
-                return true;
-            }
-            if (args.length > 0) {
-                if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                    FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
-                    if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-                        player.sendMessage(Messages.noClearInvHigher);
-                        return true;
-                    }
-
-                    target.getInventory().clear();
-                    player.sendMessage(Messages.clearInventoryOthers(target.getName()));
-                    target.sendMessage(Messages.clearInventoryTarget(player.getName()));
-                } else {
-                    player.sendMessage(Messages.noPermission);
-                    return true;
-                }
-            } else {
-                if (player.getMainRank().isEqualToOrHigher(Rank.INFERNO)) {
-                    player.getPlayer().getInventory().clear();
-                    player.sendMessage(Messages.clearInventory);
-                } else {
-                    player.sendMessage(Messages.noPermission);
-                    return true;
-                }
-            }
-        } else if (cmd.getName().equalsIgnoreCase("enderchest")) {
-            if (player.getMainRank().isEqualToOrHigher(Rank.PHOENIX)) {
-                if (args.length > 0) {
-                    if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                        if (!plugin.getStaffmodeManager().inStaffMode(player)) {
-                            player.sendMessage(Messages.noPermission);
-                            return true;
-                        }
-                    }
-
-                    FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
-                    if (!target.isOnline()) {
-                        player.sendMessage(Messages.offlineNotSupported);
-                        return true;
-                    }
-
-                    if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-                        player.sendMessage(Messages.noEchestOpenHigher);
-                        return true;
-                    } else {
-                        Inventory inventory = Bukkit.createInventory(null, 27, target.getName() + "'s Enderchest");
-                        for (int i = 0; i < 27; i++) {
-                            ItemStack stack = target.getPlayer().getEnderChest().getItem(i);
-                            if (stack != null) {
-                                inventory.setItem(i, stack);
-                            }
-                        }
-                        player.getPlayer().openInventory(inventory);
-                        player.sendMessage(Messages.enderChestOthers(target.getName()));
-                        return true;
-                    }
-
-                } else {
-                    player.getPlayer().openInventory(player.getPlayer().getEnderChest());
-                    player.sendMessage(Messages.enderchestSelf);
-                    return true;
-                }
-            } else {
-                player.sendMessage(Messages.noPermission);
-                return true;
-            }
-        } else if (cmd.getName().equalsIgnoreCase("workbench")) {
-            if (player.getMainRank().isEqualToOrHigher(Rank.EMBER)) {
-                Inventory workbench = Bukkit.createInventory(null, InventoryType.WORKBENCH, "Workbench");
-                player.getPlayer().openInventory(workbench);
-                player.sendMessage(Messages.workbench);
-            } else {
-                player.sendMessage(Messages.noPermission);
-                return true;
-            }
-        } else if (cmd.getName().equalsIgnoreCase("invsee")) {
-            if (player.isRecording()) {
-                player.sendMessage(Messages.recordingNoUse);
-                return true;
-            }
-
-            if (!(args.length > 0)) {
-                player.sendMessage(Messages.notEnoughArgs);
-                return true;
-            }
-
-            if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                if (!plugin.getStaffmodeManager().inStaffMode(player)) {
-                    player.sendMessage(Messages.noPermission);
-                    return true;
-                }
-            }
-            FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
-            if (target.getPlayer() == null) {
-                player.sendMessage(Messages.offlineNotSupported);
-                return true;
-            }
-
-            if (target.getMainRank().equals(player.getMainRank())) {
-                player.sendMessage(Messages.noInvOpenHigher);
-                return true;
-            }
-
-                /*
-                00 01 02 03 04 05 06 07 08
-                09 10 11 12 13 14 15 16 17
-                18 19 20 21 22 23 24 25 26
-                27 28 29 30 31 32 33 34 35
-                h c l b - - - - O
-                 */
-
-            Inventory inventory = Bukkit.createInventory(null, 45, target.getName() + "'s Inventory");
-            for (int i = 0; i < 36; i++) {
-                ItemStack item = target.getInventory().getItem(i);
-                if (item != null) {
-                    inventory.setItem(i, item);
-                }
-            }
-            if (target.getInventory().getHelmet() != null) {
-                inventory.setItem(36, target.getInventory().getHelmet());
-            }
-            if (target.getInventory().getChestplate() != null) {
-                inventory.setItem(37, target.getInventory().getChestplate());
-            }
-            if (target.getInventory().getLeggings() != null) {
-                inventory.setItem(38, target.getInventory().getLeggings());
-            }
-            if (target.getInventory().getBoots() != null) {
-                inventory.setItem(39, target.getInventory().getBoots());
-            }
-            try {
-                if (target.getInventory().getItemInOffHand() != null) {
-                    inventory.setItem(44, target.getInventory().getItemInOffHand());
-                }
-            } catch (Exception e) {
-            }
-            player.getPlayer().openInventory(inventory);
-            player.sendMessage(Messages.invSeeViewOnly(target.getName()));
-        } else {
-            player.sendMessage(Messages.noPermission);
-            return true;
-        }
-
-
-        return true;
     }
 }
