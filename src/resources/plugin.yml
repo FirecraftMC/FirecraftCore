@@ -95,7 +95,7 @@ commands:
     firecraftserver:
         aliases: [fcserver, fcs]
     clearchat:
-    cc:
+        aliases: [cc]
     history:
     bans:
     mutes:

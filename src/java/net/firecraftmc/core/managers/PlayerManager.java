@@ -1,28 +1,19 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.FirecraftMC;
-import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.enums.Channel;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.interfaces.IPlayerManager;
 import net.firecraftmc.shared.classes.model.Report;
 import net.firecraftmc.shared.classes.model.Transaction;
-import net.firecraftmc.shared.classes.model.player.ActionBar;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.classes.model.player.NickInfo;
-import net.firecraftmc.shared.classes.model.player.VanishInfo;
-import net.firecraftmc.shared.packets.FPacketRankUpdate;
-import net.firecraftmc.shared.packets.FPacketServerPlayerJoin;
-import net.firecraftmc.shared.packets.FPacketServerPlayerLeave;
+import net.firecraftmc.shared.classes.model.player.*;
+import net.firecraftmc.shared.packets.*;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatJoin;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import net.firecraftmc.shared.punishments.Punishment;
 import net.firecraftmc.shared.punishments.TemporaryBan;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -314,18 +305,11 @@ public class PlayerManager implements IPlayerManager {
      * @return The FirecraftPlayer object from memory or the database
      */
     public FirecraftPlayer getPlayer(String name) {
-        for (FirecraftPlayer fp : onlinePlayers.values()) {
-            if (fp.isNicked()) {
-                if (fp.getNick().getProfile().getName().equalsIgnoreCase(name)) {
-                    return fp;
-                }
-            } else {
-                if (fp.getName().equalsIgnoreCase(name)) {
-                    return fp;
-                }
-            }
+        FirecraftPlayer target = Utils.getPlayer(name, onlinePlayers.values());
+        if (target != null) {
+            return target;
         }
-
+        
         for (FirecraftPlayer fp : cachedPlayers.values()) {
             if (fp.getName().equalsIgnoreCase(name)) {
                 return fp;

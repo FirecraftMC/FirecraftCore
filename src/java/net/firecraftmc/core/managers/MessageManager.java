@@ -1,25 +1,17 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.Prefixes;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.*;
+import net.firecraftmc.shared.classes.enums.Channel;
 import net.firecraftmc.shared.classes.enums.Rank;
+import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
+import net.firecraftmc.shared.command.FirecraftCommand;
 import net.firecraftmc.shared.packets.FPacketPrivateMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
-public class MessageManager implements CommandExecutor {
-
-    private FirecraftCore plugin;
+public class MessageManager {
 
     public MessageManager(FirecraftCore plugin) {
-        this.plugin = plugin;
-
         plugin.getSocket().addSocketListener(packet -> {
             if (packet instanceof FPacketPrivateMessage) {
                 FPacketPrivateMessage messagePacket = ((FPacketPrivateMessage) packet);
@@ -31,156 +23,124 @@ public class MessageManager implements CommandExecutor {
                 }
             }
         });
-    }
-
-    public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(Messages.onlyPlayers);
-            return true;
-        }
-
-        FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
-        if (player.isRecording()) {
-            player.sendMessage(Prefixes.MESSAGING + Messages.recordingNoUse);
-            return true;
-        }
-
-        if (cmd.getName().equalsIgnoreCase("message")) {
-            if (!(args.length > 1)) {
-                player.sendMessage(Prefixes.MESSAGING + Messages.notEnoughArgs);
-                return true;
-            }
-
-            FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
-            if (target == null) {
-                for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
-                    if (p.isNicked()) {
-                        if (p.getNick().getProfile().getName().equalsIgnoreCase(args[0])) {
-                            target = p;
-                            break;
-                        }
+    
+        FirecraftCommand message = new FirecraftCommand("message", "Send private messages to other players.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (!(args.length > 0)) {
+                    player.sendMessage(Prefixes.MESSAGING + "<ec>You must provide someone to message.");
+                    return;
+                }
+                
+                FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
+                
+                //TODO Add the conversation stuff
+                
+                
+                if (target.isVanished()) {
+                    if (!player.getMainRank().isHigher(target.getMainRank())) {
+                        player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
+                        return;
                     }
                 }
-
-                if (target == null) {
-                    player.sendMessage(Prefixes.MESSAGING + Messages.couldNotFindPlayer(args[0]));
-                    return true;
-                }
-            }
-
-            if (target.getPlayer() == null) {
-                for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
-                    if (p.isNicked()) {
-                        if (p.getNick().getProfile().getName().equalsIgnoreCase(args[0])) {
-                            target = p;
-                            break;
-                        }
+                
+                if (target.isNicked()) {
+                    if (target.getName().equalsIgnoreCase(args[0])) {
+                        player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
+                        return;
                     }
                 }
-
+                
+                if (target.isIgnoring(player.getUniqueId())) {
+                    player.sendMessage(Prefixes.MESSAGING + "<ec>You cannot send that player messages because they are ignoring you.");
+                    return;
+                }
+                
+                if (target.isRecording()) {
+                    player.sendMessage(Prefixes.MESSAGING + "<ec>That player is recording, they cannot receive messages.");
+                    return;
+                }
+    
+                if (!(args.length > 1)) {
+                    player.setChannel(Channel.PRIVATE);
+                    player.setLastMessage(target.getUniqueId());
+                    player.sendMessage(Prefixes.MESSAGING + "<nc>You opened a chat conversation with " + target.getDisplayName() + "<nc>.");
+                    player.sendMessage(Prefixes.MESSAGING + "<nc>Use <vc>/chat global <nc> to leave.");
+                    player.getScoreboard().updateScoreboard(player);
+                    return;
+                }
+                
                 if (target.getPlayer() == null) {
-                    if (plugin.getFCDatabase().getOnlineStatus(target.getUniqueId())) {
-                        if (player.getMainRank().isEqualToOrHigher(Rank.PHOENIX)) {
-                            if (target.isVanished()) {
-                                if (target.getMainRank().isHigher(player.getMainRank())) {
-                                    player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
-                                    return true;
-                                }
-                            }
-
-                            if (target.isIgnoring(player.getUniqueId())) {
-                                player.sendMessage(Prefixes.MESSAGING + Messages.currentlyIgnoring);
-                                return true;
-                            }
-                            if (target.isRecording()) {
-                                player.sendMessage(Prefixes.MESSAGING + Messages.recordingNoMessage);
-                                return true;
-                            }
-                            String message = Utils.getReason(1, args);
-                            if (plugin.getFCServer() == null) {
-                                player.sendMessage(Prefixes.CHAT + Messages.serverNotSet);
-                                return true;
-                            }
-                            FPacketPrivateMessage pMPacket = new FPacketPrivateMessage(plugin.getFCServer().getId(), player.getUniqueId(), target.getUniqueId(), message);
-                            plugin.getSocket().sendPacket(pMPacket);
-                            player.sendMessage(Utils.Chat.formatPrivateMessage("You", target.getName(), message));
-                            player.setLastMessage(target.getUniqueId());
-                            return true;
-                        } else {
-                            player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
-                            return true;
-                        }
-                    } else {
-                        player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
-                        return true;
+                    if (!player.getMainRank().isEqualToOrHigher(Rank.PHOENIX)) {
+                        player.sendMessage(Prefixes.MESSAGING + "<ec>Messaging across servers is for the Phoenix rank or above.");
+                        return;
                     }
-                }
-            }
-
-            if (target.isNicked()) {
-                if (target.getName().equalsIgnoreCase(args[0])) {
-                    if (target.getMainRank().isHigher(player.getMainRank())) {
+                    
+                    if (!plugin.getFCDatabase().getOnlineStatus(target.getUniqueId())) {
                         player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
-                        return true;
+                        return;
                     }
-                }
-            }
-
-            if (target.isVanished()) {
-                if (target.getMainRank().isHigher(player.getMainRank())) {
-                    player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
-                    return true;
-                }
-            }
-
-            if (target.isIgnoring(player.getUniqueId())) {
-                player.sendMessage(Prefixes.MESSAGING + Messages.currentlyIgnoring);
-                return true;
-            }
-
-            sendMessages(player, target, args, 1);
-        } else if (cmd.getName().equalsIgnoreCase("reply")) {
-            if (!(args.length > 0)) {
-                player.sendMessage(Prefixes.MESSAGING + Messages.notEnoughArgs);
-                return true;
-            }
-
-            if (Bukkit.getPlayer(player.getLastMessage()) == null) {
-                if (plugin.getFCDatabase().getOnlineStatus(player.getLastMessage())) {
-                    String message = Utils.getReason(0, args);
+    
+                    String message = Utils.getReason(1, args);
                     if (plugin.getFCServer() == null) {
                         player.sendMessage(Prefixes.CHAT + Messages.serverNotSet);
-                        return true;
+                        return;
                     }
-                    FPacketPrivateMessage pMPacket = new FPacketPrivateMessage(plugin.getFCServer().getId(), player.getUniqueId(), player.getLastMessage(), message);
+                    FPacketPrivateMessage pMPacket = new FPacketPrivateMessage(plugin.getFCServer().getId(), player.getUniqueId(), target.getUniqueId(), message);
                     plugin.getSocket().sendPacket(pMPacket);
-                    player.sendMessage(Utils.Chat.formatPrivateMessage("You", plugin.getFCDatabase().getPlayerName(player.getLastMessage()), message));
-                    player.setLastMessage(player.getLastMessage());
-                    return true;
+                    player.sendMessage(Utils.Chat.formatPrivateMessage("You", target.getName(), message));
+                    player.setLastMessage(target.getUniqueId());
                 } else {
-                    player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
-                    return true;
+                    sendMessages(player, target, args, 1);
                 }
             }
-
-            FirecraftPlayer target = plugin.getPlayerManager().getPlayer(player.getLastMessage());
-            sendMessages(player, target, args, 0);
-        }
-        return true;
+        };
+        message.addAliases("msg", "whisper", "tell", "pm").setBaseRank(Rank.DEFAULT);
+        
+        FirecraftCommand reply = new FirecraftCommand("reply", "Reply to a message") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (Bukkit.getPlayer(player.getLastMessage()) == null) {
+                    if (plugin.getFCDatabase().getOnlineStatus(player.getLastMessage())) {
+                        String message = Utils.getReason(0, args);
+                        if (plugin.getFCServer() == null) {
+                            player.sendMessage(Prefixes.CHAT + Messages.serverNotSet);
+                            return;
+                        }
+                        FPacketPrivateMessage pMPacket = new FPacketPrivateMessage(plugin.getFCServer().getId(), player.getUniqueId(), player.getLastMessage(), message);
+                        plugin.getSocket().sendPacket(pMPacket);
+                        player.sendMessage(Utils.Chat.formatPrivateMessage("You", plugin.getFCDatabase().getPlayerName(player.getLastMessage()), message));
+                        player.setLastMessage(player.getLastMessage());
+                        return;
+                    } else {
+                        player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
+                        return;
+                    }
+                }
+    
+                FirecraftPlayer target = plugin.getPlayerManager().getPlayer(player.getLastMessage());
+                sendMessages(player, target, args, 0);
+            }
+        };
+        reply.addAlias("r").setBaseRank(Rank.DEFAULT);
+        
+        plugin.getCommandManager().addCommands(message, reply);
     }
-
-    private void sendMessages(FirecraftPlayer player, FirecraftPlayer target, String[] args, int reasonIndex) {
+    
+    public void sendMessages(FirecraftPlayer player, FirecraftPlayer target, String[] args, int reasonIndex) {
         if (target.isRecording()) {
             player.sendMessage(Prefixes.MESSAGING + Messages.recordingNoMessage);
             return;
         }
         String message = Utils.getReason(reasonIndex, args);
+        sendMessages(player, target, message);
+    }
+    
+    public void sendMessages(FirecraftPlayer player, FirecraftPlayer target, String message) {
         if (target.isNicked()) {
             player.sendMessage(Utils.Chat.formatPrivateMessage("You", target.getNick().getProfile().getName(), message));
         } else {
             player.sendMessage(Utils.Chat.formatPrivateMessage("You", target.getName(), message));
         }
-
+    
         if (player.isNicked()) {
             target.sendMessage(Utils.Chat.formatPrivateMessage(player.getNick().getProfile().getName(), "You", message));
         } else {

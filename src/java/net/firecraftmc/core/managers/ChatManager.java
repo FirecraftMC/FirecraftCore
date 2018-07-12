@@ -61,8 +61,25 @@ public class ChatManager implements Listener {
                         player.sendMessage(Prefixes.CHAT + Messages.alreadyInChannel);
                         return;
                     }
+                    
+                    if (player.getChannel().equals(Channel.PRIVATE)) {
+                        player.setLastMessage(null);
+                    }
+                    
                     player.setChannel(Channel.GLOBAL);
                     player.sendMessage(Prefixes.CHAT + Messages.channelSwitch(Channel.GLOBAL));
+                } else if (Utils.Command.checkCmdAliases(args, 0, "private", "p")) {
+                    if (player.getChannel().equals(Channel.PRIVATE)) {
+                        player.sendMessage(Prefixes.CHAT + Messages.alreadyInChannel);
+                        return;
+                    }
+                    
+                    if (player.getLastMessage() == null) {
+                        player.sendMessage(Prefixes.CHAT + "<ec>Please message or reply to someone first.");
+                        return;
+                    }
+                    player.setChannel(Channel.PRIVATE);
+                    player.sendMessage(Prefixes.CHAT + Messages.channelSwitch(Channel.PRIVATE));
                 }
             }
         };
@@ -188,6 +205,18 @@ public class ChatManager implements Listener {
             }
             FPStaffChatMessage msg = new FPStaffChatMessage(plugin.getFCServer().getId(), player.getUniqueId(), e.getMessage());
             plugin.getSocket().sendPacket(msg);
+        } else if (player.getChannel().equals(Channel.PRIVATE)) {
+            FirecraftPlayer target = plugin.getPlayerManager().getPlayer(player.getLastMessage());
+            if (target.isVanished()) {
+                if (target.getMainRank().isHigher(player.getMainRank())) {
+                    player.sendMessage(Prefixes.CHAT + "<ec>That player is no longer online.");
+                    player.setLastMessage(null);
+                    player.setChannel(Channel.GLOBAL);
+                    return;
+                }
+            }
+            String message = e.getMessage();
+            plugin.getMessageManager().sendMessages(player, target, message);
         }
     }
 }

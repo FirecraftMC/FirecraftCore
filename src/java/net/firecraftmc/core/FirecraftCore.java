@@ -38,6 +38,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     private IWarpManager warpManager = null;
     private IEconomyManager economyManager = null;
     private ICommandManager commandManager = null;
+    private MessageManager messageManager = null;
 
     public void onEnable() {
         this.saveDefaultConfig();
@@ -167,6 +168,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         new InventoryManager(this);
         new ItemManager(this);
         new ListManager(this);
+        this.messageManager = new MessageManager(this);
         Utils.Command.registerCommands(this, playerManager, "players", "fct", "ignore", "unignore", "record", "stream");
         Utils.Command.registerCommands(this, commandManager, "list", "stafflist");
         Utils.Command.registerCommands(this, commandManager, "ignore", "unignore");
@@ -187,7 +189,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         Utils.Command.registerCommands(this, commandManager, "sethome", "delhome", "home");
         getCommand("vanish").setExecutor(new VanishManager(this));
         Utils.Command.registerCommands(this, new ReportManager(this), "report", "reportadmin");
-        Utils.Command.registerCommands(this, new MessageManager(this), "message", "reply");
+        Utils.Command.registerCommands(this, commandManager, "message", "reply");
         this.staffmodeManager = new StaffmodeManager(this);
         getCommand("staffmode").setExecutor(staffmodeManager);
         this.serverManager = new ServerManager(this);
@@ -314,5 +316,9 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
 
     public ICommandManager getCommandManager() {
         return commandManager;
+    }
+    
+    public MessageManager getMessageManager() {
+        return messageManager;
     }
 }
