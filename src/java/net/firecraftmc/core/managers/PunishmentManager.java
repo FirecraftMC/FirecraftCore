@@ -1,22 +1,15 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.FirecraftMC;
-import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.classes.Prefixes;
-import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.server.FirecraftServer;
-import net.firecraftmc.shared.packets.FPacketAcknowledgeWarning;
-import net.firecraftmc.shared.packets.FPacketPunish;
-import net.firecraftmc.shared.packets.FPacketPunishRemove;
+import net.firecraftmc.shared.packets.*;
 import net.firecraftmc.shared.punishments.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -298,13 +291,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 PermanentMute permMute = new PermanentMute(type, server.getName(), punisherId, targetId, reason, date);
                 permMute.setActive(true);
                 Punishment permanentMute = plugin.getFCDatabase().addPunishment(permMute);
-                if (permanentMute != null) {
-                    FPacketPunish punish = new FPacketPunish(server.getId(), permanentMute.getId());
-                    plugin.getSocket().sendPacket(punish);
-                } else {
-                    player.sendMessage(Prefixes.ENFORCER + Messages.punishmentCreateIssue);
-                    return true;
-                }
+                if (sendPunishment(player, server, permanentMute)) return true;
                 if (Bukkit.getPlayer(t.getUniqueId()) != null)
                     t.sendMessage(Messages.permMuteTarget(player.getName()));
             } else if (cmd.getName().equalsIgnoreCase("tempmute")) {
@@ -390,13 +377,7 @@ public class PunishmentManager implements CommandExecutor, Listener {
                 Kick kick = (Kick) plugin.getFCDatabase().addPunishment(k);
                 if (Bukkit.getPlayer(t.getUniqueId()) != null)
                     t.kickPlayer(Messages.kickMessage(player.getName(), reason));
-                if (kick != null) {
-                    FPacketPunish punish = new FPacketPunish(server.getId(), kick.getId());
-                    plugin.getSocket().sendPacket(punish);
-                } else {
-                    player.sendMessage(Prefixes.ENFORCER + Messages.punishmentCreateIssue);
-                    return true;
-                }
+                if (sendPunishment(player, server, kick)) return true;
             } else if (cmd.getName().equalsIgnoreCase("warn")) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
                     player.sendMessage(Prefixes.ENFORCER + Messages.noPermission);
@@ -451,5 +432,16 @@ public class PunishmentManager implements CommandExecutor, Listener {
         }
 
         return true;
+    }
+    
+    private boolean sendPunishment(FirecraftPlayer player, FirecraftServer server, Punishment punishment) {
+        if (punishment != null) {
+            FPacketPunish punish = new FPacketPunish(server.getId(), punishment.getId());
+            plugin.getSocket().sendPacket(punish);
+        } else {
+            player.sendMessage(Prefixes.ENFORCER + Messages.punishmentCreateIssue);
+            return true;
+        }
+        return false;
     }
 }

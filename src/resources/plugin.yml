@@ -47,6 +47,7 @@ commands:
     unmute:
     unjail:
     players:
+        aliases: [p]
     fct:
         aliases: [firecraftteam]
     weather:

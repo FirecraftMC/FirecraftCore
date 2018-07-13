@@ -169,11 +169,13 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         new ItemManager(this);
         new ListManager(this);
         this.messageManager = new MessageManager(this);
-        Utils.Command.registerCommands(this, playerManager, "players", "fct", "ignore", "unignore", "record", "stream");
+        new NickManager(this);
+        new ReportManager(this);
+        Utils.Command.registerCommands(this, commandManager, "players", "fct", "ignore", "unignore", "record", "stream");
         Utils.Command.registerCommands(this, commandManager, "list", "stafflist");
         Utils.Command.registerCommands(this, commandManager, "ignore", "unignore");
         Utils.Command.registerCommands(this, commandManager, "chat", "staff", "global", "clearchat", "cc");
-        Utils.Command.registerCommands(this, new NickManager(this), "nick", "unnick", "nickrandom");
+        Utils.Command.registerCommands(this, commandManager, "nick", "unnick", "nickrandom");
         Utils.Command.registerCommands(this, commandManager, "gamemode", "gmc", "gms", "gma", "gmsp");
         Utils.Command.registerCommands(this, new TeleportationManager(this), "teleport", "tphere", "back", "tpall", "tpaccept", "tpdeny", "tpa", "setspawn", "spawn");
         this.getCommand("dev").setExecutor(commandManager);
@@ -188,7 +190,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         Utils.Command.registerCommands(this, commandManager, "clearinventory", "enderchest", "workbench", "invsee");
         Utils.Command.registerCommands(this, commandManager, "sethome", "delhome", "home");
         getCommand("vanish").setExecutor(new VanishManager(this));
-        Utils.Command.registerCommands(this, new ReportManager(this), "report", "reportadmin");
+        Utils.Command.registerCommands(this, commandManager, "report", "reportadmin");
         Utils.Command.registerCommands(this, commandManager, "message", "reply");
         this.staffmodeManager = new StaffmodeManager(this);
         getCommand("staffmode").setExecutor(staffmodeManager);
