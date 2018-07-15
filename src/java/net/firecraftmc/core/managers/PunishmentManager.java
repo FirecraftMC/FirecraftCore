@@ -260,8 +260,10 @@ public class PunishmentManager implements Listener {
         punishment.setPunisherName(player.getName());
         punishment.setTargetName(player.getName());
         
-        if (Bukkit.getPlayer(target.getUniqueId()) != null)
-            target.kickPlayer(Utils.color(Messages.banMessage(punishment, "Permanent")));
+        if (type.equals(Type.BAN)) {
+            if (Bukkit.getPlayer(target.getUniqueId()) != null)
+                target.kickPlayer(Utils.color(Messages.banMessage(punishment, "Permanent")));
+        }
         
         FPacketPunish punish = new FPacketPunish(FirecraftMC.getServer().getId(), punishment.getId());
         plugin.getSocket().sendPacket(punish);
