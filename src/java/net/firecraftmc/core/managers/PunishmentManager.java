@@ -7,7 +7,8 @@ import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.server.FirecraftServer;
 import net.firecraftmc.shared.command.FirecraftCommand;
 import net.firecraftmc.shared.packets.*;
-import net.firecraftmc.shared.punishments.*;
+import net.firecraftmc.shared.punishments.Enforcer;
+import net.firecraftmc.shared.punishments.Punishment;
 import net.firecraftmc.shared.punishments.Punishment.Type;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -276,7 +277,7 @@ public class PunishmentManager implements Listener {
         long date = System.currentTimeMillis();
         long expireDate = Enforcer.calculateExpireDate(date, args[1]);
         
-        Punishment punishment = Enforcer.createPunishment(target, player, type, Utils.getReason(1, args), System.currentTimeMillis(), expireDate);
+        Punishment punishment = Enforcer.createPunishment(target, player, type, Utils.getReason(2, args), System.currentTimeMillis(), expireDate);
         if (punishment == null) {
             player.sendMessage(Prefixes.ENFORCER + "<ec>There was an error creating the punishment.");
             return;
@@ -285,9 +286,10 @@ public class PunishmentManager implements Listener {
         punishment.setPunisherName(player.getName());
         punishment.setTargetName(player.getName());
         
-        if (Bukkit.getPlayer(target.getUniqueId()) != null) {
-            TemporaryPunishment temporaryPunishment = (TemporaryPunishment) punishment;
-            target.kickPlayer(Utils.color(Messages.banMessage(punishment, temporaryPunishment.formatExpireTime())));
+        if (type.equals(Type.TEMP_BAN)) {
+            if (Bukkit.getPlayer(target.getUniqueId()) != null) {
+                target.kickPlayer(Utils.color(Messages.banMessage(punishment, punishment.formatExpireTime())));
+            }
         }
         
         FPacketPunish punish = new FPacketPunish(FirecraftMC.getServer().getId(), punishment.getId());
