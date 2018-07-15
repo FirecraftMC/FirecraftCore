@@ -171,6 +171,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         this.messageManager = new MessageManager(this);
         new NickManager(this);
         new ReportManager(this);
+        new PunishmentManager(this);
         Utils.Command.registerCommands(this, commandManager, "players", "fct", "ignore", "unignore", "record", "stream");
         Utils.Command.registerCommands(this, commandManager, "list", "stafflist");
         Utils.Command.registerCommands(this, commandManager, "ignore", "unignore");
@@ -182,7 +183,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         this.getCommand("feed").setExecutor(commandManager);
         this.getCommand("heal").setExecutor(commandManager);
         this.getCommand("signedit").setExecutor(new SignEditManager(this));
-        Utils.Command.registerCommands(this, new PunishmentManager(this), "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail", "history", "bans", "mutes", "kicks", "warns", "jails");
+        Utils.Command.registerCommands(this, commandManager, "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail", "history", "bans", "mutes", "kicks", "warns", "jails");
         Utils.Command.registerCommands(this, commandManager, "setname", "setlore");
         this.getCommand("weather").setExecutor(new WeatherManager(this));
         Utils.Command.registerCommands(this, new TimeManager(this), "time", "day", "night");

@@ -13,7 +13,8 @@ import net.firecraftmc.shared.packets.*;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatJoin;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
 import net.firecraftmc.shared.punishments.Punishment;
-import net.firecraftmc.shared.punishments.TemporaryBan;
+import net.firecraftmc.shared.punishments.Punishment.Type;
+import net.firecraftmc.shared.punishments.TemporaryPunishment;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -56,16 +57,14 @@ public class PlayerManager implements IPlayerManager {
                     Player p = Bukkit.getPlayer(uuid);
                     if (p != null) {
                         Punishment punishment = toKickForPunishment.get(uuid);
-                        String punisher = plugin.getFCDatabase().getPlayerName(UUID.fromString(punishment.getPunisher()));
-                        String reason = punishment.getReason();
                         if (punishment.getType().equals(Punishment.Type.BAN))
-                            p.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, "Permanent", punishment.getId())));
+                            p.kickPlayer(Utils.color(Messages.banMessage(punishment, "Permanent")));
                         else if (punishment.getType().equals(Punishment.Type.KICK))
-                            p.kickPlayer(Utils.color(Messages.kickMessage(punisher, reason)));
-                        else if (punishment instanceof TemporaryBan) {
-                            TemporaryBan tempPunishment = ((TemporaryBan) punishment);
+                            p.kickPlayer(Utils.color(Messages.kickMessage(punishment.getPunisherName(), punishment.getReason())));
+                        else if (punishment.getType().equals(Type.TEMP_BAN)) {
+                            TemporaryPunishment tempPunishment = ((TemporaryPunishment) punishment);
                             String expireTime = tempPunishment.formatExpireTime();
-                            p.kickPlayer(Utils.color(Messages.banMessage(punisher, reason, expireTime, punishment.getId())));
+                            p.kickPlayer(Utils.color(Messages.banMessage(punishment, expireTime)));
                         }
                         iterator.remove();
                     }
@@ -503,7 +502,7 @@ public class PlayerManager implements IPlayerManager {
     
     public void addToKickForPunishment(Punishment punishment) {
         if (!punishment.getServer().equalsIgnoreCase(plugin.getFCServer().getName()))
-            this.toKickForPunishment.put(UUID.fromString(punishment.getTarget()), punishment);
+            this.toKickForPunishment.put(punishment.getTarget(), punishment);
     }
     
     public void addCachedPlayer(FirecraftPlayer player) {
