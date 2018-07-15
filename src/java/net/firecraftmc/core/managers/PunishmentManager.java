@@ -205,35 +205,6 @@ public class PunishmentManager implements Listener {
         }
     }
     
-    private void handleUnpunishCommand(FirecraftPlayer player, String[] args) {
-        if (!(args.length == 1)) {
-            player.sendMessage(Prefixes.ENFORCER + "<ec>You have an invalid amount of arguments.");
-            return;
-        }
-        
-        FirecraftPlayer target = getTarget(player, args[0]);
-        ResultSet set = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{target}' AND `active`='true' AND (`type`='BAN' OR `type`='TEMP_BAN' OR `type`='MUTE' OR `type`='TEMP_MUTE' OR `type`='JAIL');".replace("{target}", target.getUniqueId().toString()));
-        Punishment punishment = null;
-        try {
-            if (set.next()) {
-                punishment = plugin.getFCDatabase().getPunishment(set.getInt("id"));
-            }
-        } catch (SQLException e) {
-            player.sendMessage(Prefixes.ENFORCER + Messages.punishmentsSQLError);
-            return;
-        }
-        
-        FirecraftPlayer punisher = plugin.getPlayerManager().getPlayer(punishment.getPunisher());
-        if (punisher.getMainRank().equals(Rank.FIRECRAFT_TEAM) && !player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-            player.sendMessage(Prefixes.ENFORCER + Messages.punishmentByFCT);
-            return;
-        }
-    
-        plugin.getFCDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString()).replace("{id}", punishment.getId() + ""));
-        FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFCServer().getId(), punishment.getId());
-        plugin.getSocket().sendPacket(punishRemove);
-    }
-    
     private boolean sendPunishment(FirecraftPlayer player, FirecraftServer server, Punishment punishment) {
         if (punishment != null) {
             FPacketPunish punish = new FPacketPunish(server.getId(), punishment.getId());
@@ -321,5 +292,34 @@ public class PunishmentManager implements Listener {
         
         FPacketPunish punish = new FPacketPunish(FirecraftMC.getServer().getId(), punishment.getId());
         plugin.getSocket().sendPacket(punish);
+    }
+    
+    private void handleUnpunishCommand(FirecraftPlayer player, String[] args) {
+        if (!(args.length == 1)) {
+            player.sendMessage(Prefixes.ENFORCER + "<ec>You have an invalid amount of arguments.");
+            return;
+        }
+        
+        FirecraftPlayer target = getTarget(player, args[0]);
+        ResultSet set = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{target}' AND `active`='true' AND (`type`='BAN' OR `type`='TEMP_BAN' OR `type`='MUTE' OR `type`='TEMP_MUTE' OR `type`='JAIL');".replace("{target}", target.getUniqueId().toString()));
+        Punishment punishment = null;
+        try {
+            if (set.next()) {
+                punishment = plugin.getFCDatabase().getPunishment(set.getInt("id"));
+            }
+        } catch (SQLException e) {
+            player.sendMessage(Prefixes.ENFORCER + Messages.punishmentsSQLError);
+            return;
+        }
+        
+        FirecraftPlayer punisher = plugin.getPlayerManager().getPlayer(punishment.getPunisher());
+        if (punisher.getMainRank().equals(Rank.FIRECRAFT_TEAM) && !player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+            player.sendMessage(Prefixes.ENFORCER + Messages.punishmentByFCT);
+            return;
+        }
+        
+        plugin.getFCDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString()).replace("{id}", punishment.getId() + ""));
+        FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFCServer().getId(), punishment.getId());
+        plugin.getSocket().sendPacket(punishRemove);
     }
 }
