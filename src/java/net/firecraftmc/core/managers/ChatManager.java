@@ -8,6 +8,7 @@ import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.command.FirecraftCommand;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatMessage;
 import net.firecraftmc.shared.punishments.Punishment;
+import net.firecraftmc.shared.punishments.Punishment.Type;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -170,7 +171,17 @@ public class ChatManager implements Listener {
         for (Punishment punishment : punishments) {
             if (punishment.isActive()) {
                 if (punishment.getType().equals(Punishment.Type.MUTE) || punishment.getType().equals(Punishment.Type.TEMP_MUTE)) {
-                    player.sendMessage(Messages.chatMuted);
+                    player.sendMessage("");
+                    player.sendMessage("&4&l╔══════════════════════════");
+                    player.sendMessage("&4&l║ &c&lYou are currently muted!");
+                    player.sendMessage("&4&l║");
+                    if (punishment.getType().equals(Type.TEMP_MUTE))
+                        player.sendMessage("&4&l║ <nc>The mute expires in <vc>" + punishment.formatExpireTime());
+                    else player.sendMessage("&4&l║ <nc>This mute is <vc>&lPERMANENT");
+                    player.sendMessage("&4&l║ <nc>The staff member that muted you is <vc>" + punishment.getPunisherName());
+                    player.sendMessage("&4&l║");
+                    player.sendMessage("&4&l╚══════════════════════════");
+                    player.sendMessage("");
                     return;
                 } else if (punishment.getType().equals(Punishment.Type.JAIL)) {
                     player.sendMessage(Messages.chatJailed);
