@@ -1,19 +1,15 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.Prefixes;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.player.ActionBar;
+import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
+import net.firecraftmc.shared.command.FirecraftCommand;
 import net.firecraftmc.shared.packets.staffchat.FPSCVanishToggle;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,15 +18,11 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.DoubleChestInventory;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
-public class VanishManager implements TabExecutor, Listener {
+public class VanishManager implements Listener {
     
     private final FirecraftCore plugin;
     private final List<String> interactTypes = Arrays.asList("inventoryinteract", "itemuse", "itempickup", "blockbreak", "blockplace", "entityinteract", "chat", "silentinventoryopen");
@@ -47,164 +39,132 @@ public class VanishManager implements TabExecutor, Listener {
                 Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
             }
         });
-    }
     
-    public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(Messages.onlyPlayers);
-            return true;
-        }
-        
-        FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
-        if (player.getMainRank().equals(Rank.VIP) || player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
-            if (player.isRecording()) {
-                player.sendMessage(Messages.recordingNoUse);
-                return true;
-            }
-            if (args.length == 0) {
-                if (player.isVanished()) {
-                    boolean flight = player.getVanishInfo().allowFlightBeforeVanish();
-                    player.unVanish();
-                    
-                    for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
-                        p.getPlayer().showPlayer(player.getPlayer());
-                        if (!player.isNicked()) {
-                            player.getPlayer().setPlayerListName(player.getName());
-                        } else {
-                            player.getPlayer().setPlayerListName(player.getNick().getProfile().getName());
-                        }
-                        p.getScoreboard().updateScoreboard(p);
-                    }
-                    player.setActionBar(null);
-                    player.getPlayer().setAllowFlight(flight);
-                    player.updatePlayerListName();
-                    plugin.getFCDatabase().updateVanish(player);
-                } else {
-                    player.vanish();
-                    for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
-                        if (!player.isNicked()) {
-                            player.getPlayer().setPlayerListName(player.getName() + " §7§l[V]");
-                        } else {
-                            player.getPlayer().setPlayerListName(player.getNick().getProfile().getName() + "§7§l[V]");
-                        }
-                        
-                        if (!p.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-                            p.getPlayer().hidePlayer(player.getPlayer());
+        FirecraftCommand vanish = new FirecraftCommand("vanish", "Toggle vanish status or other settings") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (args.length == 0) {
+                    if (player.isVanished()) {
+                        boolean flight = player.getVanishInfo().allowFlightBeforeVanish();
+                        player.unVanish();
+            
+                        for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
+                            p.getPlayer().showPlayer(player.getPlayer());
+                            if (!player.isNicked()) {
+                                player.getPlayer().setPlayerListName(player.getName());
+                            } else {
+                                player.getPlayer().setPlayerListName(player.getNick().getProfile().getName());
+                            }
                             p.getScoreboard().updateScoreboard(p);
                         }
-                    }
-                    
-                    player.setActionBar(new ActionBar(Messages.actionBar_Vanished));
-                    player.getVanishInfo().setAllowFlightBeforeVanish(player.getPlayer().getAllowFlight());
-                    player.getPlayer().setAllowFlight(true);
-                }
-                FPSCVanishToggle toggleVanish = new FPSCVanishToggle(plugin.getFCServer().getId(), player.getUniqueId());
-                plugin.getSocket().sendPacket(toggleVanish);
-                plugin.getFCDatabase().updateVanish(player);
-            } else {
-                if (!Utils.Command.checkCmdAliases(args, 0, "settings", "s")) {
-                    player.sendMessage(Prefixes.VANISH + Messages.invalidSubCommand);
-                    return true;
-                }
+                        player.setActionBar(null);
+                        player.getPlayer().setAllowFlight(flight);
+                        player.updatePlayerListName();
+                        plugin.getFCDatabase().updateVanish(player);
+                    } else {
+                        player.vanish();
+                        for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
+                            if (!player.isNicked()) {
+                                player.getPlayer().setPlayerListName(player.getName() + " §7§l[V]");
+                            } else {
+                                player.getPlayer().setPlayerListName(player.getNick().getProfile().getName() + "§7§l[V]");
+                            }
                 
-                if (!player.isVanished()) {
-                    player.sendMessage(Prefixes.VANISH + Messages.notVanished);
-                    return true;
-                }
-                
-                List<String> toggled = new ArrayList<>(7);
-                for (int i = 1; i < args.length; i++) {
-                    if (interactTypes.contains(args[i].toLowerCase())) {
-                        if (!toggled.contains(args[i].toLowerCase())) {
-                            toggled.add(args[i]);
-                        } else {
-                            player.sendMessage(Prefixes.VANISH + Messages.duplicateOption(args[i]));
+                            if (!p.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                                p.getPlayer().hidePlayer(player.getPlayer());
+                                p.getScoreboard().updateScoreboard(p);
+                            }
                         }
+            
+                        player.setActionBar(new ActionBar(Messages.actionBar_Vanished));
+                        player.getVanishInfo().setAllowFlightBeforeVanish(player.getPlayer().getAllowFlight());
+                        player.getPlayer().setAllowFlight(true);
                     }
-                }
-                
-                toggled.forEach(option -> {
-                    if (option.equalsIgnoreCase("inventoryinteract")) {
-                        if (player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
-                            player.getVanishInfo().toggleInventoryInteract();
-                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("inventoryinteract", player.getVanishInfo().inventoryInteract()));
-                        } else {
-                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
-                        }
-                    } else if (option.equalsIgnoreCase("itemuse")) {
-                        if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                            player.getVanishInfo().toggleItemUse();
-                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("itemuse", player.getVanishInfo().itemUse()));
-                        } else {
-                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
-                        }
-                    } else if (option.equalsIgnoreCase("itempickup")) {
-                        if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                            player.getVanishInfo().toggleItemPickup();
-                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("itempickup", player.getVanishInfo().itemPickup()));
-                        } else {
-                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
-                        }
-                    } else if (option.equalsIgnoreCase("blockbreak")) {
-                        if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                            player.getVanishInfo().toggleBlockBreak();
-                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("blockbreak", player.getVanishInfo().blockBreak()));
-                        } else {
-                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
-                        }
-                    } else if (option.equalsIgnoreCase("blockplace")) {
-                        if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                            player.getVanishInfo().toggleBlockPlace();
-                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("blockplace", player.getVanishInfo().blockPlace()));
-                        } else {
-                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
-                        }
-                    } else if (option.equalsIgnoreCase("entityinteract")) {
-                        if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                            player.getVanishInfo().toggleEntityInteract();
-                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("entityinteract", player.getVanishInfo().entityInteract()));
-                            
-                        } else {
-                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
-                        }
-                    } else if (option.equalsIgnoreCase("chat")) {
-                        player.getVanishInfo().toggleChatInteract();
-                        player.sendMessage(Prefixes.VANISH + Messages.optionToggle("chatting", player.getVanishInfo().canChat()));
-                    } else if (option.equalsIgnoreCase("silentinventoryopen")) {
-                        if (player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
-                            player.getVanishInfo().toggleSilentInventories();
-                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("silentinventoryopen", player.getVanishInfo().silentInventoryOpen()));
-                        } else {
-                            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
-                        }
+                    FPSCVanishToggle toggleVanish = new FPSCVanishToggle(plugin.getFCServer().getId(), player.getUniqueId());
+                    plugin.getSocket().sendPacket(toggleVanish);
+                    plugin.getFCDatabase().updateVanish(player);
+                } else {
+                    if (!Utils.Command.checkCmdAliases(args, 0, "settings", "s")) {
+                        player.sendMessage(Prefixes.VANISH + Messages.invalidSubCommand);
+                        return;
                     }
-                });
-            }
-        } else {
-            player.sendMessage(Prefixes.VANISH + Messages.noPermission);
-            return true;
-        }
         
-        return true;
-    }
-    
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
-        if (args.length > 1) {
-            if (Utils.Command.checkCmdAliases(args, 0, "settings", "s")) {
-                List<String> c = new ArrayList<>();
-                for (int i = 1; i < args.length; i++) {
-                    for (String it : interactTypes) {
-                        if (!args[i].equalsIgnoreCase(it)) {
-                            if (it.startsWith(args[i].toLowerCase())) {
-                                c.add(it);
+                    if (!player.isVanished()) {
+                        player.sendMessage(Prefixes.VANISH + Messages.notVanished);
+                        return;
+                    }
+        
+                    List<String> toggled = new ArrayList<>(7);
+                    for (int i = 1; i < args.length; i++) {
+                        if (interactTypes.contains(args[i].toLowerCase())) {
+                            if (!toggled.contains(args[i].toLowerCase())) {
+                                toggled.add(args[i]);
+                            } else {
+                                player.sendMessage(Prefixes.VANISH + Messages.duplicateOption(args[i]));
                             }
                         }
                     }
+        
+                    toggled.forEach(option -> {
+                        if (option.equalsIgnoreCase("inventoryinteract")) {
+                            if (player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
+                                player.getVanishInfo().toggleInventoryInteract();
+                                player.sendMessage(Prefixes.VANISH + Messages.optionToggle("inventoryinteract", player.getVanishInfo().inventoryInteract()));
+                            } else {
+                                player.sendMessage(Prefixes.VANISH + Messages.noPermission);
+                            }
+                        } else if (option.equalsIgnoreCase("itemuse")) {
+                            if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                                player.getVanishInfo().toggleItemUse();
+                                player.sendMessage(Prefixes.VANISH + Messages.optionToggle("itemuse", player.getVanishInfo().itemUse()));
+                            } else {
+                                player.sendMessage(Prefixes.VANISH + Messages.noPermission);
+                            }
+                        } else if (option.equalsIgnoreCase("itempickup")) {
+                            if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                                player.getVanishInfo().toggleItemPickup();
+                                player.sendMessage(Prefixes.VANISH + Messages.optionToggle("itempickup", player.getVanishInfo().itemPickup()));
+                            } else {
+                                player.sendMessage(Prefixes.VANISH + Messages.noPermission);
+                            }
+                        } else if (option.equalsIgnoreCase("blockbreak")) {
+                            if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                                player.getVanishInfo().toggleBlockBreak();
+                                player.sendMessage(Prefixes.VANISH + Messages.optionToggle("blockbreak", player.getVanishInfo().blockBreak()));
+                            } else {
+                                player.sendMessage(Prefixes.VANISH + Messages.noPermission);
+                            }
+                        } else if (option.equalsIgnoreCase("blockplace")) {
+                            if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                                player.getVanishInfo().toggleBlockPlace();
+                                player.sendMessage(Prefixes.VANISH + Messages.optionToggle("blockplace", player.getVanishInfo().blockPlace()));
+                            } else {
+                                player.sendMessage(Prefixes.VANISH + Messages.noPermission);
+                            }
+                        } else if (option.equalsIgnoreCase("entityinteract")) {
+                            if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                                player.getVanishInfo().toggleEntityInteract();
+                                player.sendMessage(Prefixes.VANISH + Messages.optionToggle("entityinteract", player.getVanishInfo().entityInteract()));
+                    
+                            } else {
+                                player.sendMessage(Prefixes.VANISH + Messages.noPermission);
+                            }
+                        } else if (option.equalsIgnoreCase("chat")) {
+                            player.getVanishInfo().toggleChatInteract();
+                            player.sendMessage(Prefixes.VANISH + Messages.optionToggle("chatting", player.getVanishInfo().canChat()));
+                        } else if (option.equalsIgnoreCase("silentinventoryopen")) {
+                            if (player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
+                                player.getVanishInfo().toggleSilentInventories();
+                                player.sendMessage(Prefixes.VANISH + Messages.optionToggle("silentinventoryopen", player.getVanishInfo().silentInventoryOpen()));
+                            } else {
+                                player.sendMessage(Prefixes.VANISH + Messages.noPermission);
+                            }
+                        }
+                    });
                 }
-                return c;
             }
-        }
-        return null;
+        }.setBaseRank(Rank.MODERATOR).addRank(Rank.VIP).addAlias("v");
+        
+        plugin.getCommandManager().addCommand(vanish);
     }
     
     @EventHandler

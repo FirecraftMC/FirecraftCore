@@ -172,30 +172,35 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         new NickManager(this);
         new ReportManager(this);
         new PunishmentManager(this);
+        new SignEditManager(this);
+        this.staffmodeManager = new StaffmodeManager(this);
+        this.serverManager =  new ServerManager(this);
+        new TeleportationManager(this);
+        new TimeManager(this);
+        new WeatherManager(this);
+        new VanishManager(this);
         Utils.Command.registerCommands(this, commandManager, "players", "fct", "ignore", "unignore", "record", "stream");
         Utils.Command.registerCommands(this, commandManager, "list", "stafflist");
         Utils.Command.registerCommands(this, commandManager, "ignore", "unignore");
         Utils.Command.registerCommands(this, commandManager, "chat", "staff", "global", "clearchat", "cc");
         Utils.Command.registerCommands(this, commandManager, "nick", "unnick", "nickrandom");
         Utils.Command.registerCommands(this, commandManager, "gamemode", "gmc", "gms", "gma", "gmsp");
-        Utils.Command.registerCommands(this, new TeleportationManager(this), "teleport", "tphere", "back", "tpall", "tpaccept", "tpdeny", "tpa", "setspawn", "spawn");
+        Utils.Command.registerCommands(this, commandManager, "teleport", "tphere", "back", "tpall", "tpaccept", "tpdeny", "tpa", "setspawn", "spawn");
         this.getCommand("dev").setExecutor(commandManager);
         this.getCommand("feed").setExecutor(commandManager);
         this.getCommand("heal").setExecutor(commandManager);
-        this.getCommand("signedit").setExecutor(new SignEditManager(this));
+        this.getCommand("signedit").setExecutor(commandManager);
         Utils.Command.registerCommands(this, commandManager, "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail", "history", "bans", "mutes", "kicks", "warns", "jails");
         Utils.Command.registerCommands(this, commandManager, "setname", "setlore");
-        this.getCommand("weather").setExecutor(new WeatherManager(this));
-        Utils.Command.registerCommands(this, new TimeManager(this), "time", "day", "night");
+        this.getCommand("weather").setExecutor(commandManager);
+        Utils.Command.registerCommands(this, commandManager, "time", "day", "night");
         Utils.Command.registerCommands(this, commandManager, "broadcast", "socketbroadcast");
         Utils.Command.registerCommands(this, commandManager, "clearinventory", "enderchest", "workbench", "invsee");
         Utils.Command.registerCommands(this, commandManager, "sethome", "delhome", "home");
-        getCommand("vanish").setExecutor(new VanishManager(this));
+        getCommand("vanish").setExecutor(commandManager);
         Utils.Command.registerCommands(this, commandManager, "report", "reportadmin");
         Utils.Command.registerCommands(this, commandManager, "message", "reply");
-        this.staffmodeManager = new StaffmodeManager(this);
-        getCommand("staffmode").setExecutor(staffmodeManager);
-        this.serverManager = new ServerManager(this);
+        getCommand("staffmode").setExecutor(commandManager);
         getCommand("firecraftserver").setExecutor(serverManager);
         Utils.Command.registerCommands(this, commandManager, "economy", "pay", "withdraw", "balance", "baltop");
     }
@@ -217,7 +222,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         new BukkitRunnable() {
             public void run() {
                 warpManager = new WarpManager(FirecraftCore.this);
-                Utils.Command.registerCommands(FirecraftCore.this, warpManager, "setwarp", "delwarp", "warp");
+                Utils.Command.registerCommands(FirecraftCore.this, commandManager, "setwarp", "delwarp", "warp");
                 serverSpawn = getConfig().contains("spawn") ? Utils.getLocationFromString(getConfig().getString("spawn")) : Bukkit.getWorlds().get(0).getSpawnLocation();
 
                 if (serverSpawn == null) {

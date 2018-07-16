@@ -1,20 +1,16 @@
 package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.classes.Prefixes;
-import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.*;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.interfaces.IWarpManager;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.server.Warp;
+import net.firecraftmc.shared.command.FirecraftCommand;
 import org.bukkit.Location;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,15 +19,12 @@ import java.util.List;
 
 public class WarpManager implements IWarpManager {
 
-    private FirecraftCore plugin;
     private List<Warp> warps = new ArrayList<>();
 
     private File file;
     private FileConfiguration config;
 
     public WarpManager(FirecraftCore plugin) {
-        this.plugin = plugin;
-
         file = new File(plugin.getDataFolder() + File.separator + "warps.yml");
         if (!file.exists()) {
             try {
@@ -60,6 +53,77 @@ public class WarpManager implements IWarpManager {
                 this.warps.add(warp);
             }
         }
+    
+        FirecraftCommand setWarp = new FirecraftCommand("setwarp", "Set a warp given a name to your location.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                Warp warp;
+                if (args.length == 2) {
+                    Rank rank;
+                    try {
+                        rank = Rank.valueOf(args[1].toUpperCase());
+                    } catch (Exception e) {
+                        player.sendMessage(Prefixes.WARPS + Messages.invalidRank);
+                        return;
+                    }
+                    warp = new Warp(args[0], player.getLocation(), rank);
+                } else {
+                    warp = new Warp(args[0], player.getLocation());
+                }
+                warps.remove(warp);
+                warps.add(warp);
+                player.sendMessage(Prefixes.WARPS + Messages.setWarp(warp));
+            }
+        }.setBaseRank(Rank.ADMIN);
+    
+        FirecraftCommand delWarp = new FirecraftCommand("delwarp", "Removes the specified warp") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                Warp warp = null;
+                for (Warp w : warps) {
+                    if (w.getName().equalsIgnoreCase(args[0])) {
+                        warp = w;
+                    }
+                }
+    
+                if (warp == null) {
+                    player.sendMessage(Prefixes.WARPS + Messages.warpDoesNotExist);
+                    return;
+                }
+    
+                if (warp.getMinimumRank().isHigher(player.getMainRank())) {
+                    player.sendMessage(Prefixes.WARPS + Messages.noPermission);
+                    return;
+                }
+    
+                warps.remove(warp);
+                player.sendMessage(Prefixes.WARPS + Messages.delWarp(warp.getName()));
+            }
+        }.setBaseRank(Rank.ADMIN);
+    
+        FirecraftCommand warp = new FirecraftCommand("warp", "Goes to the warp specified") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                Warp warp = null;
+                for (Warp w : warps) {
+                    if (w.getName().equalsIgnoreCase(args[0])) {
+                        warp = w;
+                    }
+                }
+    
+                if (warp == null) {
+                    player.sendMessage(Prefixes.WARPS + Messages.warpDoesNotExist);
+                    return;
+                }
+    
+                if (warp.getMinimumRank().isHigher(player.getMainRank())) {
+                    player.sendMessage(Prefixes.WARPS + Messages.noPermission);
+                    return;
+                }
+    
+                player.teleport(warp.getLocation());
+                player.sendMessage(Prefixes.WARPS + Messages.warpTeleport(warp.getName()));
+            }
+        }.setBaseRank(Rank.ADMIN);
+        
+        plugin.getCommandManager().addCommands(setWarp, delWarp, warp);
     }
 
     public void saveWarps() {
@@ -74,98 +138,5 @@ public class WarpManager implements IWarpManager {
         try {
             config.save(file);
         } catch (IOException e) {}
-    }
-
-    public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(Messages.onlyPlayers);
-            return true;
-        }
-
-        FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
-
-        if (!(args.length > 0)) {
-            player.sendMessage(Prefixes.WARPS + Messages.notEnoughArgs);
-            return true;
-        }
-
-        if (cmd.getName().equalsIgnoreCase("setwarp")) {
-            if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                if (player.isRecording()) {
-                    player.sendMessage(Prefixes.WARPS + Messages.recordingNoUse);
-                    return true;
-                }
-                Warp warp;
-                if (args.length == 2) {
-                    Rank rank;
-                    try {
-                        rank = Rank.valueOf(args[1].toUpperCase());
-                    } catch (Exception e) {
-                        player.sendMessage(Prefixes.WARPS + Messages.invalidRank);
-                        return true;
-                    }
-                    warp = new Warp(args[0], player.getLocation(), rank);
-                } else {
-                    warp = new Warp(args[0], player.getLocation());
-                }
-                this.warps.remove(warp);
-                this.warps.add(warp);
-                player.sendMessage(Prefixes.WARPS + Messages.setWarp(warp));
-            } else {
-                player.sendMessage(Prefixes.WARPS + Messages.noPermission);
-                return true;
-            }
-        } else if (cmd.getName().equalsIgnoreCase("delwarp")) {
-            if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                if (player.isRecording()) {
-                    player.sendMessage(Prefixes.WARPS + Messages.recordingNoUse);
-                    return true;
-                }
-                Warp warp = null;
-                for (Warp w : warps) {
-                    if (w.getName().equalsIgnoreCase(args[0])) {
-                        warp = w;
-                    }
-                }
-
-                if (warp == null) {
-                    player.sendMessage(Prefixes.WARPS + Messages.warpDoesNotExist);
-                    return true;
-                }
-
-                if (warp.getMinimumRank().isHigher(player.getMainRank())) {
-                    player.sendMessage(Prefixes.WARPS + Messages.noPermission);
-                    return true;
-                }
-
-                this.warps.remove(warp);
-                player.sendMessage(Prefixes.WARPS + Messages.delWarp(warp.getName()));
-            } else {
-                player.sendMessage(Prefixes.WARPS + Messages.noPermission);
-                return true;
-            }
-        } else if (cmd.getName().equalsIgnoreCase("warp")) {
-            Warp warp = null;
-            for (Warp w : warps) {
-                if (w.getName().equalsIgnoreCase(args[0])) {
-                    warp = w;
-                }
-            }
-
-            if (warp == null) {
-                player.sendMessage(Prefixes.WARPS + Messages.warpDoesNotExist);
-                return true;
-            }
-
-            if (warp.getMinimumRank().isHigher(player.getMainRank())) {
-                player.sendMessage(Prefixes.WARPS + Messages.noPermission);
-                return true;
-            }
-
-            player.teleport(warp.getLocation());
-            player.sendMessage(Prefixes.WARPS + Messages.warpTeleport(warp.getName()));
-        }
-
-        return true;
     }
 }

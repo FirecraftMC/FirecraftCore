@@ -5,78 +5,67 @@ import net.firecraftmc.shared.classes.Messages;
 import net.firecraftmc.shared.classes.Prefixes;
 import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
+import net.firecraftmc.shared.command.FirecraftCommand;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
-public class TimeManager implements CommandExecutor {
-    private FirecraftCore plugin;
-
+public class TimeManager {
     public TimeManager(FirecraftCore plugin) {
-        this.plugin = plugin;
-    }
-    
-    public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
-        if (sender instanceof Player) {
-            FirecraftPlayer player = plugin.getPlayerManager().getPlayer(((Player) sender).getUniqueId());
-            if (player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
-                if (player.isRecording()) {
-                    player.sendMessage(Prefixes.TIME + Messages.recordingNoUse);
-                    return true;
-                }
+        FirecraftCommand time = new FirecraftCommand("time", "Modify the world time.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
                 World world = player.getPlayer().getWorld();
                 int time;
                 String timeName = "";
-                if (cmd.getName().equalsIgnoreCase("time")) {
-                    if (args.length > 0) {
-                        if (args[0].equalsIgnoreCase("day") || args[0].equalsIgnoreCase("d")) {
-                            time = 1000;
-                            timeName = "day";
-                        } else if (args[0].equalsIgnoreCase("noon") || args[0].equalsIgnoreCase("no")) {
-                            time = 6000;
-                            timeName = "noon";
-                        } else if (args[0].equalsIgnoreCase("sunset") || args[0].equalsIgnoreCase("s")) {
-                            time = 12000;
-                            timeName = "sunset";
-                        } else if (args[0].equalsIgnoreCase("night") || args[0].equalsIgnoreCase("ni")) {
-                            time = 14000;
-                            timeName = "night";
-                        } else if (args[0].equalsIgnoreCase("midnight") || args[0].equalsIgnoreCase("m")) {
-                            time = 18000;
-                            timeName = "midnight";
-                        } else {
-                            try {
-                                time = Integer.parseInt(args[0]);
-                            } catch (NumberFormatException e) {
-                                player.sendMessage(Prefixes.TIME + Messages.invalidTime);
-                                return true;
-                            }
-                        }
-                        if (timeName.equals("")) {
-                            world.setTime(time);
-                            player.sendMessage(Prefixes.TIME + Messages.timeChange(time + "", world.getName()));
-                        } else {
-                            world.setTime(time);
-                            player.sendMessage(Prefixes.TIME + Messages.timeChange(timeName, world.getName()));
-                        }
+                if (args.length > 0) {
+                    if (args[0].equalsIgnoreCase("day") || args[0].equalsIgnoreCase("d")) {
+                        time = 1000;
+                        timeName = "day";
+                    } else if (args[0].equalsIgnoreCase("noon") || args[0].equalsIgnoreCase("no")) {
+                        time = 6000;
+                        timeName = "noon";
+                    } else if (args[0].equalsIgnoreCase("sunset") || args[0].equalsIgnoreCase("s")) {
+                        time = 12000;
+                        timeName = "sunset";
+                    } else if (args[0].equalsIgnoreCase("night") || args[0].equalsIgnoreCase("ni")) {
+                        time = 14000;
+                        timeName = "night";
+                    } else if (args[0].equalsIgnoreCase("midnight") || args[0].equalsIgnoreCase("m")) {
+                        time = 18000;
+                        timeName = "midnight";
                     } else {
-                        player.sendMessage(Messages.notEnoughArgs);
-                        return true;
+                        try {
+                            time = Integer.parseInt(args[0]);
+                        } catch (NumberFormatException e) {
+                            player.sendMessage(Prefixes.TIME + Messages.invalidTime);
+                            return;
+                        }
                     }
-                } else if (cmd.getName().equalsIgnoreCase("day")) {
-                    world.setTime(1000);
-                    player.sendMessage(Prefixes.TIME + Messages.timeChange("day", world.getName()));
-                } else if (cmd.getName().equalsIgnoreCase("night")) {
-                    world.setTime(14000);
-                    player.sendMessage(Prefixes.TIME + Messages.timeChange("night", world.getName()));
+                    if (timeName.equals("")) {
+                        world.setTime(time);
+                        player.sendMessage(Prefixes.TIME + Messages.timeChange(time + "", world.getName()));
+                    } else {
+                        world.setTime(time);
+                        player.sendMessage(Prefixes.TIME + Messages.timeChange(timeName, world.getName()));
+                    }
+                } else {
+                    player.sendMessage(Messages.notEnoughArgs);
                 }
             }
-        } else {
-            sender.sendMessage(Messages.onlyPlayers);
-            return true;
-        }
-        return true;
+        }.setBaseRank(Rank.ADMIN);
+        
+        FirecraftCommand day = new FirecraftCommand("day", "Set the world time to day") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                player.getPlayer().getWorld().setTime(1000);
+                player.sendMessage(Prefixes.TIME + Messages.timeChange("day", player.getPlayer().getWorld().getName()));
+            }
+        }.setBaseRank(Rank.ADMIN);
+        
+        FirecraftCommand night = new FirecraftCommand("night", "Set the world time to night") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                player.getPlayer().getWorld().setTime(14000);
+                player.sendMessage(Prefixes.TIME + Messages.timeChange("night", player.getPlayer().getWorld().getName()));
+            }
+        }.setBaseRank(Rank.ADMIN);
+        
+        plugin.getCommandManager().addCommands(time, day, night);
     }
 }
