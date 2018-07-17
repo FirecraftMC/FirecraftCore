@@ -46,6 +46,8 @@ commands:
     unban:
     unmute:
     unjail:
+    mrules:
+    punish:
     players:
         aliases: [p]
     fct:

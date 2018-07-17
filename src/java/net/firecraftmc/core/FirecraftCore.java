@@ -11,6 +11,7 @@ import net.firecraftmc.shared.classes.model.server.FirecraftServer;
 import net.firecraftmc.shared.classes.wrapper.*;
 import net.firecraftmc.shared.packets.*;
 import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
+import net.firecraftmc.shared.plugin.IFirecraftCore;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -190,7 +191,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         this.getCommand("feed").setExecutor(commandManager);
         this.getCommand("heal").setExecutor(commandManager);
         this.getCommand("signedit").setExecutor(commandManager);
-        Utils.Command.registerCommands(this, commandManager, "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail", "history", "bans", "mutes", "kicks", "warns", "jails");
+        Utils.Command.registerCommands(this, commandManager, "punish", "mrules", "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail", "history", "bans", "mutes", "kicks", "warns", "jails");
         Utils.Command.registerCommands(this, commandManager, "setname", "setlore");
         this.getCommand("weather").setExecutor(commandManager);
         Utils.Command.registerCommands(this, commandManager, "time", "day", "night");
@@ -247,11 +248,27 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     public final IPlayerManager getPlayerManager() {
         return playerManager;
     }
-
-    public final FirecraftServer getFCServer() {
+    
+    public FirecraftPlayer getPlayer(String name) {
+        return playerManager.getPlayer(name);
+    }
+    
+    public FirecraftPlayer getPlayer(UUID uuid) {
+        return playerManager.getPlayer(uuid);
+    }
+    
+    public FirecraftServer getFCServer() {
         return server;
     }
-
+    
+    public FirecraftServer getFCServer(String id) {
+        return serverManager.getServer(id);
+    }
+    
+    public Collection<FirecraftPlayer> getPlayers() {
+        return playerManager.getPlayers();
+    }
+    
     public final Location getSpawn() {
         return serverSpawn;
     }

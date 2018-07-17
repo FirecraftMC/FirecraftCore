@@ -7,8 +7,7 @@ import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.server.FirecraftServer;
 import net.firecraftmc.shared.command.FirecraftCommand;
 import net.firecraftmc.shared.packets.*;
-import net.firecraftmc.shared.punishments.Enforcer;
-import net.firecraftmc.shared.punishments.Punishment;
+import net.firecraftmc.shared.punishments.*;
 import net.firecraftmc.shared.punishments.Punishment.Type;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -110,9 +109,6 @@ public class PunishmentManager implements Listener {
                 Punishment punishment = Enforcer.createPunishment(t, player, Type.JAIL, reason, System.currentTimeMillis(), -1);
                 FPacketPunish punish = new FPacketPunish(plugin.getFCServer().getName(), punishment.getId());
                 plugin.getSocket().sendPacket(punish);
-    
-                if (Bukkit.getPlayer(t.getUniqueId()) != null)
-                    t.kickPlayer(Messages.kickMessage(player.getName(), reason));
             }
         }.setBaseRank(Rank.MODERATOR);
         
@@ -155,8 +151,40 @@ public class PunishmentManager implements Listener {
             }
         }.setBaseRank(Rank.MODERATOR);
         
+        FirecraftCommand punish = new FirecraftCommand("punish", "Punish a player given a specific rule based on the number of offenses") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (!(args.length == 2)) {
+                    player.sendMessage(Prefixes.ENFORCER + "<ec>Usage: /punish <player> <rule>");
+                    return;
+                }
+                
+                FirecraftPlayer target = plugin.getPlayer(args[0]);
+                
+                Rule rule;
+                try {
+                    rule = ModeratorRules.getRule(Integer.parseInt(args[1]));
+                } catch (NumberFormatException e) {
+                    rule = ModeratorRules.getRule(args[1]);
+                }
+                
+                if (rule == null) {
+                    player.sendMessage(Prefixes.ENFORCER + "<ec>You supplied an invalid rule.");
+                    return;
+                }
+                
+                RulePunishment rulePunishment = Enforcer.getNextPunishment(rule, target);
+                Punishment punishment = Enforcer.createPunishment(target, player, System.currentTimeMillis(), rule, rulePunishment);
+                if (punishment == null) {
+                    player.sendMessage(Prefixes.ENFORCER + "<ec>There was an error creating the punishment.");
+                    return;
+                }
+                
+                FPacketPunish packetPunish = new FPacketPunish(plugin.getFCServer().getName(), punishment.getId());
+                plugin.getSocket().sendPacket(packetPunish);
+            }
+        }.setBaseRank(Rank.HELPER).addAlias("p");
         
-        plugin.getCommandManager().addCommands(setJail, ban, tempban, mute, tempmute, jail, kick, warn, unban, unmute, unjail);
+        plugin.getCommandManager().addCommands(setJail, ban, tempban, mute, tempmute, jail, kick, warn, unban, unmute, unjail, punish);
     }
     
     @EventHandler
@@ -257,14 +285,6 @@ public class PunishmentManager implements Listener {
             return;
         }
         
-        punishment.setPunisherName(player.getName());
-        punishment.setTargetName(player.getName());
-        
-        if (type.equals(Type.BAN)) {
-            if (Bukkit.getPlayer(target.getUniqueId()) != null)
-                target.kickPlayer(Utils.color(Messages.banMessage(punishment, "Permanent")));
-        }
-        
         FPacketPunish punish = new FPacketPunish(FirecraftMC.getServer().getId(), punishment.getId());
         plugin.getSocket().sendPacket(punish);
     }
@@ -285,15 +305,6 @@ public class PunishmentManager implements Listener {
             return;
         }
     
-        punishment.setPunisherName(player.getName());
-        punishment.setTargetName(player.getName());
-        
-        if (type.equals(Type.TEMP_BAN)) {
-            if (Bukkit.getPlayer(target.getUniqueId()) != null) {
-                target.kickPlayer(Utils.color(Messages.banMessage(punishment, punishment.formatExpireTime())));
-            }
-        }
-        
         FPacketPunish punish = new FPacketPunish(FirecraftMC.getServer().getId(), punishment.getId());
         plugin.getSocket().sendPacket(punish);
     }
