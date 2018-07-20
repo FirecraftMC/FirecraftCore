@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
-
+    
     private IPlayerManager playerManager;
     private NickWrapper nickWrapper;
     private NBTWrapper nbtWrapper;
@@ -40,19 +40,19 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     private IEconomyManager economyManager = null;
     private ICommandManager commandManager = null;
     private MessageManager messageManager = null;
-
+    
     public void onEnable() {
         this.saveDefaultConfig();
         if (!getConfig().contains("host")) {
             getConfig().set("host", "localhost");
             saveConfig();
         }
-
+        
         FirecraftMC.setFirecraftCore(this);
-
+        
         String host = getConfig().getString("host");
         this.socket = new FirecraftSocket(this, host, getConfig().getInt("port"));
-
+        
         this.socket.addSocketListener((packet) -> {
             if (packet instanceof FPacketServerConnect) {
                 FPacketServerConnect serverConnect = (FPacketServerConnect) packet;
@@ -70,35 +70,34 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
                 });
             }
         });
-
-        database = new Database(getConfig().getString("mysql.user"), getConfig().getString("mysql.database"),
-                getConfig().getString("mysql.password"), getConfig().getInt("mysql.port"), getConfig().getString("mysql.hostname"));
+        
+        database = new Database(getConfig().getString("mysql.user"), getConfig().getString("mysql.database"), getConfig().getString("mysql.password"), getConfig().getInt("mysql.port"), getConfig().getString("mysql.hostname"));
         database.openConnection();
-
+        
         if (getConfig().contains("server")) {
             this.server = database.getServer(getConfig().getString("server"));
         }
-
+        
         this.commandManager = new CommandManager(this);
-
+        
         this.registerAllCommands();
-
+        
         this.versionSpecificTasks();
-
+        
         this.postWorldTasks();
-
+        
         for (Player p : Bukkit.getOnlinePlayers()) {
             this.playerManager.addPlayer(this.database.getPlayer(p.getUniqueId()));
             this.playerManager.getPlayer(p.getUniqueId()).playerOnlineStuff();
         }
-
+        
         this.socket.connect();
         this.socket.start();
         if (server != null) {
             this.server.setIp(this.socket.getJavaSocket().getLocalAddress().toString().replace("/", ""));
             this.database.saveServer(server);
         }
-
+        
         new BukkitRunnable() {
             public void run() {
                 if (socket.getState().equals(Thread.State.TERMINATED) || !socket.isOpen()) {
@@ -111,34 +110,30 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
                 }
             }
         }.runTaskTimerAsynchronously(this, 0L, 20L);
-
-        new BukkitRunnable() {
-            public void run() {
-                FCEconVault fcEconVault = new FCEconVault(FirecraftCore.this);
-                fcEconVault.registerServices();
-            }
-        }.runTaskLater(this, 20L);
+        
+        FCEconVault fcEconVault = new FCEconVault(FirecraftCore.this);
+        fcEconVault.registerServices();
     }
-
+    
     public void onDisable() {
         getConfig().set("server", server.getId());
         getConfig().set("spawn", Utils.convertLocationToString(serverSpawn));
-
+        
         if (jailLocation != null) {
             getConfig().set("jail", Utils.convertLocationToString(jailLocation));
         }
-
+        
         this.warpManager.saveWarps();
-
+        
         for (FirecraftPlayer player : playerManager.getPlayers()) {
             this.homeManager.saveHomes(player);
             this.database.savePlayer(player);
             FPStaffChatQuit staffQuit = new FPStaffChatQuit(server.getId(), player.getUniqueId());
             socket.sendPacket(staffQuit);
         }
-
+        
         this.playerManager.getPlayers().clear();
-
+        
         if (socket != null) {
             socket.sendPacket(new FPacketServerDisconnect(server.getId()));
             try {
@@ -146,15 +141,15 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
             } catch (IOException e) {
             }
         }
-
+        
         server.setIp("");
         database.saveServer(server);
-
+        
         this.database.closeConnection();
-
+        
         saveConfig();
     }
-
+    
     private void registerAllCommands() {
         this.playerManager = new PlayerManager(this);
         new BroadcastManager(this);
@@ -175,7 +170,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         new PunishmentManager(this);
         new SignEditManager(this);
         this.staffmodeManager = new StaffmodeManager(this);
-        this.serverManager =  new ServerManager(this);
+        this.serverManager = new ServerManager(this);
         new TeleportationManager(this);
         new TimeManager(this);
         new WeatherManager(this);
@@ -205,7 +200,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         getCommand("firecraftserver").setExecutor(serverManager);
         Utils.Command.registerCommands(this, commandManager, "economy", "pay", "withdraw", "balance", "baltop");
     }
-
+    
     private void versionSpecificTasks() {
         String versionString = Utils.Reflection.getVersion();
         if (versionString.equalsIgnoreCase("v1_8_R3")) {
@@ -218,33 +213,33 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
             this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_12(this), this);
         }
     }
-
+    
     private void postWorldTasks() {
         new BukkitRunnable() {
             public void run() {
                 warpManager = new WarpManager(FirecraftCore.this);
                 Utils.Command.registerCommands(FirecraftCore.this, commandManager, "setwarp", "delwarp", "warp");
                 serverSpawn = getConfig().contains("spawn") ? Utils.getLocationFromString(getConfig().getString("spawn")) : Bukkit.getWorlds().get(0).getSpawnLocation();
-
+                
                 if (serverSpawn == null) {
                     serverSpawn = Bukkit.getWorlds().get(0).getSpawnLocation();
                 }
-
+                
                 if (getConfig().contains("jail")) {
                     jailLocation = Utils.getLocationFromString(getConfig().getString("jail"));
                 }
             }
         }.runTaskLater(this, 10L);
     }
-
+    
     public final NickWrapper getNickWrapper() {
         return nickWrapper;
     }
-
+    
     public final FirecraftSocket getSocket() {
         return socket;
     }
-
+    
     public final IPlayerManager getPlayerManager() {
         return playerManager;
     }
@@ -272,73 +267,73 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     public final Location getSpawn() {
         return serverSpawn;
     }
-
+    
     public final void setSpawn(Location serverSpawn) {
         this.serverSpawn = serverSpawn;
     }
-
+    
     public Location getJailLocation() {
         return jailLocation;
     }
-
+    
     public final void setJailLocation(Location jailLocation) {
         this.jailLocation = jailLocation;
     }
-
+    
     public final Database getFCDatabase() {
         return database;
     }
-
+    
     public final boolean isWarnAcknowledged(UUID uuid) {
         return !this.ackCodes.containsKey(uuid);
     }
-
+    
     public final String getAckCode(UUID uuid) {
         return this.ackCodes.get(uuid);
     }
-
+    
     public final void acknowledgeWarn(UUID uuid, String name) {
         this.ackCodes.remove(uuid);
         this.database.updateSQL("UPDATE `punishments` SET `acknowledged`='true' WHERE `target`='{uuid}' AND `type`='WARN';".replace("{uuid}", uuid.toString().replace("-", "")));
         this.socket.sendPacket(new FPacketAcknowledgeWarning(server.getId(), name));
     }
-
+    
     public final void addAckCode(UUID uuid, String code) {
         this.ackCodes.put(uuid, code);
     }
-
+    
     public final IHomeManager getHomeManager() {
         return homeManager;
     }
-
+    
     public final IServerManager getServerManager() {
         return serverManager;
     }
-
+    
     public final void setServer(FirecraftServer server) {
         this.server = server;
     }
-
+    
     public final IStaffmodeManager getStaffmodeManager() {
         return this.staffmodeManager;
     }
-
+    
     public IWarpManager getWarpManager() {
         return warpManager;
     }
-
+    
     public IEconomyManager getEconomyManager() {
         return economyManager;
     }
-
+    
     public NBTWrapper getNbtWrapper() {
         return nbtWrapper;
     }
-
+    
     public FileConfiguration getConfig() {
         return super.getConfig();
     }
-
+    
     public ICommandManager getCommandManager() {
         return commandManager;
     }
