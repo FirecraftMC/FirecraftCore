@@ -2,11 +2,15 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.core.FirecraftCore;
 import net.firecraftmc.shared.classes.Messages;
+import net.firecraftmc.shared.classes.Utils;
+import net.firecraftmc.shared.classes.enums.Rank;
 import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.command.FirecraftCommand;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.LeavesDecayEvent;
+
+import java.io.File;
 
 public class DevManager implements Listener {
     
@@ -38,7 +42,7 @@ public class DevManager implements Listener {
                     player.sendMessage("<ec>You must provide a sub command.");
                 }
             }
-        };
+        }.setBaseRank(Rank.FIRECRAFT_TEAM);
 
         FirecraftCommand testMsgSub = new FirecraftCommand("testmsg", "Command that displays the message given with no formatting.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -60,8 +64,19 @@ public class DevManager implements Listener {
                 player.sendMessage("<nc>You have toggled decaying of leaves to <vc>" + decay);
             }
         };
+        
+        FirecraftCommand clearLogs = new FirecraftCommand("clearlogs", "Clears the Minecraft Logs in the /logs folder") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                File logDir = new File(plugin.getServer().getWorldContainer() + File.separator + "logs");
+                Utils.purgeDirectory(logDir);
+                player.sendMessage("<nc>You cleared all of the Minecraft logs");
+            }
+        }.addAlias("cl");
+        
         dev.addSubcommand(testMsgSub);
         dev.addSubcommand(decaySub);
+        dev.addSubcommand(clearLogs);
+        plugin.getCommandManager().addCommand(dev);
     }
 
     @EventHandler
