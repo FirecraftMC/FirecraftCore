@@ -24,7 +24,8 @@ import java.util.*;
 
 public class PunishmentManager implements Listener {
     private FirecraftCore plugin;
-    private HashMap<UUID, Paginator<Punishment>> paginators = new HashMap();
+    private HashMap<UUID, Paginator<Punishment>> historyPaginators = new HashMap();
+    private HashMap<UUID, Paginator<Rule>> rulePaginators = new HashMap<>();
     
     public PunishmentManager(FirecraftCore plugin) {
         this.plugin = plugin;
@@ -301,19 +302,14 @@ public class PunishmentManager implements Listener {
     }
     
     private void handlePunishmentList(List<? extends Punishment> punishments, FirecraftPlayer player, int page) {
-        if (!paginators.containsKey(player.getUniqueId())) {
-            PaginatorFactory<Punishment> paginatorFactory = new PaginatorFactory<>();
-            paginatorFactory.setMaxElements(7).setHeader("§aPunishment history page {pagenumber} out of {totalpages}").setFooter("§aUse /historyS page {nextpage} to view the next page.");
-            punishments.forEach(report -> paginatorFactory.addElement(report, punishments.size()));
-            if (paginatorFactory.getPages().isEmpty()) {
-                player.sendMessage(Prefixes.REPORT + "&cThere is no history to display.");
-            } else {
-                Paginator<Punishment> paginator = paginatorFactory.build();
-                paginators.put(player.getUniqueId(), paginator);
-                paginator.display(player.getPlayer(), page);
-            }
+        PaginatorFactory<Punishment> paginatorFactory = new PaginatorFactory<>();
+        paginatorFactory.setMaxElements(7).setHeader("§aPunishment history page {pagenumber} out of {totalpages}").setFooter("§aUse /history page {nextpage} to view the next page.");
+        punishments.forEach(report -> paginatorFactory.addElement(report, punishments.size()));
+        if (paginatorFactory.getPages().isEmpty()) {
+            player.sendMessage(Prefixes.REPORT + "&cThere is no history to display.");
         } else {
-            Paginator<Punishment> paginator = this.paginators.get(player.getUniqueId());
+            Paginator<Punishment> paginator = paginatorFactory.build();
+            historyPaginators.put(player.getUniqueId(), paginator);
             paginator.display(player.getPlayer(), page);
         }
     }

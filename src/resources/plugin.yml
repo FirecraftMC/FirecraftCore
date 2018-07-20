@@ -1,6 +1,6 @@
 name: FirecraftCore
 main: net.firecraftmc.core.FirecraftCore
-version: 1.12-ALPHA
+version: 1.13-ALPHA
 load: STARTUP
 author: Firestar311
 commands:
