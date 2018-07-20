@@ -43,12 +43,12 @@ public class GamemodeManager implements Listener {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 if (args.length > 0) {
                     GameMode mode = getGameMode(args);
-    
+                    
                     if (mode == null) {
                         player.sendMessage(Prefixes.GAMEMODE + Messages.invalidGamemode);
                         return;
                     }
-    
+                    
                     gamemodeShortcut(player, mode, args, false);
                 }
             }
@@ -57,36 +57,28 @@ public class GamemodeManager implements Listener {
         
         FirecraftCommand gmc = new FirecraftCommand("gmc", "Quick access gamemode creative command") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
-                if (args.length > 0) {
-                    gamemodeShortcut(player, GameMode.CREATIVE, args, true);
-                }
+                gamemodeShortcut(player, GameMode.CREATIVE, args, true);
             }
         };
         gmc.setBaseRank(Rank.TRIAL_ADMIN).addRank(Rank.BUILD_TEAM);
         
         FirecraftCommand gms = new FirecraftCommand("gms", "Quick access gamemode survival command") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
-                if (args.length > 0) {
-                    gamemodeShortcut(player, GameMode.SURVIVAL, args, true);
-                }
+                gamemodeShortcut(player, GameMode.SURVIVAL, args, true);
             }
         };
         gms.setBaseRank(Rank.TRIAL_ADMIN).addRank(Rank.BUILD_TEAM);
         
         FirecraftCommand gmsp = new FirecraftCommand("gmsp", "Quick access gamemode spectator command") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
-                if (args.length > 0) {
-                    gamemodeShortcut(player, GameMode.SPECTATOR, args, true);
-                }
+                gamemodeShortcut(player, GameMode.SPECTATOR, args, true);
             }
         };
         gmsp.setBaseRank(Rank.TRIAL_ADMIN).addRank(Rank.BUILD_TEAM);
         
         FirecraftCommand gma = new FirecraftCommand("gma", "Quick access gamemode adventure command") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
-                if (args.length > 0) {
-                    gamemodeShortcut(player, GameMode.ADVENTURE, args, true);
-                }
+                gamemodeShortcut(player, GameMode.ADVENTURE, args, true);
             }
         };
         gma.setBaseRank(Rank.TRIAL_ADMIN).addRank(Rank.BUILD_TEAM);
@@ -128,19 +120,19 @@ public class GamemodeManager implements Listener {
             player.sendMessage(Prefixes.GAMEMODE + "<ec>That player does not exist.");
             return;
         }
-    
+        
         if (target.getPlayer() == null) {
             player.sendMessage(Prefixes.GAMEMODE + "<ec>That player is not online.");
             return;
         }
-    
+        
         if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
             if (!(target.getMainRank().equals(Rank.FIRECRAFT_TEAM) && player.getMainRank().equals(Rank.FIRECRAFT_TEAM))) {
                 player.sendMessage(Prefixes.GAMEMODE + "<ec>You cannot change the rank of a player that has the same rank or higher than you.");
                 return;
             }
         }
-    
+        
         target.setGameMode(mode);
         target.sendMessage(Prefixes.GAMEMODE + "<nc>Your gamemode was changed to <vc>" + mode.toString().toLowerCase() + " <nc>by <vc>" + player.getName());
         FPSCSetGamemodeOthers setGamemodeOthers = new FPSCSetGamemodeOthers(plugin.getFCServer().getId(), player.getUniqueId(), mode, target.getUniqueId());
