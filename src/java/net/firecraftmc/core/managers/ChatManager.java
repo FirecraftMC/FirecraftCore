@@ -163,6 +163,7 @@ public class ChatManager implements Listener {
                 return;
             } else {
                 player.sendMessage(Messages.chatUnAckWarning);
+                player.sendMessage("<ec>Type the code &7" + plugin.getAckCode(player.getUniqueId()));
                 return;
             }
         }

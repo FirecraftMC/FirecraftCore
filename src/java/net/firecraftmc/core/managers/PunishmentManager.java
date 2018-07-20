@@ -106,7 +106,7 @@ public class PunishmentManager implements Listener {
                     player.sendMessage(Prefixes.ENFORCER + Messages.punishNoReason);
                     return;
                 }
-                Punishment punishment = Enforcer.createPunishment(t, player, Type.JAIL, reason, System.currentTimeMillis(), -1);
+                Punishment punishment = Enforcer.createPunishment(t, player, Type.KICK, reason, System.currentTimeMillis(), -1);
                 FPacketPunish punish = new FPacketPunish(plugin.getFCServer().getName(), punishment.getId());
                 plugin.getSocket().sendPacket(punish);
             }
@@ -120,7 +120,7 @@ public class PunishmentManager implements Listener {
                     player.sendMessage(Prefixes.ENFORCER + Messages.punishNoReason);
                     return;
                 }
-                Punishment punishment = Enforcer.createPunishment(t, player, Type.JAIL, reason, System.currentTimeMillis(), -1);
+                Punishment punishment = Enforcer.createPunishment(t, player, Type.WARN, reason, System.currentTimeMillis(), -1);
                 FPacketPunish punish = new FPacketPunish(plugin.getFCServer().getName(), punishment.getId());
                 plugin.getSocket().sendPacket(punish);
                 if (punishment != null) {
@@ -135,19 +135,19 @@ public class PunishmentManager implements Listener {
         
         FirecraftCommand unban = new FirecraftCommand("unban", "Removes all active bans from a player") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
-                handleUnpunishCommand(player, args);
+                handleUnpunishCommand(player, args, "ban");
             }
         }.setBaseRank(Rank.MODERATOR);
         
         FirecraftCommand unmute = new FirecraftCommand("unmute", "Removes all active mutes from a player") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
-                handleUnpunishCommand(player, args);
+                handleUnpunishCommand(player, args, "mute");
             }
         }.setBaseRank(Rank.MODERATOR);
         
         FirecraftCommand unjail = new FirecraftCommand("unjail", "Removes active jails from a player") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
-                handleUnpunishCommand(player, args);
+                handleUnpunishCommand(player, args, "jail");
             }
         }.setBaseRank(Rank.MODERATOR);
         
@@ -309,14 +309,22 @@ public class PunishmentManager implements Listener {
         plugin.getSocket().sendPacket(punish);
     }
     
-    private void handleUnpunishCommand(FirecraftPlayer player, String[] args) {
+    private void handleUnpunishCommand(FirecraftPlayer player, String[] args, String type) {
         if (!(args.length == 1)) {
             player.sendMessage(Prefixes.ENFORCER + "<ec>You have an invalid amount of arguments.");
             return;
         }
         
         FirecraftPlayer target = getTarget(player, args[0]);
-        ResultSet set = plugin.getFCDatabase().querySQL("SELECT * FROM `punishments` WHERE `target`='{target}' AND `active`='true' AND (`type`='BAN' OR `type`='TEMP_BAN' OR `type`='MUTE' OR `type`='TEMP_MUTE' OR `type`='JAIL');".replace("{target}", target.getUniqueId().toString()));
+        String query = "SELECT * FROM `punishments` WHERE `target`='{target}' AND `active`='true' AND ({type});";
+        if (type.equalsIgnoreCase("ban")) {
+            query = query.replace("{type}", "`type`='BAN' OR `type`='TEMP_BAN'");
+        } else if (type.equalsIgnoreCase("mute")) {
+            query = query.replace("{type}", "`type`='MUTE' OR `type`='TEMP_MUTE'");
+        } else if (type.equalsIgnoreCase("jail")) {
+            query = query.replace("{type}", "`type`='JAIL'");
+        }
+        ResultSet set = plugin.getFCDatabase().querySQL(query.replace("{target}", target.getUniqueId().toString()));
         Punishment punishment = null;
         try {
             if (set.next()) {

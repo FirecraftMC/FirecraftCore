@@ -53,13 +53,15 @@ public class PlayerManager implements IPlayerManager {
             public void run() {
                 Iterator<UUID> iterator = toKickForPunishment.keySet().iterator();
                 while (iterator.hasNext()) {
+                    System.out.println("Found a punishment");
                     UUID uuid = iterator.next();
                     Player p = Bukkit.getPlayer(uuid);
                     if (p != null) {
                         Punishment punishment = toKickForPunishment.get(uuid);
-                        if (punishment.getType().equals(Punishment.Type.BAN))
+                        System.out.println(punishment.getType());
+                        if (punishment.getType().equals(Type.BAN))
                             p.kickPlayer(Utils.color(Messages.banMessage(punishment, "Permanent")));
-                        else if (punishment.getType().equals(Punishment.Type.KICK))
+                        else if (punishment.getType().equals(Type.KICK))
                             p.kickPlayer(Utils.color(Messages.kickMessage(punishment.getPunisherName(), punishment.getReason())));
                         else if (punishment.getType().equals(Type.TEMP_BAN)) {
                             TemporaryPunishment tempPunishment = ((TemporaryPunishment) punishment);
@@ -78,7 +80,7 @@ public class PlayerManager implements IPlayerManager {
                     listIterator.remove();
                 }
             }
-        }.runTaskTimer(plugin, 0L, 5L);
+        }.runTaskTimer(plugin, 0L, 10L);
         
         plugin.getSocket().addSocketListener(packet -> {
             if (packet instanceof FPacketRankUpdate) {
@@ -251,13 +253,13 @@ public class PlayerManager implements IPlayerManager {
                             return;
                         }
                     }
-        
+                    
                     String streamUrl = player.getStreamUrl();
                     if (streamUrl == null || streamUrl.equals("")) {
                         player.sendMessage("<ec>You have not set a stream url yet, please use /stream seturl <url>");
                         return;
                     }
-        
+                    
                     for (FirecraftPlayer p : onlinePlayers.values()) {
                         p.sendMessage("&e&l" + player.getName() + " &b&lis streaming at &6&l" + streamUrl);
                     }
@@ -501,8 +503,7 @@ public class PlayerManager implements IPlayerManager {
     }
     
     public void addToKickForPunishment(Punishment punishment) {
-        if (!punishment.getServer().equalsIgnoreCase(plugin.getFCServer().getName()))
-            this.toKickForPunishment.put(punishment.getTarget(), punishment);
+        this.toKickForPunishment.put(punishment.getTarget(), punishment);
     }
     
     public void addCachedPlayer(FirecraftPlayer player) {
