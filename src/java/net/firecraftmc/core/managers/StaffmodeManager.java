@@ -44,6 +44,7 @@ public class StaffmodeManager implements IStaffmodeManager {
                     }
                     FPSCStaffmodeToggle toggle = new FPSCStaffmodeToggle(plugin.getFCServer().getId(), player.getUniqueId(), false);
                     plugin.getSocket().sendPacket(toggle);
+                    player.getScoreboard().updateScoreboard(player);
                 } else {
                     staffmode.add(player.getUniqueId());
                     player.setActionBar(new ActionBar(Messages.actionBar_Staffmode));
@@ -59,6 +60,7 @@ public class StaffmodeManager implements IStaffmodeManager {
                     }
                     FPSCStaffmodeToggle toggle = new FPSCStaffmodeToggle(plugin.getFCServer().getId(), player.getUniqueId(), true);
                     plugin.getSocket().sendPacket(toggle);
+                    player.getScoreboard().updateScoreboard(player);
     
                     new BukkitRunnable() {
                         public void run() {

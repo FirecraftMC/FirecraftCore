@@ -64,7 +64,7 @@ public class GamemodeManager implements Listener {
         };
         gmc.setBaseRank(Rank.TRIAL_ADMIN).addRank(Rank.BUILD_TEAM);
         
-        FirecraftCommand gms = new FirecraftCommand("gms", "Quick access gamemode creative command") {
+        FirecraftCommand gms = new FirecraftCommand("gms", "Quick access gamemode survival command") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 if (args.length > 0) {
                     gamemodeShortcut(player, GameMode.SURVIVAL, args, true);
@@ -73,7 +73,7 @@ public class GamemodeManager implements Listener {
         };
         gms.setBaseRank(Rank.TRIAL_ADMIN).addRank(Rank.BUILD_TEAM);
         
-        FirecraftCommand gmsp = new FirecraftCommand("gmsp", "Quick access gamemode creative command") {
+        FirecraftCommand gmsp = new FirecraftCommand("gmsp", "Quick access gamemode spectator command") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 if (args.length > 0) {
                     gamemodeShortcut(player, GameMode.SPECTATOR, args, true);
@@ -82,7 +82,7 @@ public class GamemodeManager implements Listener {
         };
         gmsp.setBaseRank(Rank.TRIAL_ADMIN).addRank(Rank.BUILD_TEAM);
         
-        FirecraftCommand gma = new FirecraftCommand("gma", "Quick access gamemode creative command") {
+        FirecraftCommand gma = new FirecraftCommand("gma", "Quick access gamemode adventure command") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 if (args.length > 0) {
                     gamemodeShortcut(player, GameMode.ADVENTURE, args, true);
@@ -158,7 +158,7 @@ public class GamemodeManager implements Listener {
             if (args.length == 0) {
                 gamemodeSelf(player, mode);
             } else if (args.length == 1) {
-                gamemodeTarget(player, mode, args[1]);
+                gamemodeTarget(player, mode, args[0]);
             }
         }
     }
