@@ -92,7 +92,15 @@ public class PunishmentManager implements Listener {
                 plugin.getSocket().sendPacket(punish);
                 
                 if (Bukkit.getPlayer(t.getUniqueId()) != null) {
-                    t.sendMessage(Messages.jailed(player.getName(), reason));
+                    t.sendMessage("");
+                    t.sendMessage("&4&l╔══════════════════════════");
+                    t.sendMessage("&4&l║ &c&lYou have been jailed!");
+                    t.sendMessage("&4&l║");
+                    t.sendMessage("&4&l║ <nc>The reason is <vc>" + punishment.getReason());
+                    t.sendMessage("&4&l║ <nc>The staff member that jailed you is <vc>" + punishment.getPunisherName());
+                    t.sendMessage("&4&l║");
+                    t.sendMessage("&4&l╚══════════════════════════");
+                    t.sendMessage("");
                     t.teleport(jailLocation);
                 }
             }
