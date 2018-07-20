@@ -55,8 +55,10 @@ public class NickManager {
                 }
     
                 if (Rank.isStaff(rank) || rank.equals(Rank.QUALITY_ASSURANCE) || rank.equals(Rank.BUILD_TEAM)) {
-                    player.sendMessage(Prefixes.NICKNAME + "<ec>You cannot use a staff rank.");
-                    return;
+                    if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                        player.sendMessage(Prefixes.NICKNAME + "<ec>You cannot use a staff rank.");
+                        return;
+                    }
                 }
     
                 nickname.setSkin(skin);
