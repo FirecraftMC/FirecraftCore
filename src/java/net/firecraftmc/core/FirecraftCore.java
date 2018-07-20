@@ -186,7 +186,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         this.getCommand("feed").setExecutor(commandManager);
         this.getCommand("heal").setExecutor(commandManager);
         this.getCommand("signedit").setExecutor(commandManager);
-        Utils.Command.registerCommands(this, commandManager, "punish", "mrules", "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail", "history", "bans", "mutes", "kicks", "warns", "jails");
+        Utils.Command.registerCommands(this, commandManager, "punish", "mrules", "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail", "history");
         Utils.Command.registerCommands(this, commandManager, "setname", "setlore");
         this.getCommand("weather").setExecutor(commandManager);
         Utils.Command.registerCommands(this, commandManager, "time", "day", "night");

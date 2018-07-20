@@ -7,6 +7,8 @@ import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
 import net.firecraftmc.shared.classes.model.server.FirecraftServer;
 import net.firecraftmc.shared.command.FirecraftCommand;
 import net.firecraftmc.shared.packets.*;
+import net.firecraftmc.shared.paginator.Paginator;
+import net.firecraftmc.shared.paginator.PaginatorFactory;
 import net.firecraftmc.shared.punishments.*;
 import net.firecraftmc.shared.punishments.Punishment.Type;
 import org.bukkit.Bukkit;
@@ -18,11 +20,11 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PunishmentManager implements Listener {
     private FirecraftCore plugin;
+    private HashMap<UUID, Paginator<Punishment>> paginators = new HashMap();
     
     public PunishmentManager(FirecraftCore plugin) {
         this.plugin = plugin;
@@ -192,7 +194,26 @@ public class PunishmentManager implements Listener {
             }
         }.setBaseRank(Rank.HELPER).addAlias("p");
         
-        plugin.getCommandManager().addCommands(setJail, ban, tempban, mute, tempmute, jail, kick, warn, unban, unmute, unjail, punish);
+        FirecraftCommand history = new FirecraftCommand("history", "View the punishment history of a player") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
+                List<Punishment> punishments = plugin.getFCDatabase().getPunishments(target.getUniqueId());
+                if (args.length > 0) {
+                    if (args.length == 1) {
+                        handlePunishmentList(punishments, player, 1);
+                    } else if (args.length == 2) {
+                        if (args[0].equalsIgnoreCase("page") || args[0].equalsIgnoreCase("p"))
+                            handlePunishmentList(punishments, player, Integer.parseInt(args[1]));
+                    } else {
+                        player.sendMessage(Prefixes.ENFORCER + "<ec>Invalid arguments.");
+                    }
+                } else {
+                    player.sendMessage(Prefixes.ENFORCER + "<ec>Invalid arguments.");
+                }
+            }
+        }.setBaseRank(Rank.HELPER);
+        
+        plugin.getCommandManager().addCommands(setJail, ban, tempban, mute, tempmute, jail, kick, warn, unban, unmute, unjail, punish, history);
     }
     
     @EventHandler
@@ -279,6 +300,24 @@ public class PunishmentManager implements Listener {
         return true;
     }
     
+    private void handlePunishmentList(List<? extends Punishment> punishments, FirecraftPlayer player, int page) {
+        if (!paginators.containsKey(player.getUniqueId())) {
+            PaginatorFactory<Punishment> paginatorFactory = new PaginatorFactory<>();
+            paginatorFactory.setMaxElements(7).setHeader("§aPunishment history page {pagenumber} out of {totalpages}").setFooter("§aUse /historyS page {nextpage} to view the next page.");
+            punishments.forEach(report -> paginatorFactory.addElement(report, punishments.size()));
+            if (paginatorFactory.getPages().isEmpty()) {
+                player.sendMessage(Prefixes.REPORT + "&cThere is no history to display.");
+            } else {
+                Paginator<Punishment> paginator = paginatorFactory.build();
+                paginators.put(player.getUniqueId(), paginator);
+                paginator.display(player.getPlayer(), page);
+            }
+        } else {
+            Paginator<Punishment> paginator = this.paginators.get(player.getUniqueId());
+            paginator.display(player.getPlayer(), page);
+        }
+    }
+    
     private void handlePermPunishmentCommand(FirecraftPlayer player, String[] args, Type type) {
         if (!(args.length > 1)) {
             player.sendMessage(Prefixes.ENFORCER + "<ec>You do not have enough arguments.");
@@ -312,7 +351,7 @@ public class PunishmentManager implements Listener {
             player.sendMessage(Prefixes.ENFORCER + "<ec>There was an error creating the punishment.");
             return;
         }
-    
+        
         FPacketPunish punish = new FPacketPunish(FirecraftMC.getServer().getId(), punishment.getId());
         plugin.getSocket().sendPacket(punish);
     }
