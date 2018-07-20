@@ -19,7 +19,6 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 public class PunishmentManager implements Listener {
@@ -368,34 +367,34 @@ public class PunishmentManager implements Listener {
         }
         
         FirecraftPlayer target = getTarget(player, args[0]);
-        String query = "SELECT * FROM `punishments` WHERE `target`='{target}' AND `active`='true' AND ({type});";
-        if (type.equalsIgnoreCase("ban")) {
-            query = query.replace("{type}", "`type`='BAN' OR `type`='TEMP_BAN'");
-        } else if (type.equalsIgnoreCase("mute")) {
-            query = query.replace("{type}", "`type`='MUTE' OR `type`='TEMP_MUTE'");
-        } else if (type.equalsIgnoreCase("jail")) {
-            query = query.replace("{type}", "`type`='JAIL'");
-        }
-        ResultSet set = plugin.getFCDatabase().querySQL(query.replace("{target}", target.getUniqueId().toString()));
-        Punishment punishment = null;
-        try {
-            if (set.next()) {
-                punishment = plugin.getFCDatabase().getPunishment(set.getInt("id"));
+        List<Punishment> punishments = plugin.getFCDatabase().getPunishments(target.getUniqueId());
+        
+        for (Punishment punishment : punishments) {
+            FirecraftPlayer punisher = plugin.getPlayerManager().getPlayer(punishment.getPunisher());
+            if (punisher.getMainRank().equals(Rank.FIRECRAFT_TEAM) && !player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
+                continue;
             }
-        } catch (SQLException e) {
-            player.sendMessage(Prefixes.ENFORCER + Messages.punishmentsSQLError);
-            return;
+            
+            if (punishment.isActive()) {
+                if (type.equalsIgnoreCase("ban")) {
+                    if (!(punishment.getType().equals(Type.BAN) || punishment.getType().equals(Type.TEMP_BAN))) {
+                        continue;
+                    }
+                } else if (type.equalsIgnoreCase("mute")) {
+                    if (!(punishment.getType().equals(Type.MUTE) || punishment.getType().equals(Type.TEMP_MUTE))) {
+                        continue;
+                    }
+                } else if (type.equalsIgnoreCase("jail")) {
+                    if (!punishment.getType().equals(Type.JAIL)) {
+                        continue;
+                    }
+                }
+    
+                plugin.getFCDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString()).replace("{id}", punishment.getId() + ""));
+                FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFCServer().getId(), punishment.getId());
+                plugin.getSocket().sendPacket(punishRemove);
+            }
         }
-        
-        FirecraftPlayer punisher = plugin.getPlayerManager().getPlayer(punishment.getPunisher());
-        if (punisher.getMainRank().equals(Rank.FIRECRAFT_TEAM) && !player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-            player.sendMessage(Prefixes.ENFORCER + Messages.punishmentByFCT);
-            return;
-        }
-        
-        plugin.getFCDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString()).replace("{id}", punishment.getId() + ""));
-        FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFCServer().getId(), punishment.getId());
-        plugin.getSocket().sendPacket(punishRemove);
     }
     
     private void handleRuleList(FirecraftPlayer player, int page) {
