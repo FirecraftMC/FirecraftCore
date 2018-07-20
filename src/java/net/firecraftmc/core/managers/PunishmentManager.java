@@ -24,8 +24,6 @@ import java.util.*;
 
 public class PunishmentManager implements Listener {
     private FirecraftCore plugin;
-    private HashMap<UUID, Paginator<Punishment>> historyPaginators = new HashMap();
-    private HashMap<UUID, Paginator<Rule>> rulePaginators = new HashMap<>();
     
     public PunishmentManager(FirecraftCore plugin) {
         this.plugin = plugin;
@@ -214,7 +212,19 @@ public class PunishmentManager implements Listener {
             }
         }.setBaseRank(Rank.HELPER);
         
-        plugin.getCommandManager().addCommands(setJail, ban, tempban, mute, tempmute, jail, kick, warn, unban, unmute, unjail, punish, history);
+        FirecraftCommand mrules = new FirecraftCommand("mrules", "Gets a list of moderator rules available.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (args.length == 0) {
+                    handleRuleList(player, 1);
+                } else if (args.length == 2) {
+                    if (args[0].equalsIgnoreCase("page")) {
+                        handleRuleList(player, Integer.parseInt(args[1]));
+                    }
+                }
+            }
+        }.setBaseRank(Rank.HELPER);
+        
+        plugin.getCommandManager().addCommands(setJail, ban, tempban, mute, tempmute, jail, kick, warn, unban, unmute, unjail, punish, history, mrules);
     }
     
     @EventHandler
@@ -309,7 +319,6 @@ public class PunishmentManager implements Listener {
             player.sendMessage(Prefixes.REPORT + "&cThere is no history to display.");
         } else {
             Paginator<Punishment> paginator = paginatorFactory.build();
-            historyPaginators.put(player.getUniqueId(), paginator);
             paginator.display(player.getPlayer(), page);
         }
     }
@@ -387,5 +396,18 @@ public class PunishmentManager implements Listener {
         plugin.getFCDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString()).replace("{id}", punishment.getId() + ""));
         FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFCServer().getId(), punishment.getId());
         plugin.getSocket().sendPacket(punishRemove);
+    }
+    
+    private void handleRuleList(FirecraftPlayer player, int page) {
+        PaginatorFactory<Rule> factory = new PaginatorFactory<>();
+        factory.setMaxElements(7).setHeader("§aRules page {pagenumber} out of {totalpages}").setFooter("§aUse /mrules page {nextpage} to view the next page.");
+        Collection<Rule> rules = ModeratorRules.getRules().values();
+        rules.forEach(report -> factory.addElement(report, rules.size()));
+        if (factory.getPages().isEmpty()) {
+            player.sendMessage(Prefixes.REPORT + "&cThere is no rules to display.");
+        } else {
+            Paginator<Rule> paginator = factory.build();
+            paginator.display(player.getPlayer(), page);
+        }
     }
 }
