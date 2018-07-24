@@ -411,6 +411,16 @@ public class PlayerManager implements IPlayerManager {
                     }
                 }
                 player.getScoreboard().updateScoreboard(player);
+                
+                List<Mail> mail = plugin.getFCDatabase().getMailByReceiver(player.getUniqueId());
+                int unreadAmount = 0;
+                for (Mail m : mail) {
+                    if (!m.isRead()) unreadAmount++;
+                }
+                
+                if (unreadAmount != 0) {
+                    player.sendMessage("<nc>You have <vc>" + unreadAmount + " <nc>unread mail messages.");
+                }
             }
         }.runTaskLater(plugin, 10L);
         this.onlinePlayers.put(player.getUniqueId(), player);

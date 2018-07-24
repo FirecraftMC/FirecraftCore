@@ -115,3 +115,4 @@ commands:
     balance:
         aliases: [bal]
     baltop:
+    mail:
