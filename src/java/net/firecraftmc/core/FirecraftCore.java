@@ -289,7 +289,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     }
     
     public final boolean isWarnAcknowledged(UUID uuid) {
-        return !this.ackCodes.containsKey(uuid);
+        return this.ackCodes.containsKey(uuid);
     }
     
     public final String getAckCode(UUID uuid) {

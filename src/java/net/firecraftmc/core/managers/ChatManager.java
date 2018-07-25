@@ -158,11 +158,11 @@ public class ChatManager implements Listener {
 
         if (!plugin.isWarnAcknowledged(player.getUniqueId())) {
             if (e.getMessage().equals(plugin.getAckCode(player.getUniqueId()))) {
-                player.sendMessage(Messages.acknowledgeWarning);
+                player.sendMessage("<nc>You have acknowledged your warning, you can now speak and use commands.");
                 plugin.acknowledgeWarn(player.getUniqueId(), player.getName());
                 return;
             } else {
-                player.sendMessage(Messages.chatUnAckWarning);
+                player.sendMessage("<ec>You cannot speak in chat while you have an unacknowledged warning.");
                 player.sendMessage("<ec>Type the code &7" + plugin.getAckCode(player.getUniqueId()));
                 return;
             }
