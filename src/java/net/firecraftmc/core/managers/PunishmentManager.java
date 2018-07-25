@@ -132,13 +132,6 @@ public class PunishmentManager implements Listener {
                 Punishment punishment = Enforcer.createPunishment(t, player, Type.WARN, reason, System.currentTimeMillis(), -1);
                 FPacketPunish punish = new FPacketPunish(plugin.getFCServer().getName(), punishment.getId());
                 plugin.getSocket().sendPacket(punish);
-                if (punishment != null) {
-                    if (Bukkit.getPlayer(t.getUniqueId()) != null) {
-                        String code = Utils.generateAckCode(Utils.codeCharacters);
-                        plugin.addAckCode(t.getUniqueId(), code);
-                        t.sendMessage(Messages.warnMessage(player.getName(), reason, code));
-                    }
-                }
             }
         }.setBaseRank(Rank.MODERATOR);
         
