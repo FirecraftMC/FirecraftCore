@@ -298,7 +298,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     
     public final void acknowledgeWarn(UUID uuid, String name) {
         this.ackCodes.remove(uuid);
-        this.database.updateSQL("UPDATE `punishments` SET `acknowledged`='true' WHERE `target`='{uuid}' AND `type`='WARN';".replace("{uuid}", uuid.toString().replace("-", "")));
+        this.database.updateSQL("UPDATE `punishments` SET `acknowledged`='true' WHERE `target`='{uuid}' AND `type`='WARN';".replace("{uuid}", uuid.toString()));
         this.socket.sendPacket(new FPacketAcknowledgeWarning(server.getId(), name));
     }
     
