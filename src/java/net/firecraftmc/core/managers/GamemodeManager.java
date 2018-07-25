@@ -1,13 +1,13 @@
 package net.firecraftmc.core.managers;
 
+import net.firecraftmc.api.command.FirecraftCommand;
+import net.firecraftmc.api.enums.Rank;
+import net.firecraftmc.api.enums.ServerType;
+import net.firecraftmc.api.model.player.FirecraftPlayer;
+import net.firecraftmc.api.model.server.FirecraftServer;
+import net.firecraftmc.api.packets.staffchat.*;
+import net.firecraftmc.api.util.*;
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
-import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.enums.ServerType;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.classes.model.server.FirecraftServer;
-import net.firecraftmc.shared.command.FirecraftCommand;
-import net.firecraftmc.shared.packets.staffchat.*;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

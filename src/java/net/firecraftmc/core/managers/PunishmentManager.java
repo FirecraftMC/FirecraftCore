@@ -1,16 +1,17 @@
 package net.firecraftmc.core.managers;
 
+import net.firecraftmc.api.FirecraftAPI;
+import net.firecraftmc.api.command.FirecraftCommand;
+import net.firecraftmc.api.enums.Rank;
+import net.firecraftmc.api.model.player.FirecraftPlayer;
+import net.firecraftmc.api.model.server.FirecraftServer;
+import net.firecraftmc.api.packets.*;
+import net.firecraftmc.api.paginator.Paginator;
+import net.firecraftmc.api.paginator.PaginatorFactory;
+import net.firecraftmc.api.punishments.*;
+import net.firecraftmc.api.punishments.Punishment.Type;
+import net.firecraftmc.api.util.*;
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
-import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.classes.model.server.FirecraftServer;
-import net.firecraftmc.shared.command.FirecraftCommand;
-import net.firecraftmc.shared.packets.*;
-import net.firecraftmc.shared.paginator.Paginator;
-import net.firecraftmc.shared.paginator.PaginatorFactory;
-import net.firecraftmc.shared.punishments.*;
-import net.firecraftmc.shared.punishments.Punishment.Type;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
@@ -302,7 +303,7 @@ public class PunishmentManager implements Listener {
     
     private boolean checkAllowedToPunish(FirecraftPlayer player, FirecraftPlayer t) {
         if (t.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-            if (!player.getUniqueId().equals(FirecraftMC.firestar311)) {
+            if (!player.getUniqueId().equals(FirecraftAPI.firestar311)) {
                 player.sendMessage(Prefixes.ENFORCER + Messages.noPunishRank);
                 return false;
             }
@@ -336,7 +337,7 @@ public class PunishmentManager implements Listener {
             return;
         }
         
-        FPacketPunish punish = new FPacketPunish(FirecraftMC.getServer().getId(), punishment.getId());
+        FPacketPunish punish = new FPacketPunish(FirecraftAPI.getServer().getId(), punishment.getId());
         plugin.getSocket().sendPacket(punish);
     }
     
@@ -356,7 +357,7 @@ public class PunishmentManager implements Listener {
             return;
         }
         
-        FPacketPunish punish = new FPacketPunish(FirecraftMC.getServer().getId(), punishment.getId());
+        FPacketPunish punish = new FPacketPunish(FirecraftAPI.getServer().getId(), punishment.getId());
         plugin.getSocket().sendPacket(punish);
     }
     

@@ -1,20 +1,22 @@
 package net.firecraftmc.core.managers;
 
+import net.firecraftmc.api.FirecraftAPI;
+import net.firecraftmc.api.command.FirecraftCommand;
+import net.firecraftmc.api.enums.Channel;
+import net.firecraftmc.api.enums.Rank;
+import net.firecraftmc.api.interfaces.IPlayerManager;
+import net.firecraftmc.api.model.Report;
+import net.firecraftmc.api.model.Transaction;
+import net.firecraftmc.api.model.player.*;
+import net.firecraftmc.api.packets.*;
+import net.firecraftmc.api.packets.staffchat.FPStaffChatJoin;
+import net.firecraftmc.api.packets.staffchat.FPStaffChatQuit;
+import net.firecraftmc.api.punishments.Punishment;
+import net.firecraftmc.api.punishments.Punishment.Type;
+import net.firecraftmc.api.punishments.TemporaryPunishment;
+import net.firecraftmc.api.util.Messages;
+import net.firecraftmc.api.util.Utils;
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
-import net.firecraftmc.shared.classes.enums.Channel;
-import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.interfaces.IPlayerManager;
-import net.firecraftmc.shared.classes.model.Report;
-import net.firecraftmc.shared.classes.model.Transaction;
-import net.firecraftmc.shared.classes.model.player.*;
-import net.firecraftmc.shared.command.FirecraftCommand;
-import net.firecraftmc.shared.packets.*;
-import net.firecraftmc.shared.packets.staffchat.FPStaffChatJoin;
-import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
-import net.firecraftmc.shared.punishments.Punishment;
-import net.firecraftmc.shared.punishments.Punishment.Type;
-import net.firecraftmc.shared.punishments.TemporaryPunishment;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -138,7 +140,7 @@ public class PlayerManager implements IPlayerManager {
                 }
                 
                 if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-                    if (!player.getUniqueId().equals(FirecraftMC.firestar311)) {
+                    if (!player.getUniqueId().equals(FirecraftAPI.firestar311)) {
                         player.sendMessage(Messages.noPermission);
                         return;
                     }
@@ -179,7 +181,7 @@ public class PlayerManager implements IPlayerManager {
                 if (args.length > 0) {
                     if (Utils.Command.checkCmdAliases(args, 0, "setprefix", "sp")) {
                         String prefix = StringUtils.join(args, " ", 1, args.length);
-                        if (!player.getUniqueId().equals(FirecraftMC.firestar311)) {
+                        if (!player.getUniqueId().equals(FirecraftAPI.firestar311)) {
                             prefix = ChatColor.stripColor(prefix);
                         }
                         
@@ -334,7 +336,7 @@ public class PlayerManager implements IPlayerManager {
         if (player.getFirstJoined() == 0) {
             player.setFirstJoined(System.currentTimeMillis());
             for (FirecraftPlayer fp : onlinePlayers.values()) {
-                fp.sendMessage("\n" + player.getDisplayName() + " &a&lhas joined FirecraftMC for the first time!\n ");
+                fp.sendMessage("\n" + player.getDisplayName() + " &a&lhas joined FirecraftAPI for the first time!\n ");
             }
         }
         player.setLastSeen(System.currentTimeMillis());

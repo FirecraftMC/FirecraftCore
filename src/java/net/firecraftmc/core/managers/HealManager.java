@@ -1,11 +1,11 @@
 package net.firecraftmc.core.managers;
 
+import net.firecraftmc.api.command.FirecraftCommand;
+import net.firecraftmc.api.enums.Rank;
+import net.firecraftmc.api.model.player.FirecraftPlayer;
+import net.firecraftmc.api.util.Messages;
+import net.firecraftmc.api.util.Prefixes;
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.classes.Prefixes;
-import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.command.FirecraftCommand;
 
 public class HealManager {
 

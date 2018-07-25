@@ -1,13 +1,13 @@
 package net.firecraftmc.core.managers;
 
+import net.firecraftmc.api.command.FirecraftCommand;
+import net.firecraftmc.api.enums.Rank;
+import net.firecraftmc.api.exceptions.NicknameException;
+import net.firecraftmc.api.model.player.*;
+import net.firecraftmc.api.packets.staffchat.FPStaffChatResetNick;
+import net.firecraftmc.api.packets.staffchat.FPStaffChatSetNick;
+import net.firecraftmc.api.util.*;
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
-import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.exceptions.NicknameException;
-import net.firecraftmc.shared.classes.model.player.*;
-import net.firecraftmc.shared.command.FirecraftCommand;
-import net.firecraftmc.shared.packets.staffchat.FPStaffChatResetNick;
-import net.firecraftmc.shared.packets.staffchat.FPStaffChatSetNick;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.ResultSet;

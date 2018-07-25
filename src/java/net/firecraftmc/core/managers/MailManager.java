@@ -1,11 +1,11 @@
 package net.firecraftmc.core.managers;
 
+import net.firecraftmc.api.command.FirecraftCommand;
+import net.firecraftmc.api.enums.Rank;
+import net.firecraftmc.api.model.player.FirecraftPlayer;
+import net.firecraftmc.api.model.player.Mail;
+import net.firecraftmc.api.packets.FPacketMail;
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.classes.model.player.Mail;
-import net.firecraftmc.shared.command.FirecraftCommand;
-import net.firecraftmc.shared.packets.FPacketMail;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.SimpleDateFormat;

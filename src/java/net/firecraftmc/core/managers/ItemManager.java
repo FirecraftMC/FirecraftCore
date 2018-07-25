@@ -1,11 +1,11 @@
 package net.firecraftmc.core.managers;
 
+import net.firecraftmc.api.command.FirecraftCommand;
+import net.firecraftmc.api.enums.Rank;
+import net.firecraftmc.api.model.player.FirecraftPlayer;
+import net.firecraftmc.api.util.Messages;
+import net.firecraftmc.api.util.Utils;
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.classes.Utils;
-import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.command.FirecraftCommand;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

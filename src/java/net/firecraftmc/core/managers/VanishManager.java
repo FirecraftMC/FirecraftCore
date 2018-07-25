@@ -1,12 +1,12 @@
 package net.firecraftmc.core.managers;
 
+import net.firecraftmc.api.command.FirecraftCommand;
+import net.firecraftmc.api.enums.Rank;
+import net.firecraftmc.api.model.player.ActionBar;
+import net.firecraftmc.api.model.player.FirecraftPlayer;
+import net.firecraftmc.api.packets.staffchat.FPSCVanishToggle;
+import net.firecraftmc.api.util.*;
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
-import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.model.player.ActionBar;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.command.FirecraftCommand;
-import net.firecraftmc.shared.packets.staffchat.FPSCVanishToggle;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;

@@ -1,14 +1,14 @@
 package net.firecraftmc.core.managers;
 
+import net.firecraftmc.api.command.FirecraftCommand;
+import net.firecraftmc.api.enums.Rank;
+import net.firecraftmc.api.interfaces.IStaffmodeManager;
+import net.firecraftmc.api.model.player.ActionBar;
+import net.firecraftmc.api.model.player.FirecraftPlayer;
+import net.firecraftmc.api.packets.staffchat.FPSCStaffmodeToggle;
+import net.firecraftmc.api.util.Messages;
+import net.firecraftmc.api.util.Utils;
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.Messages;
-import net.firecraftmc.shared.classes.Utils;
-import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.interfaces.IStaffmodeManager;
-import net.firecraftmc.shared.classes.model.player.ActionBar;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.command.FirecraftCommand;
-import net.firecraftmc.shared.packets.staffchat.FPSCStaffmodeToggle;
 import org.bukkit.GameMode;
 import org.bukkit.scheduler.BukkitRunnable;
 

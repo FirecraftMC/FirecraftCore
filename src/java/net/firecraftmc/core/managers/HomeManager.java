@@ -1,12 +1,12 @@
 package net.firecraftmc.core.managers;
 
+import net.firecraftmc.api.command.FirecraftCommand;
+import net.firecraftmc.api.enums.Rank;
+import net.firecraftmc.api.interfaces.IHomeManager;
+import net.firecraftmc.api.model.player.FirecraftPlayer;
+import net.firecraftmc.api.model.player.Home;
+import net.firecraftmc.api.util.*;
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.*;
-import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.interfaces.IHomeManager;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.classes.model.player.Home;
-import net.firecraftmc.shared.command.FirecraftCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 

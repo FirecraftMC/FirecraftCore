@@ -1,14 +1,14 @@
 package net.firecraftmc.core.managers;
 
+import net.firecraftmc.api.command.FirecraftCommand;
+import net.firecraftmc.api.enums.Rank;
+import net.firecraftmc.api.enums.TransactionType;
+import net.firecraftmc.api.interfaces.IEconomyManager;
+import net.firecraftmc.api.model.Transaction;
+import net.firecraftmc.api.model.player.FirecraftPlayer;
+import net.firecraftmc.api.model.player.FirecraftProfile;
+import net.firecraftmc.api.util.Prefixes;
 import net.firecraftmc.core.FirecraftCore;
-import net.firecraftmc.shared.classes.Prefixes;
-import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.enums.TransactionType;
-import net.firecraftmc.shared.classes.interfaces.IEconomyManager;
-import net.firecraftmc.shared.classes.model.Transaction;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.classes.model.player.FirecraftProfile;
-import net.firecraftmc.shared.command.FirecraftCommand;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;

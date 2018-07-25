@@ -1,17 +1,19 @@
 package net.firecraftmc.core;
 
+import net.firecraftmc.api.FirecraftAPI;
+import net.firecraftmc.api.enums.Rank;
+import net.firecraftmc.api.integrations.FCEconVault;
+import net.firecraftmc.api.interfaces.*;
+import net.firecraftmc.api.model.Database;
+import net.firecraftmc.api.model.FirecraftSocket;
+import net.firecraftmc.api.model.player.FirecraftPlayer;
+import net.firecraftmc.api.model.server.FirecraftServer;
+import net.firecraftmc.api.packets.*;
+import net.firecraftmc.api.packets.staffchat.FPStaffChatQuit;
+import net.firecraftmc.api.plugin.IFirecraftCore;
+import net.firecraftmc.api.util.Utils;
+import net.firecraftmc.api.wrapper.*;
 import net.firecraftmc.core.managers.*;
-import net.firecraftmc.shared.classes.*;
-import net.firecraftmc.shared.classes.enums.Rank;
-import net.firecraftmc.shared.classes.interfaces.*;
-import net.firecraftmc.shared.classes.model.Database;
-import net.firecraftmc.shared.classes.model.FirecraftSocket;
-import net.firecraftmc.shared.classes.model.player.FirecraftPlayer;
-import net.firecraftmc.shared.classes.model.server.FirecraftServer;
-import net.firecraftmc.shared.classes.wrapper.*;
-import net.firecraftmc.shared.packets.*;
-import net.firecraftmc.shared.packets.staffchat.FPStaffChatQuit;
-import net.firecraftmc.shared.plugin.IFirecraftCore;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -48,7 +50,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
             saveConfig();
         }
         
-        FirecraftMC.setFirecraftCore(this);
+        FirecraftAPI.setFirecraftCore(this);
         
         String host = getConfig().getString("host");
         this.socket = new FirecraftSocket(this, host, getConfig().getInt("port"));
