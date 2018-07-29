@@ -215,6 +215,10 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
             this.nickWrapper = new NickWrapper1_12_R1();
             this.nbtWrapper = new NBTWrapper1_12_R1();
             this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_12(this), this);
+        } else if (versionString.equalsIgnoreCase("v1_12_R1")) {
+            this.nickWrapper = new NickWrapper1_13_R1();
+            this.nbtWrapper = new NBTWrapper1_13_R1();
+            this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_12(this), this);
         }
     }
     
