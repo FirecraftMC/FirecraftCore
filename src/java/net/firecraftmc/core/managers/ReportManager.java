@@ -15,18 +15,15 @@ import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
- * The Class for managing the report command.
- */
 public class ReportManager {
-
+    
     private FirecraftCore plugin;
-
+    
     private HashMap<UUID, Paginator<Report>> paginators = new HashMap<>();
-
+    
     public ReportManager(FirecraftCore plugin) {
         this.plugin = plugin;
-
+        
         plugin.getSocket().addSocketListener(packet -> {
             if (packet instanceof FPacketReport) {
                 Utils.Socket.handleReport(packet, plugin.getFCServer(), plugin.getFCDatabase(), plugin.getPlayerManager().getPlayers());
@@ -76,7 +73,7 @@ public class ReportManager {
                 });
             }
         });
-    
+        
         FirecraftCommand report = new FirecraftCommand("report", "Report another player.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 FirecraftPlayer target;
@@ -85,16 +82,16 @@ public class ReportManager {
                     uuid = UUID.fromString(args[0]);
                 } catch (Exception e) {
                 }
-    
+                
                 target = uuid != null ? plugin.getPlayerManager().getPlayer(uuid) : plugin.getPlayerManager().getPlayer(args[0]);
-    
+                
                 if (target == null) {
                     player.sendMessage(Prefixes.REPORT + "<ec>That name or uuid is not valid.");
                     return;
                 }
-    
+                
                 String reason = Utils.getReason(1, args);
-    
+                
                 Report report = plugin.getFCDatabase().saveReport(new Report(player.getUniqueId(), target.getUniqueId(), reason, player.getLocation(), System.currentTimeMillis()));
                 if (report.getId() == 0) {
                     player.sendMessage(Prefixes.REPORT + "<ec>There was an unknown error with the database, report not filed.");
@@ -113,7 +110,7 @@ public class ReportManager {
                     player.sendMessage(Prefixes.REPORT + "<ec>You do not have enough arguments.");
                     return;
                 }
-    
+                
                 if (Utils.Command.checkCmdAliases(args, 0, "list", "l")) {
                     List<Report> reports = new ArrayList<>();
                     if (!(args.length > 1)) {
@@ -141,7 +138,7 @@ public class ReportManager {
                             Report.Status status = null;
                             Report.Outcome outcome = null;
                             UUID assignee = null;
-                            for (String a: args) {
+                            for (String a : args) {
                                 if (a.startsWith("t:")) {
                                     target = plugin.getPlayerManager().getPlayer(a.replace("t:", "")).getUniqueId();
                                 }
@@ -166,7 +163,7 @@ public class ReportManager {
                                     assignee = plugin.getPlayerManager().getPlayer(a.replace("a:", "")).getUniqueId();
                                 }
                             }
-                
+                            
                             String sql = "SELECT * from `reports`;";
                             ResultSet set = plugin.getFCDatabase().querySQL(sql);
                             try {
@@ -188,17 +185,13 @@ public class ReportManager {
                             }
                         }
                     }
-        
+                    
                     PaginatorFactory<Report> paginatorFactory = new PaginatorFactory<>();
                     paginatorFactory.setMaxElements(7).setHeader("§aReports page {pagenumber} out of {totalpages}").setFooter("§aUse /reportadmin page {nextpage} to view the next page.");
-                    reports.forEach(report -> paginatorFactory.addElement(report, reports.size()));
-                    if (paginatorFactory.getPages().isEmpty()) {
-                        player.sendMessage(Prefixes.REPORT + "&cThere are no reports to display.");
-                    } else {
-                        Paginator<Report> paginator = paginatorFactory.build();
-                        paginators.put(player.getUniqueId(), paginator);
-                        paginator.display(player.getPlayer(), 1);
-                    }
+                    reports.forEach(report -> paginatorFactory.addElement(report));
+                    Paginator<Report> paginator = paginatorFactory.build();
+                    paginators.put(player.getUniqueId(), paginator);
+                    paginator.display(player.getPlayer(), 1);
                 } else if (Utils.Command.checkCmdAliases(args, 0, "view", "v")) {
                     Report report = getReport(args, 2, player);
                     if (report == null) return;
@@ -227,7 +220,7 @@ public class ReportManager {
                             return;
                         }
                     }
-        
+                    
                     Report.Status status;
                     try {
                         status = Report.Status.valueOf(args[2].toUpperCase());
@@ -235,7 +228,7 @@ public class ReportManager {
                         player.sendMessage(Prefixes.REPORT + Messages.reportInvalidValue("status"));
                         return;
                     }
-        
+                    
                     if (!report.getStatus().equals(Report.Status.PENDING)) {
                         if (!report.getAssignee().equals(player.getUniqueId())) {
                             if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
@@ -252,21 +245,21 @@ public class ReportManager {
                 } else if (Utils.Command.checkCmdAliases(args, 0, "setoutcome", "so")) {
                     Report report = getReport(args, 3, player);
                     if (report == null) return;
-        
+                    
                     if (report.getAssignee() == null) {
                         if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
                             player.sendMessage(Prefixes.REPORT + "&cThat report is not assigned to anyone. Assign yourself or someone else.");
                             return;
                         }
                     }
-        
+                    
                     if (!report.getAssignee().equals(player.getUniqueId())) {
                         if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
                             player.sendMessage(Prefixes.REPORT + "&cThat report is not assigned to you, so you cannot change anything.");
                             return;
                         }
                     }
-        
+                    
                     Report.Outcome outcome;
                     try {
                         outcome = Report.Outcome.valueOf(args[2].toUpperCase());
@@ -303,7 +296,7 @@ public class ReportManager {
                         player.sendMessage(Prefixes.REPORT + "&cThe report could not be found with that id.");
                         return;
                     }
-        
+                    
                     if (report.getAssignee() != null) {
                         if (!report.getAssignee().equals(player.getUniqueId())) {
                             FirecraftPlayer assignee = plugin.getFCDatabase().getPlayer(report.getAssignee());
@@ -313,7 +306,7 @@ public class ReportManager {
                             }
                         }
                     }
-        
+                    
                     if (args[2].equalsIgnoreCase("self")) {
                         if (report.isInvolved(player.getUniqueId())) {
                             if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
@@ -341,7 +334,7 @@ public class ReportManager {
                                 return;
                             }
                         }
-            
+                        
                         report.setAssignee(target.getUniqueId());
                         if (target.getUniqueId().equals(player.getUniqueId())) {
                             FPReportAssignSelf selfAssign = new FPReportAssignSelf(plugin.getFCServer().getId(), player.getUniqueId(), report.getId());
@@ -364,7 +357,7 @@ public class ReportManager {
             player.sendMessage(Prefixes.REPORT + Messages.notEnoughArgs);
             return null;
         }
-
+        
         int rId;
         try {
             rId = Integer.parseInt(args[1]);
@@ -372,7 +365,7 @@ public class ReportManager {
             player.sendMessage(Prefixes.REPORT + "&cThe number for the report id is invalid.");
             return null;
         }
-
+        
         Report report = plugin.getFCDatabase().getReport(rId);
         if (report == null) {
             player.sendMessage(Prefixes.REPORT + "&cThe report could not be found with that id.");
@@ -380,7 +373,7 @@ public class ReportManager {
         }
         return report;
     }
-
+    
     private void addReportChange(Report report, String change) {
         FirecraftPlayer reporter = plugin.getPlayerManager().getPlayer(report.getReporter());
         int id = plugin.getFCDatabase().addReportChange(report.getId(), change);

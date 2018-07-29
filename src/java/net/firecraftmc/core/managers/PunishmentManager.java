@@ -307,13 +307,9 @@ public class PunishmentManager implements Listener {
     private void handlePunishmentList(List<? extends Punishment> punishments, FirecraftPlayer player, int page) {
         PaginatorFactory<Punishment> paginatorFactory = new PaginatorFactory<>();
         paginatorFactory.setMaxElements(7).setHeader("§aPunishment history page {pagenumber} out of {totalpages}").setFooter("§aUse /history page {nextpage} to view the next page.");
-        punishments.forEach(report -> paginatorFactory.addElement(report, punishments.size()));
-        if (paginatorFactory.getPages().isEmpty()) {
-            player.sendMessage(Prefixes.REPORT + "&cThere is no history to display.");
-        } else {
-            Paginator<Punishment> paginator = paginatorFactory.build();
-            paginator.display(player.getPlayer(), page);
-        }
+        punishments.forEach(report -> paginatorFactory.addElement(report));
+        Paginator<Punishment> paginator = paginatorFactory.build();
+        paginator.display(player.getPlayer(), page);
     }
     
     private void handlePermPunishmentCommand(FirecraftPlayer player, String[] args, Type type) {
@@ -383,7 +379,7 @@ public class PunishmentManager implements Listener {
                         continue;
                     }
                 }
-    
+                
                 plugin.getFCDatabase().updateSQL("UPDATE `punishments` SET `active`='false', `removedby`='{remover}' WHERE `id`='{id}';".replace("{remover}", player.getUniqueId().toString()).replace("{id}", punishment.getId() + ""));
                 FPacketPunishRemove punishRemove = new FPacketPunishRemove(plugin.getFCServer().getId(), punishment.getId());
                 plugin.getSocket().sendPacket(punishRemove);
@@ -395,12 +391,8 @@ public class PunishmentManager implements Listener {
         PaginatorFactory<Rule> factory = new PaginatorFactory<>();
         factory.setMaxElements(7).setHeader("§aRules page {pagenumber} out of {totalpages}").setFooter("§aUse /mrules page {nextpage} to view the next page.");
         Collection<Rule> rules = ModeratorRules.getRules().values();
-        rules.forEach(report -> factory.addElement(report, rules.size()));
-        if (factory.getPages().isEmpty()) {
-            player.sendMessage(Prefixes.REPORT + "&cThere is no rules to display.");
-        } else {
-            Paginator<Rule> paginator = factory.build();
-            paginator.display(player.getPlayer(), page);
-        }
+        rules.forEach(report -> factory.addElement(report));
+        Paginator<Rule> paginator = factory.build();
+        paginator.display(player.getPlayer(), page);
     }
 }
