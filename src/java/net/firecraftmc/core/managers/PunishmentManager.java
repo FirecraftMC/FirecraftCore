@@ -37,6 +37,10 @@ public class PunishmentManager implements Listener {
             else if (packet instanceof FPacketAcknowledgeWarning) {
                 String format = Utils.Chat.formatAckWarning(plugin.getServerManager().getServer(packet.getServerId()).getName(), ((FPacketAcknowledgeWarning) packet).getWarnedName());
                 plugin.getPlayerManager().getPlayers().forEach(p -> p.sendMessage(format));
+            } else if (packet instanceof FPacketMuteExpire) {
+                Punishment punishment = plugin.getFCDatabase().getPunishment(((FPacketMuteExpire) packet).getMuteId());
+                FirecraftPlayer target = plugin.getPlayer(punishment.getTarget());
+                target.sendMessage("<nc>Your mute has expired. Please give up to a minute to be able to talk again.");
             }
         });
         
