@@ -191,7 +191,7 @@ public class PunishmentManager implements Listener {
                 FPacketPunish packetPunish = new FPacketPunish(plugin.getFCServer().getName(), punishment.getId());
                 plugin.getSocket().sendPacket(packetPunish);
             }
-        }.setBaseRank(Rank.HELPER).addAlias("p");
+        }.setBaseRank(Rank.HELPER).addAlias("pu");
         
         FirecraftCommand history = new FirecraftCommand("history", "View the punishment history of a player") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
