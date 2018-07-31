@@ -68,13 +68,7 @@ public class HomeManager implements IHomeManager {
         FirecraftCommand home = new FirecraftCommand("home", "Teleport to a home given a name.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 if (args.length == 0) {
-                    Home home = player.getHome("home");
-                    if (home == null) {
-                        player.sendMessage(Prefixes.HOMES + "<ec>You do not have a default home set.");
-                        return;
-                    }
-                    player.teleport(home.getLocation());
-                    player.sendMessage(Prefixes.HOMES + Messages.homeTeleport(home.getName()));
+                    player.sendMessage("<nc>Here are your current homes: <vc>" + player.getHomeListAsString());
                     return;
                 }
     
@@ -90,6 +84,12 @@ public class HomeManager implements IHomeManager {
                         player.sendMessage(Prefixes.HOMES + "<ec>Could not find a player with that name.");
                         return;
                     }
+                    
+                    if (args.length == 1) {
+                        player.sendMessage(Prefixes.HOMES + "<vc>Here is <vc>" + target.getName() + "'s <nc>homes: <vc>" + target.getHomeListAsString());
+                        return;
+                    }
+                    
                     Home targetHome = target.getHome(arr[1]);
                     if (targetHome == null) {
                         player.sendMessage(Prefixes.HOMES + "<ec>That player does not have a home by that name.");
