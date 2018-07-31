@@ -155,7 +155,7 @@ public class TeleportationManager implements Listener {
                     player.sendMessage(Messages.notEnoughArgs);
                 }
             }
-        }.setBaseRank(Rank.HELPER).addAlias("tp");
+        }.setBaseRank(Rank.TRIAL_MOD).addAlias("tp");
     
         FirecraftCommand back = new FirecraftCommand("back", "Go back to your previous location") {
             public void executePlayer(FirecraftPlayer player, String[] args) {

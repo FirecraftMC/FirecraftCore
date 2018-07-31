@@ -324,7 +324,7 @@ public class ReportManager {
                             player.sendMessage(Prefixes.REPORT + "&cThe player name you provided is not valid.");
                             return;
                         }
-                        if (!target.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
+                        if (!target.getMainRank().isEqualToOrHigher(Rank.TRIAL_MOD)) {
                             player.sendMessage(Prefixes.REPORT + "&cOnly staff can be assigned to report.");
                             return;
                         }
@@ -349,7 +349,7 @@ public class ReportManager {
                 }
             }
         };
-        reportAdmin.setBaseRank(Rank.HELPER).addAlias("ra");
+        reportAdmin.setBaseRank(Rank.TRIAL_MOD).addAlias("ra");
     }
     
     private Report getReport(String[] args, int length, FirecraftPlayer player) {

@@ -87,7 +87,7 @@ public class ListManager {
                 }
             }
         };
-        stafflist.setBaseRank(Rank.HELPER);
+        stafflist.setBaseRank(Rank.TRIAL_MOD);
         
         plugin.getCommandManager().addCommands(list, stafflist);
     }

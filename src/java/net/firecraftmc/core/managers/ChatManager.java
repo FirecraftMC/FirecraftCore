@@ -118,14 +118,14 @@ public class ChatManager implements Listener {
                 plugin.getSocket().sendPacket(staffChatMessage);
             }
         };
-        staffShortcut.addAlias("s").setBaseRank(Rank.HELPER);
+        staffShortcut.addAlias("s").setBaseRank(Rank.TRIAL_MOD);
 
         FirecraftCommand clearChat = new FirecraftCommand("clearchat", "Clears the chat of everyone but staff members.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 int lines = 150;
                 for (Player pl : Bukkit.getServer().getOnlinePlayers()) {
                     FirecraftPlayer fcPl = plugin.getPlayerManager().getPlayer(pl.getUniqueId());
-                    if (fcPl.getMainRank().isEqualToOrHigher(Rank.HELPER)) {
+                    if (fcPl.getMainRank().isEqualToOrHigher(Rank.TRIAL_MOD)) {
                         fcPl.sendMessage(Prefixes.CHAT + Messages.chatCleared);
                     } else {
                         for (int x = 0; x < lines; x++) {

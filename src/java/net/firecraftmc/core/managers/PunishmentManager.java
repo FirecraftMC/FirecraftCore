@@ -191,7 +191,7 @@ public class PunishmentManager implements Listener {
                 FPacketPunish packetPunish = new FPacketPunish(plugin.getFCServer().getName(), punishment.getId());
                 plugin.getSocket().sendPacket(packetPunish);
             }
-        }.setBaseRank(Rank.HELPER).addAlias("pu");
+        }.setBaseRank(Rank.TRIAL_MOD).addAlias("pu");
         
         FirecraftCommand history = new FirecraftCommand("history", "View the punishment history of a player") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -210,7 +210,7 @@ public class PunishmentManager implements Listener {
                     player.sendMessage(Prefixes.ENFORCER + "<ec>Invalid arguments.");
                 }
             }
-        }.setBaseRank(Rank.HELPER);
+        }.setBaseRank(Rank.TRIAL_MOD);
         
         FirecraftCommand mrules = new FirecraftCommand("mrules", "Gets a list of moderator rules available.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -222,7 +222,7 @@ public class PunishmentManager implements Listener {
                     }
                 }
             }
-        }.setBaseRank(Rank.HELPER);
+        }.setBaseRank(Rank.TRIAL_MOD);
         
         plugin.getCommandManager().addCommands(setJail, ban, tempban, mute, tempmute, jail, kick, warn, unban, unmute, unjail, punish, history, mrules);
     }

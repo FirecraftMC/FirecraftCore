@@ -77,7 +77,7 @@ public class StaffmodeManager implements IStaffmodeManager {
                     }.runTaskLater(plugin, 5L);
                 }
             }
-        }.setBaseRank(Rank.HELPER).addAlias("sm");
+        }.setBaseRank(Rank.TRIAL_MOD).addAlias("sm");
         plugin.getCommandManager().addCommand(staffModeCommand);
     }
     public boolean inStaffMode(FirecraftPlayer player) {

@@ -85,7 +85,7 @@ public class NickManager {
                 plugin.getSocket().sendPacket(setNick);
             }
         };
-        nick.setBaseRank(Rank.FAMOUS).removeRanks(Rank.QUALITY_ASSURANCE, Rank.BUILD_TEAM, Rank.HELPER, Rank.MODERATOR);
+        nick.setBaseRank(Rank.FAMOUS).removeRanks(Rank.QUALITY_ASSURANCE, Rank.BUILD_TEAM, Rank.TRIAL_MOD, Rank.MODERATOR);
         
         FirecraftCommand unnick = new FirecraftCommand("unnick", "Remove your nickname.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -117,12 +117,12 @@ public class NickManager {
                 plugin.getSocket().sendPacket(resetNick);
             }
         };
-        unnick.addAliases("resetnick", "nickreset").setBaseRank(Rank.FAMOUS).removeRanks(Rank.QUALITY_ASSURANCE, Rank.BUILD_TEAM, Rank.HELPER, Rank.MODERATOR);
+        unnick.addAliases("resetnick", "nickreset").setBaseRank(Rank.FAMOUS).removeRanks(Rank.QUALITY_ASSURANCE, Rank.BUILD_TEAM, Rank.TRIAL_MOD, Rank.MODERATOR);
         
         FirecraftCommand nickrandom = new FirecraftCommand("nickrandom", "Get a random nick that is not a staff rank.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 LinkedList<FirecraftPlayer> possibleNicks = new LinkedList<>();
-                ResultSet set = plugin.getFCDatabase().querySQL("SELECT * FROM `playerdata` WHERE `mainrank` <> 'FIRECRAFT_TEAM' AND `mainrank` <> 'HEAD_ADMIN' AND `mainrank` <> 'ADMIN'  AND `mainrank` <> 'TRIAL_ADMIN' AND `mainrank` <> 'MOD' AND `mainrank` <> 'HELPER'  AND `mainrank` <> 'QUALITY_ASSURANCE'  AND `mainrank` <> 'BUILD_TEAM'  AND `mainrank` <> 'VIP'  AND `mainrank` <> 'FAMOUS' AND `online`='false';");
+                ResultSet set = plugin.getFCDatabase().querySQL("SELECT * FROM `playerdata` WHERE `mainrank` <> 'FIRECRAFT_TEAM' AND `mainrank` <> 'HEAD_ADMIN' AND `mainrank` <> 'ADMIN'  AND `mainrank` <> 'TRIAL_ADMIN' AND `mainrank` <> 'MOD' AND `mainrank` <> 'TRIAL_MOD'  AND `mainrank` <> 'QUALITY_ASSURANCE'  AND `mainrank` <> 'BUILD_TEAM'  AND `mainrank` <> 'VIP'  AND `mainrank` <> 'FAMOUS' AND `online`='false';");
                 try {
                     while (set.next()) {
                         possibleNicks.add(plugin.getFCDatabase().getPlayer(UUID.fromString(set.getString("uniqueid"))));
@@ -181,7 +181,7 @@ public class NickManager {
                 }.runTaskLater(plugin, 20L);
             }
         };
-        nickrandom.setBaseRank(Rank.FAMOUS).removeRanks(Rank.QUALITY_ASSURANCE, Rank.BUILD_TEAM, Rank.HELPER, Rank.MODERATOR);
+        nickrandom.setBaseRank(Rank.FAMOUS).removeRanks(Rank.QUALITY_ASSURANCE, Rank.BUILD_TEAM, Rank.TRIAL_MOD, Rank.MODERATOR);
         
         plugin.getCommandManager().addCommands(nick, unnick, nickrandom);
     }
