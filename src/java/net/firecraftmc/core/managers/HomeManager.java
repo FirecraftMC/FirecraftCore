@@ -86,7 +86,7 @@ public class HomeManager implements IHomeManager {
                     }
                     
                     if (args.length == 1) {
-                        player.sendMessage(Prefixes.HOMES + "<vc>Here is <vc>" + target.getName() + "'s <nc>homes: <vc>" + target.getHomeListAsString());
+                        player.sendMessage(Prefixes.HOMES + "<nc>Here is <vc>" + target.getName() + "'s <nc>homes: <vc>" + target.getHomeListAsString());
                         return;
                     }
                     
