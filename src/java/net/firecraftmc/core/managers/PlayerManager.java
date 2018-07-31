@@ -11,14 +11,12 @@ import net.firecraftmc.api.model.player.*;
 import net.firecraftmc.api.packets.*;
 import net.firecraftmc.api.packets.staffchat.FPStaffChatJoin;
 import net.firecraftmc.api.packets.staffchat.FPStaffChatQuit;
-import net.firecraftmc.api.punishments.Punishment;
-import net.firecraftmc.api.punishments.Punishment.Type;
-import net.firecraftmc.api.punishments.TemporaryPunishment;
 import net.firecraftmc.api.util.Messages;
 import net.firecraftmc.api.util.Utils;
 import net.firecraftmc.core.FirecraftCore;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -32,8 +30,6 @@ import java.util.concurrent.TimeUnit;
 public class PlayerManager implements IPlayerManager {
     
     private final ConcurrentHashMap<UUID, FirecraftPlayer> onlinePlayers = new ConcurrentHashMap<>(), cachedPlayers = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<UUID, Punishment> toKickForPunishment = new ConcurrentHashMap<>();
-    private final List<UUID> teleportUnjail = new ArrayList<>();
     private final HashMap<UUID, Long> streamCmdNextUse = new HashMap<>();
     private static final long timeout = TimeUnit.MINUTES.toMillis(10);
     
@@ -50,39 +46,6 @@ public class PlayerManager implements IPlayerManager {
                 }
             }
         }.runTaskTimerAsynchronously(plugin, 0L, 1L);
-        
-        new BukkitRunnable() {
-            public void run() {
-                Iterator<UUID> iterator = toKickForPunishment.keySet().iterator();
-                while (iterator.hasNext()) {
-                    System.out.println("Found a punishment");
-                    UUID uuid = iterator.next();
-                    Player p = Bukkit.getPlayer(uuid);
-                    if (p != null) {
-                        Punishment punishment = toKickForPunishment.get(uuid);
-                        System.out.println(punishment.getType());
-                        if (punishment.getType().equals(Type.BAN))
-                            p.kickPlayer(Utils.color(Messages.banMessage(punishment, "Permanent")));
-                        else if (punishment.getType().equals(Type.KICK))
-                            p.kickPlayer(Utils.color(Messages.kickMessage(punishment.getPunisherName(), punishment.getReason())));
-                        else if (punishment.getType().equals(Type.TEMP_BAN)) {
-                            TemporaryPunishment tempPunishment = ((TemporaryPunishment) punishment);
-                            String expireTime = tempPunishment.formatExpireTime();
-                            p.kickPlayer(Utils.color(Messages.banMessage(punishment, expireTime)));
-                        }
-                        iterator.remove();
-                    }
-                }
-                
-                ListIterator<UUID> listIterator = teleportUnjail.listIterator();
-                while (listIterator.hasNext()) {
-                    UUID uuid = listIterator.next();
-                    Player p = Bukkit.getPlayer(uuid);
-                    p.teleport(plugin.getSpawn());
-                    listIterator.remove();
-                }
-            }
-        }.runTaskTimer(plugin, 0L, 10L);
         
         plugin.getSocket().addSocketListener(packet -> {
             if (packet instanceof FPacketRankUpdate) {
@@ -514,15 +477,7 @@ public class PlayerManager implements IPlayerManager {
         return this.cachedPlayers.get(uuid);
     }
     
-    public void addToKickForPunishment(Punishment punishment) {
-        this.toKickForPunishment.put(punishment.getTarget(), punishment);
-    }
-    
     public void addCachedPlayer(FirecraftPlayer player) {
         this.cachedPlayers.put(player.getUniqueId(), player);
-    }
-    
-    public void addToTeleportUnJail(UUID uuid) {
-        this.teleportUnjail.add(uuid);
     }
 }
