@@ -102,6 +102,27 @@ public class WarpManager implements IWarpManager {
         FirecraftCommand warp = new FirecraftCommand("warp", "Goes to the warp specified") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 Warp warp = null;
+                
+                if (args.length == 0) {
+                    StringBuilder sb = new StringBuilder();
+                    if (warps.isEmpty()) {
+                        sb.append("none");
+                    } else {
+                        for (int i=0; i<warps.size(); i++) {
+                            Warp w = warps.get(i);
+                            if (player.getMainRank().isEqualToOrHigher(w.getMinimumRank())) {
+                                sb.append(w.getName());
+                                if (i != warps.size()-1) {
+                                    sb.append(", ");
+                                }
+                            }
+                        }
+                    }
+                    
+                    player.sendMessage("<nc>The warps that are available to you are <nc>" + sb.toString());
+                    return;
+                }
+                
                 for (Warp w : warps) {
                     if (w.getName().equalsIgnoreCase(args[0])) {
                         warp = w;
