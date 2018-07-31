@@ -20,6 +20,9 @@ import java.util.Random;
 
 public class ChatManager implements Listener {
     private final FirecraftCore plugin;
+    
+    private boolean globalMuted = false;
+    private Rank globalMuteMinSpeak = Rank.TRIAL_MOD;
 
     public ChatManager(FirecraftCore plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -143,8 +146,90 @@ public class ChatManager implements Listener {
             }
         };
         clearChat.addAlias("cc").setBaseRank(Rank.MODERATOR);
+        
+        FirecraftCommand globalMute = new FirecraftCommand("globalmute", "Mutes the global chat for everyone below your rank.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (args.length > 1) {
+                    if (globalMuted) {
+                        if (Utils.Command.checkCmdAliases(args, 0, "change", "c")) {
+                            if (player.getMainRank().isEqualToOrHigher(globalMuteMinSpeak)) {
+                                if (Utils.Command.checkCmdAliases(args, 1, "minimumrank", "minrank", "mr")) {
+                                    if (args.length > 2) {
+                                        Rank r = Rank.getRank(args[2]);
+                                        if (r == null) {
+                                            player.sendMessage("<ec>You provided an invalid rank.");
+                                            return ;
+                                        }
+                                        globalMuteMinSpeak = r;
+                                        for (FirecraftPlayer p : plugin.getPlayers()) {
+                                            p.sendMessage("");
+                                            p.sendMessage("&4&l╔══════════════════════════");
+                                            p.sendMessage("&4&l║");
+                                            p.sendMessage("&4&l║ &d&lGlobal Mute settings changed!");
+                                            p.sendMessage("&4&l║");
+                                            p.sendMessage("&4&l║ <nc>Those with the rank " + globalMuteMinSpeak.getPrefix() + " <nc>or higher can speak.");
+                                            p.sendMessage("&4&l║ <nc>This change was made by <vc>" + player.getName());
+                                            p.sendMessage("&4&l║");
+                                            p.sendMessage("&4&l╚══════════════════════════");
+                                            p.sendMessage("");
+                                        }
+                                        return;
+                                    } else {
+                                        player.sendMessage("<ec>You must provide a rank to set.");
+                                        return;
+                                    }
+                                }
+                            } else {
+                                player.sendMessage("<ec>You cannot change the global mute settings.");
+                                return;
+                            }
+                        } else {
+                            player.sendMessage("<ec>Unknown sub command.");
+                            return;
+                        }
+                    } else {
+                        player.sendMessage("<ec>Global is currently not muted.");
+                        return;
+                    }
+                }
+                
+                if (globalMuted) {
+                    if (player.getMainRank().isEqualToOrHigher(globalMuteMinSpeak)) {
+                        globalMuted = false;
+                        for (FirecraftPlayer p : plugin.getPlayers()) {
+                            p.sendMessage("");
+                            p.sendMessage("&4&l╔══════════════════════════");
+                            p.sendMessage("&4&l║");
+                            p.sendMessage("&4&l║ &a&lGlobal Chat has been unmuted by <vc>" + player.getName() + "<nc>!");
+                            p.sendMessage("&4&l║ <nc>You may once again speak in global chat.");
+                            p.sendMessage("&4&l║");
+                            p.sendMessage("&4&l╚══════════════════════════");
+                            p.sendMessage("");
+                        }
+                    } else {
+                        player.sendMessage("<ec>You do cannot toggle global chat because of your rank.");
+                    }
+                } else {
+                    globalMuted = true;
+                    if (args.length == 0) globalMuteMinSpeak = player.getMainRank();
+                    else globalMuteMinSpeak = Rank.getRank(args[0]);
+    
+                    for (FirecraftPlayer p : plugin.getPlayers()) {
+                        p.sendMessage("");
+                        p.sendMessage("&4&l╔══════════════════════════");
+                        p.sendMessage("&4&l║ &c&lGlobal Chat has been muted by <vc>" + player.getName() + "<nc>!");
+                        p.sendMessage("&4&l║");
+                        p.sendMessage("&4&l║ <nc>Only players with the rank " + globalMuteMinSpeak.getPrefix() + " <nc> or higher may speak.");
+                        p.sendMessage("&4&l║ <nc>This only affects global chat, other channels are not restricted.");
+                        p.sendMessage("&4&l║");
+                        p.sendMessage("&4&l╚══════════════════════════");
+                        p.sendMessage("");
+                    }
+                }
+            }
+        }.addAlias("gmute").setBaseRank(Rank.TRIAL_MOD);
 
-        plugin.getCommandManager().addCommands(chat, globalShortcut, staffShortcut, clearChat);
+        plugin.getCommandManager().addCommands(chat, globalShortcut, staffShortcut, clearChat, globalMute);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -196,6 +281,14 @@ public class ChatManager implements Listener {
                 player.sendMessage(Prefixes.CHAT + Messages.noTalkGlobal);
                 return;
             }
+            
+            if (globalMuted) {
+                if (!player.getMainRank().isEqualToOrHigher(globalMuteMinSpeak)) {
+                    player.sendMessage("<ec>You cannot speak because global chat is currently muted.");
+                    return;
+                }
+            }
+            
             String format = Utils.Chat.formatGlobal(player, e.getMessage());
             if (player.getMainRank().isEqualToOrHigher(Rank.INFERNO)) {
                 if (format.toLowerCase().contains("[item]")) {

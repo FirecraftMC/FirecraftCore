@@ -181,7 +181,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         Utils.Command.registerCommands(this, commandManager, "players", "fct", "ignore", "unignore", "record", "stream");
         Utils.Command.registerCommands(this, commandManager, "list", "stafflist");
         Utils.Command.registerCommands(this, commandManager, "ignore", "unignore");
-        Utils.Command.registerCommands(this, commandManager, "chat", "staff", "global", "clearchat", "cc");
+        Utils.Command.registerCommands(this, commandManager, "chat", "staff", "global", "clearchat", "globalmute");
         Utils.Command.registerCommands(this, commandManager, "nick", "unnick", "nickrandom");
         Utils.Command.registerCommands(this, commandManager, "gamemode", "gmc", "gms", "gma", "gmsp");
         Utils.Command.registerCommands(this, commandManager, "teleport", "tphere", "back", "tpall", "tpaccept", "tpdeny", "tpa", "setspawn", "spawn");

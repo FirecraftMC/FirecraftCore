@@ -116,3 +116,5 @@ commands:
         aliases: [bal]
     baltop:
     mail:
+    globalmute:
+        aliases: [gmute]
