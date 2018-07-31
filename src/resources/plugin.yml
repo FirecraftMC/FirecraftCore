@@ -118,3 +118,4 @@ commands:
     mail:
     globalmute:
         aliases: [gmute]
+    randomtp:

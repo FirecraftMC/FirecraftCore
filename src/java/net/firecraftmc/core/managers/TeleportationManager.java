@@ -330,7 +330,35 @@ public class TeleportationManager implements Listener {
             }
         }.setBaseRank(Rank.DEFAULT);
         
-        plugin.getCommandManager().addCommands(teleport, back, tphere, tpall, tpa, tpaccept, tpdeny, setSpawn, spawn);
+        FirecraftCommand randomTp = new FirecraftCommand("randomtp", "Teleport to a random person online.") {
+            public void executePlayer(FirecraftPlayer player, String[] args) {
+                if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
+                    if (!plugin.getStaffmodeManager().inStaffMode(player)) {
+                        player.sendMessage(Messages.noPermission);
+                        return;
+                    }
+                }
+                
+                List<FirecraftPlayer> possibleTargets = new LinkedList<>();
+                for (FirecraftPlayer p : plugin.getPlayers()) {
+                    if (!p.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+                        possibleTargets.add(p);
+                    }
+                }
+                
+                if (possibleTargets.isEmpty()) {
+                    player.sendMessage("<ec>There is nobody to teleport to.");
+                } else {
+                    Collections.shuffle(possibleTargets);
+                    FirecraftPlayer target = possibleTargets.get(new Random().nextInt(possibleTargets.size()));
+                    player.teleport(target.getLocation());
+                    FPSCTeleport tpPacket = new FPSCTeleport(plugin.getFCServer().getId(), player.getUniqueId(), target.getUniqueId());
+                    plugin.getSocket().sendPacket(tpPacket);
+                }
+            }
+        }.setBaseRank(Rank.TRIAL_MOD);
+        
+        plugin.getCommandManager().addCommands(teleport, back, tphere, tpall, tpa, tpaccept, tpdeny, setSpawn, spawn, randomTp);
     }
     
     @EventHandler
