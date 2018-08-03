@@ -205,6 +205,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         Utils.Command.registerCommands(this, commandManager, "economy", "pay", "withdraw", "balance", "baltop");
         getCommand("mail").setExecutor(commandManager);
         getCommand("fly").setExecutor(commandManager);
+        getCommand("god").setExecutor(commandManager);
     }
     
     private void versionSpecificTasks() {
