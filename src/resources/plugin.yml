@@ -119,3 +119,4 @@ commands:
     globalmute:
         aliases: [gmute]
     randomtp:
+    fly:
