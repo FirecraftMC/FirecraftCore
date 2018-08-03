@@ -319,14 +319,14 @@ public class TeleportationManager implements Listener {
         FirecraftCommand setSpawn = new FirecraftCommand("setspawn", "Sets the spawnpoint of the server to your location.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 plugin.setSpawn(player.getLocation());
-                player.sendMessage(Messages.setSpawn);
+                player.sendMessage("<nc>You have set the server spawnpoint to your current location.");
             }
         }.setBaseRank(Rank.HEAD_ADMIN);
         
         FirecraftCommand spawn = new FirecraftCommand("spawn", "Go to the server spawnpoint") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 player.teleport(plugin.getSpawn());
-                player.sendMessage(Messages.sendToSpawn);
+                player.sendMessage("<nc>You have been teleported to the server spawnpoint.");
             }
         }.setBaseRank(Rank.DEFAULT);
         

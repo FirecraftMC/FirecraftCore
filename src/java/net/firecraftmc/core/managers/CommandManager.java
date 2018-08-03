@@ -9,11 +9,12 @@ import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
+import java.util.Set;
 
 public class CommandManager implements ICommandManager {
 
     private FirecraftCore plugin;
-    private HashSet<FirecraftCommand> commands = new HashSet<>();
+    private Set<FirecraftCommand> commands = new HashSet<>();
 
     public CommandManager(FirecraftCore plugin) {
         this.plugin = plugin;
@@ -69,5 +70,9 @@ public class CommandManager implements ICommandManager {
 
     public void removeCommand(FirecraftCommand command) {
         this.commands.remove(command);
+    }
+    
+    public Set<FirecraftCommand> getCommands() {
+        return commands;
     }
 }
