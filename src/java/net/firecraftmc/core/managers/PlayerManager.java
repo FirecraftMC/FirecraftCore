@@ -6,7 +6,6 @@ import net.firecraftmc.api.enums.Channel;
 import net.firecraftmc.api.enums.Rank;
 import net.firecraftmc.api.interfaces.IPlayerManager;
 import net.firecraftmc.api.model.Report;
-import net.firecraftmc.api.model.Transaction;
 import net.firecraftmc.api.model.player.*;
 import net.firecraftmc.api.packets.*;
 import net.firecraftmc.api.packets.staffchat.FPStaffChatJoin;
@@ -274,39 +273,6 @@ public class PlayerManager implements IPlayerManager {
             player.sendMessage("<ec>&lThe server information is currently not set, please contact a member of The Firecraft Team.");
         }
         
-        if (player == null) {
-            p.kickPlayer(Messages.getDataErrorKick);
-            return;
-        }
-        
-        if (player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-            String prefix = plugin.getFCDatabase().getFTPrefix(player.getUniqueId());
-            if (prefix != null) player.setFctPrefix(prefix);
-        }
-        
-        if (plugin.getFCDatabase().hasActiveJail(player.getUniqueId())) {
-            player.teleport(plugin.getJailLocation());
-        }
-        
-        if (plugin.getFCDatabase().hasUnacknowledgedWarnings(player.getUniqueId())) {
-            String code = Utils.generateAckCode(Utils.codeCharacters);
-            this.plugin.addAckCode(player.getUniqueId(), code);
-            player.sendMessage(Messages.joinUnAckWarning(code));
-        }
-        
-        player.setHomes(plugin.getHomeManager().loadHomes(player.getUniqueId()));
-        
-        if (player.getFirstJoined() == 0) {
-            player.setFirstJoined(System.currentTimeMillis());
-            for (FirecraftPlayer fp : onlinePlayers.values()) {
-                fp.sendMessage("\n" + player.getDisplayName() + " &a&lhas joined FirecraftAPI for the first time!\n ");
-            }
-        }
-        player.setLastSeen(System.currentTimeMillis());
-        
-        List<Transaction> transactions = plugin.getFCDatabase().getTransactions(player.getUniqueId());
-        transactions.forEach(transaction -> player.getProfile().addTransaction(transaction));
-        
         new BukkitRunnable() {
             public void run() {
                 if (Rank.isStaff(player.getMainRank())) {
@@ -339,53 +305,7 @@ public class PlayerManager implements IPlayerManager {
                     player.getUnseenReportActions().clear();
                 }
                 
-                player.playerOnlineStuff();
-                NickInfo nick = plugin.getFCDatabase().getNickname(player.getUniqueId());
-                if (nick != null) {
-                    nick.getProfile().setSkin(plugin.getFCDatabase().getSkin(nick.getProfile().getUniqueId()));
-                    player.setNick(plugin, nick.getProfile(), nick.getRank());
-                }
-                
-                if (player.getVanishInfo() != null) {
-                    VanishInfo info = player.getVanishInfo();
-                    player.vanish();
-                    player.setVanishInfo(info);
-                    for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
-                        if (!player.isNicked()) {
-                            player.getPlayer().setPlayerListName(player.getName() + " §7§l[V]");
-                        } else {
-                            player.getPlayer().setPlayerListName(player.getNick().getProfile().getName() + "§7§l[V]");
-                        }
-                        
-                        if (!p.getMainRank().isEqualToOrHigher(player.getMainRank())) {
-                            p.getPlayer().hidePlayer(player.getPlayer());
-                        }
-                    }
-                    
-                    player.setActionBar(new ActionBar(Messages.actionBar_Vanished));
-                    player.getVanishInfo().setAllowFlightBeforeVanish(player.getPlayer().getAllowFlight());
-                    player.getPlayer().setAllowFlight(true);
-                }
-                player.updatePlayerListName();
-                
-                for (FirecraftPlayer p : onlinePlayers.values()) {
-                    if (p.isVanished()) {
-                        if (!player.getMainRank().isEqualToOrHigher(p.getMainRank())) {
-                            player.getPlayer().hidePlayer(p.getPlayer());
-                        }
-                    }
-                }
-                player.getScoreboard().updateScoreboard(player);
-                
-                List<Mail> mail = plugin.getFCDatabase().getMailByReceiver(player.getUniqueId());
-                int unreadAmount = 0;
-                for (Mail m : mail) {
-                    if (!m.isRead()) unreadAmount++;
-                }
-                
-                if (unreadAmount != 0) {
-                    player.sendMessage("<nc>You have <vc>" + unreadAmount + " <nc>unread mail messages.");
-                }
+                player.loadPlayer();
             }
         }.runTaskLater(plugin, 10L);
         this.onlinePlayers.put(player.getUniqueId(), player);

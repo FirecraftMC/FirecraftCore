@@ -85,14 +85,13 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         this.commandManager = new CommandManager(this);
         
         this.registerAllCommands();
-        
         this.versionSpecificTasks();
-        
         this.postWorldTasks();
         
         for (Player p : Bukkit.getOnlinePlayers()) {
-            this.playerManager.addPlayer(this.database.getPlayer(p.getUniqueId()));
-            this.playerManager.getPlayer(p.getUniqueId()).playerOnlineStuff();
+            FirecraftPlayer player = this.database.getPlayer(p.getUniqueId());
+            this.playerManager.addPlayer(player);
+            player.loadPlayer();
         }
         
         this.socket.connect();
