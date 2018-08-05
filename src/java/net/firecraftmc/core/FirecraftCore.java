@@ -203,7 +203,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         Utils.Command.registerCommands(this, commandManager, "report", "reportadmin");
         Utils.Command.registerCommands(this, commandManager, "message", "reply");
         getCommand("staffmode").setExecutor(commandManager);
-        getCommand("firecraftserver").setExecutor(serverManager);
+        getCommand("firecraftserver").setExecutor(commandManager);
         Utils.Command.registerCommands(this, commandManager, "economy", "pay", "withdraw", "balance", "baltop");
         getCommand("mail").setExecutor(commandManager);
         getCommand("fly").setExecutor(commandManager);
