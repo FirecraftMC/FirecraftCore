@@ -17,7 +17,6 @@ import net.firecraftmc.api.wrapper.*;
 import net.firecraftmc.core.managers.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -35,7 +34,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     private Location serverSpawn;
     private Location jailLocation;
     private Database database;
-    private HashMap<UUID, String> ackCodes = new HashMap<>();
+    private final HashMap<UUID, String> ackCodes = new HashMap<>();
     private IHomeManager homeManager;
     private IServerManager serverManager;
     private IStaffmodeManager staffmodeManager = null;
@@ -222,7 +221,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
             this.nickWrapper = new NickWrapper1_12_R1();
             this.nbtWrapper = new NBTWrapper1_12_R1();
             this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_12(this), this);
-        } else if (versionString.equalsIgnoreCase("v1_12_R1")) {
+        } else if (versionString.equalsIgnoreCase("v1_13_R1")) {
             this.nickWrapper = new NickWrapper1_13_R1();
             this.nbtWrapper = new NBTWrapper1_13_R1();
             this.getServer().getPluginManager().registerEvents(new ItemPickupEvent1_12(this), this);
@@ -343,10 +342,6 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     
     public NBTWrapper getNbtWrapper() {
         return nbtWrapper;
-    }
-    
-    public FileConfiguration getConfig() {
-        return super.getConfig();
     }
     
     public ICommandManager getCommandManager() {

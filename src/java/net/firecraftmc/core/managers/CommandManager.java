@@ -13,8 +13,8 @@ import java.util.Set;
 
 public class CommandManager implements ICommandManager {
 
-    private FirecraftCore plugin;
-    private Set<FirecraftCommand> commands = new HashSet<>();
+    private final FirecraftCore plugin;
+    private final Set<FirecraftCommand> commands = new HashSet<>();
 
     public CommandManager(FirecraftCore plugin) {
         this.plugin = plugin;

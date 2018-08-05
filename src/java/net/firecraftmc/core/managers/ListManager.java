@@ -50,7 +50,7 @@ public class ListManager {
         
         FirecraftCommand stafflist = new FirecraftCommand("stafflist", "List all online staff.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
-                HashMap<String, List<FirecraftPlayer>> onlineStaff = plugin.getFCDatabase().getOnlineStaffMembers();
+                Map<String, List<FirecraftPlayer>> onlineStaff = plugin.getFCDatabase().getOnlineStaffMembers();
     
                 if (onlineStaff.isEmpty()) {
                     player.sendMessage("&cThere was an issue with getting the list of online staff members.");

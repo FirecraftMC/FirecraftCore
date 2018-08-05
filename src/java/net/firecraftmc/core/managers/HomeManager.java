@@ -16,8 +16,8 @@ import java.util.*;
 
 public class HomeManager implements IHomeManager {
 
-    private File file;
-    private FileConfiguration config;
+    private final File file;
+    private final FileConfiguration config;
 
     public HomeManager(FirecraftCore plugin) {
         this.file = new File(plugin.getDataFolder() + File.separator + "homes.yml");

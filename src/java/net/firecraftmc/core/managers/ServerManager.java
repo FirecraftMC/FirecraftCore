@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 
 public class ServerManager implements IServerManager {
 
-    private FirecraftCore plugin;
+    private final FirecraftCore plugin;
 
     public ServerManager(FirecraftCore plugin) {
         this.plugin = plugin;

@@ -211,8 +211,7 @@ public class ChatManager implements Listener {
                     }
                 } else {
                     globalMuted = true;
-                    if (args.length == 0) globalMuteMinSpeak = player.getMainRank();
-                    else globalMuteMinSpeak = Rank.getRank(args[0]);
+                    globalMuteMinSpeak = args.length == 0 ? player.getMainRank() : Rank.getRank(args[0]);
     
                     for (FirecraftPlayer p : plugin.getPlayers()) {
                         p.sendMessage("");

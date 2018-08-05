@@ -19,10 +19,10 @@ import java.util.List;
 
 public class WarpManager implements IWarpManager {
 
-    private List<Warp> warps = new ArrayList<>();
+    private final List<Warp> warps = new ArrayList<>();
 
-    private File file;
-    private FileConfiguration config;
+    private final File file;
+    private final FileConfiguration config;
 
     public WarpManager(FirecraftCore plugin) {
         file = new File(plugin.getDataFolder() + File.separator + "warps.yml");

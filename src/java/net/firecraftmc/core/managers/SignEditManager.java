@@ -19,8 +19,8 @@ import java.util.Map;
 
 public class SignEditManager implements Listener {
     
-    private FirecraftCore plugin;
-    private Map<Location, String[]> signChanges = new HashMap<>();
+    private final FirecraftCore plugin;
+    private final Map<Location, String[]> signChanges = new HashMap<>();
 
     public SignEditManager(FirecraftCore plugin) {
         this.plugin = plugin;

@@ -17,9 +17,9 @@ import java.util.*;
 
 public class ReportManager {
     
-    private FirecraftCore plugin;
+    private final FirecraftCore plugin;
     
-    private HashMap<UUID, Paginator<Report>> paginators = new HashMap<>();
+    private final HashMap<UUID, Paginator<Report>> paginators = new HashMap<>();
     
     public ReportManager(FirecraftCore plugin) {
         this.plugin = plugin;

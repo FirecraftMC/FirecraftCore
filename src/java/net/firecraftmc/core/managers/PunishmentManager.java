@@ -23,7 +23,7 @@ import java.sql.ResultSet;
 import java.util.*;
 
 public class PunishmentManager implements Listener {
-    private FirecraftCore plugin;
+    private final FirecraftCore plugin;
     
     public PunishmentManager(FirecraftCore plugin) {
         this.plugin = plugin;

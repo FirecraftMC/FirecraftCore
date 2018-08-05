@@ -22,7 +22,7 @@ import java.util.*;
 
 public class EconomyManager implements IEconomyManager {
 
-    private FirecraftCore plugin;
+    private final FirecraftCore plugin;
     public EconomyManager(FirecraftCore plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);

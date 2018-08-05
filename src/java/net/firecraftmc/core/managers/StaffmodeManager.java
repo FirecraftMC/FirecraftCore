@@ -16,7 +16,7 @@ import java.util.*;
 
 public class StaffmodeManager implements IStaffmodeManager {
 
-    private List<UUID> staffmode = new ArrayList<>();
+    private final List<UUID> staffmode = new ArrayList<>();
 
     public StaffmodeManager(FirecraftCore plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
