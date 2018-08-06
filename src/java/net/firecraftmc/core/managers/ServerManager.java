@@ -14,6 +14,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public class ServerManager implements IServerManager {
     
     private final FirecraftCore plugin;
@@ -33,6 +35,19 @@ public class ServerManager implements IServerManager {
                         player.sendMessage("<ec>Invalid amount of arugments: /firecraftserver create|c <id|random|r> <name> <colorcode|chatcolor> <type>");
                         return;
                     }
+    
+                    UUID uuid;
+                    if (Utils.Command.checkCmdAliases(args, 1, "random", "r")) {
+                        uuid = UUID.randomUUID();
+                    } else {
+                        try {
+                            uuid = UUID.fromString(args[1]);
+                        } catch (Exception e) {
+                            player.sendMessage("<ec>You have supplied an invalid id.");
+                        }
+                    }
+                    
+                    String name = args[2];
                     
                     
                 } else if (Utils.Command.checkCmdAliases(args, 0, "set", "s")) {
