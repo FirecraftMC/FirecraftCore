@@ -181,6 +181,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         new VanishManager(this);
         new MailManager(this);
         new FlyManager(this);
+        new HelpManager(this);
         Utils.Command.registerCommands(this, commandManager, "players", "fct", "ignore", "unignore", "record", "stream");
         Utils.Command.registerCommands(this, commandManager, "list", "stafflist");
         Utils.Command.registerCommands(this, commandManager, "ignore", "unignore");
