@@ -14,7 +14,7 @@ public class HelpManager {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 PaginatorFactory<FirecraftCommand> paginatorFactory = new PaginatorFactory<>();
                 paginatorFactory.setMaxElements(7).setHeader("&bHelp page {pagenumber} out of {totalpages}");
-                paginatorFactory.setFooter("&bType /help <nextpage> to view the next page.");
+                paginatorFactory.setFooter("&bType /help {nextpage} to view the next page.");
                 for (FirecraftCommand cmd : plugin.getCommandManager().getCommands()) {
                     if (cmd.canUse(player)) {
                         paginatorFactory.addElement(cmd);
