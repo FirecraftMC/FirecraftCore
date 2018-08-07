@@ -1,5 +1,6 @@
 package net.firecraftmc.core.managers;
 
+import net.firecraftmc.api.FirecraftAPI;
 import net.firecraftmc.api.command.FirecraftCommand;
 import net.firecraftmc.api.enums.Rank;
 import net.firecraftmc.api.enums.ServerType;
@@ -36,20 +37,50 @@ public class ServerManager implements IServerManager {
                         return;
                     }
     
-                    UUID uuid;
+                    UUID uuid = null;
                     if (Utils.Command.checkCmdAliases(args, 1, "random", "r")) {
                         uuid = UUID.randomUUID();
+                        while (plugin.getFCServer(uuid.toString()) != null) {
+                            uuid = UUID.randomUUID();
+                        }
                     } else {
                         try {
                             uuid = UUID.fromString(args[1]);
+                            if (plugin.getFCServer(uuid.toString()) != null) {
+                                player.sendMessage("<ec>A server with that id already exists.");
+                                return;
+                            }
                         } catch (Exception e) {
                             player.sendMessage("<ec>You have supplied an invalid id.");
                         }
                     }
                     
+                    if (uuid == null) {
+                        player.sendMessage("<ec>There was an issue with the id of the server, unable to continue.");
+                        return;
+                    }
+                    
                     String name = args[2];
+    
+                    ChatColor color;
+                    try {
+                        color = ChatColor.valueOf(args[3]);
+                    } catch (Exception e) {
+                        player.sendMessage("<ec>You provided an invalid color name.");
+                        return;
+                    }
+    
+                    ServerType type;
+                    try {
+                        type = ServerType.valueOf(args[4]);
+                    } catch (Exception e) {
+                        player.sendMessage("<ec>You provided an invalid type.");
+                        return;
+                    }
                     
-                    
+                    FirecraftServer createdServer = new FirecraftServer(uuid.toString(), name, color, type);
+                    plugin.getFCDatabase().saveServer(createdServer);
+                    player.sendMessage("<nc>Created a server with the name <vc>" + name);
                 } else if (Utils.Command.checkCmdAliases(args, 0, "set", "s")) {
                 
                 }
