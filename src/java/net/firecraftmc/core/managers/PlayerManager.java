@@ -143,10 +143,6 @@ public class PlayerManager implements IPlayerManager {
                 if (args.length > 0) {
                     if (Utils.Command.checkCmdAliases(args, 0, "setprefix", "sp")) {
                         String prefix = StringUtils.join(args, " ", 1, args.length);
-                        if (!player.getUniqueId().equals(FirecraftAPI.firestar311)) {
-                            prefix = ChatColor.stripColor(prefix);
-                        }
-                        
                         if (plugin.getFCDatabase().setFTPrefix(player.getUniqueId(), prefix)) {
                             player.setFctPrefix(prefix);
                             player.sendMessage(Messages.fct_setPrefix(prefix));
