@@ -10,6 +10,7 @@ import net.firecraftmc.api.model.FirecraftSocket;
 import net.firecraftmc.api.model.player.FirecraftPlayer;
 import net.firecraftmc.api.model.server.FirecraftServer;
 import net.firecraftmc.api.packets.*;
+import net.firecraftmc.api.packets.staffchat.FPStaffChatJoin;
 import net.firecraftmc.api.packets.staffchat.FPStaffChatQuit;
 import net.firecraftmc.api.plugin.IFirecraftCore;
 import net.firecraftmc.api.util.Utils;
@@ -23,6 +24,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 
 public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     
@@ -44,18 +46,9 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     private MessageManager messageManager = null;
     private MenuManager menuManager = null;
     
-    public void onEnable() {
-        this.saveDefaultConfig();
-        if (!getConfig().contains("host")) {
-            getConfig().set("host", "localhost");
-            saveConfig();
-        }
-        
+    public void loadPlugin() {
         FirecraftAPI.setFirecraftCore(this);
-        
-        String host = getConfig().getString("host");
-        this.socket = new FirecraftSocket(this, host, getConfig().getInt("port"));
-        
+    
         this.socket.addSocketListener((packet) -> {
             if (packet instanceof FPacketServerConnect) {
                 FPacketServerConnect serverConnect = (FPacketServerConnect) packet;
@@ -73,38 +66,23 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
                 });
             }
         });
-        
-        database = new Database(getConfig().getString("mysql.user"), getConfig().getString("mysql.database"), getConfig().getString("mysql.password"), getConfig().getInt("mysql.port"), getConfig().getString("mysql.hostname"));
-        database.openConnection();
-        
-        if (getConfig().contains("server")) {
-            this.server = database.getServer(getConfig().getString("server"));
-        }
-        
-        this.commandManager = new CommandManager(this);
-        
+    
         this.registerAllCommands();
         this.versionSpecificTasks();
         this.postWorldTasks();
-        
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            FirecraftPlayer player = this.database.getPlayer(p.getUniqueId());
-            this.playerManager.addPlayer(player);
-            player.loadPlayer();
-        }
-        
+    
         this.socket.connect();
         this.socket.start();
         if (server != null) {
             this.server.setIp(this.socket.getJavaSocket().getLocalAddress().toString().replace("/", ""));
             this.database.saveServer(server);
         }
-        
+    
         new BukkitRunnable() {
             public void run() {
                 if (socket.getState().equals(Thread.State.TERMINATED) || !socket.isOpen()) {
                     List<SocketListener> listeners = socket.getSocketListeners();
-                    socket = new FirecraftSocket(FirecraftCore.this, host, getConfig().getInt("port"));
+                    socket = new FirecraftSocket(FirecraftCore.this, getConfig().getString("host"), getConfig().getInt("port"));
                     for (SocketListener listener : listeners) {
                         socket.addSocketListener(listener);
                     }
@@ -112,11 +90,49 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
                 }
             }
         }.runTaskTimerAsynchronously(this, 0L, 20L);
-        
+    
         FCEconVault fcEconVault = new FCEconVault(FirecraftCore.this);
         fcEconVault.registerServices();
-        
+    
         this.menuManager = new MenuManager(this);
+    
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            FirecraftPlayer player = this.database.getPlayer(p.getUniqueId());
+            this.playerManager.addPlayer(player);
+            player.loadPlayer();
+            FPStaffChatJoin join = new FPStaffChatJoin(server.getId(), player.getUniqueId());
+            socket.sendPacket(join);
+        }
+    }
+    
+    public void onEnable() {
+        this.saveDefaultConfig();
+        database = new Database(getConfig().getString("mysql.user"), getConfig().getString("mysql.database"), getConfig().getString("mysql.password"), getConfig().getInt("mysql.port"), getConfig().getString("mysql.hostname"));
+        database.openConnection();
+    
+        if (!getConfig().contains("host")) {
+            getConfig().set("host", "localhost");
+            saveConfig();
+        }
+    
+        String host = getConfig().getString("host");
+        this.socket = new FirecraftSocket(this, host, getConfig().getInt("port"));
+        
+        this.commandManager = new CommandManager(this);
+        this.serverManager = new ServerManager(this);
+        this.playerManager = new PlayerManager(this);
+        this.getCommand("firecraftserver").setExecutor(commandManager);
+        if (getConfig().contains("server")) {
+            try {
+                UUID serverId = UUID.fromString(getConfig().getString("server"));
+                this.server = database.getServer(serverId.toString());
+                this.loadPlugin();
+            } catch (Exception e) {
+                getLogger().severe("Could not load the server from the config properly, probably because the information is not set.");
+            }
+        } else {
+            getLogger().log(Level.SEVERE, "Server information is not set, things will not work as expected.");
+        }
     }
     
     public void onDisable() {
@@ -155,7 +171,6 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     }
     
     private void registerAllCommands() {
-        this.playerManager = new PlayerManager(this);
         new BroadcastManager(this);
         new ChatManager(this);
         new DevManager(this);
@@ -174,7 +189,6 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         new PunishmentManager(this);
         new SignEditManager(this);
         this.staffmodeManager = new StaffmodeManager(this);
-        this.serverManager = new ServerManager(this);
         new TeleportationManager(this);
         new TimeManager(this);
         new WeatherManager(this);
