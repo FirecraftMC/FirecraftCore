@@ -6,7 +6,8 @@ import net.firecraftmc.api.enums.Channel;
 import net.firecraftmc.api.enums.Rank;
 import net.firecraftmc.api.interfaces.IPlayerManager;
 import net.firecraftmc.api.model.Report;
-import net.firecraftmc.api.model.player.*;
+import net.firecraftmc.api.model.player.ActionBar;
+import net.firecraftmc.api.model.player.FirecraftPlayer;
 import net.firecraftmc.api.packets.*;
 import net.firecraftmc.api.packets.staffchat.FPStaffChatJoin;
 import net.firecraftmc.api.packets.staffchat.FPStaffChatQuit;
@@ -122,8 +123,10 @@ public class PlayerManager implements IPlayerManager {
                         }
                         
                         if (rank.equals(Rank.FIRECRAFT_TEAM)) {
-                            player.sendMessage("&cThe Firecraft Team rank cannot be set in game. Please contact Firestar311 to have it updated.");
-                            return;
+                            if (!player.getUniqueId().equals(FirecraftAPI.firestar311)) {
+                                player.sendMessage("&cThe Firecraft Team rank can only be updated by Firestar311");
+                                return;
+                            }
                         }
                         
                         plugin.getFCDatabase().updateDataColumn(target.getUniqueId(), "mainrank", rank.toString());
