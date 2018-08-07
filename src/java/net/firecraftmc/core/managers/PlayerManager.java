@@ -123,8 +123,10 @@ public class PlayerManager implements IPlayerManager {
                         }
                         
                         if (rank.equals(Rank.FIRECRAFT_TEAM)) {
-                            player.sendMessage("&cThe Firecraft Team rank cannot be set in game. Please contact Firestar311 to have it updated.");
-                            return;
+                            if (!player.getUniqueId().equals(FirecraftAPI.firestar311)) {
+                                player.sendMessage("&cThe Firecraft Team rank can only be updated by Firestar311");
+                                return;
+                            }
                         }
                         
                         plugin.getFCDatabase().updateDataColumn(target.getUniqueId(), "mainrank", rank.toString());
