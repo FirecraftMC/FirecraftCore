@@ -15,7 +15,6 @@ import net.firecraftmc.api.util.Messages;
 import net.firecraftmc.api.util.Utils;
 import net.firecraftmc.core.FirecraftCore;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
