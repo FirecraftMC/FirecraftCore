@@ -197,7 +197,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         new MailManager(this);
         new FlyManager(this);
         new HelpManager(this);
-        
+        this.toggleManager = new ToggleManager(this);
         Utils.Command.registerCommands(this, commandManager, "players", "fct", "ignore", "unignore", "record", "stream");
         Utils.Command.registerCommands(this, commandManager, "list", "stafflist");
         Utils.Command.registerCommands(this, commandManager, "ignore", "unignore");
@@ -226,6 +226,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         getCommand("fly").setExecutor(commandManager);
         getCommand("god").setExecutor(commandManager);
         getCommand("help").setExecutor(commandManager);
+        getCommand("toggles").setExecutor(commandManager);
     }
     
     private void versionSpecificTasks() {

@@ -122,3 +122,4 @@ commands:
     fly:
     god:
     help:
+    toggles:
