@@ -45,6 +45,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     private ICommandManager commandManager = null;
     private MessageManager messageManager = null;
     private MenuManager menuManager = null;
+    private IToggleManager toggleManager = null;
     
     public void loadPlugin() {
         FirecraftAPI.setFirecraftCore(this);
@@ -196,6 +197,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         new MailManager(this);
         new FlyManager(this);
         new HelpManager(this);
+        
         Utils.Command.registerCommands(this, commandManager, "players", "fct", "ignore", "unignore", "record", "stream");
         Utils.Command.registerCommands(this, commandManager, "list", "stafflist");
         Utils.Command.registerCommands(this, commandManager, "ignore", "unignore");
@@ -369,5 +371,9 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     
     public MenuManager getMenuManager() {
         return menuManager;
+    }
+    
+    public IToggleManager getToggleManager() {
+        return toggleManager;
     }
 }
