@@ -36,6 +36,22 @@ public class ToggleManager implements IToggleManager {
     public void onInventoryInteract(InventoryClickEvent e) {
         if (e.getInventory().getName().contains("'s Toggles")) {
             e.setCancelled(true);
+            
+            ItemStack item = e.getCurrentItem();
+            if (item != null) {
+                if (item.getItemMeta() != null) {
+                    if (item.getItemMeta().getDisplayName() != null) {
+                        if (item.getType().equals(Material.LIME_DYE) || item.getType().equals(Material.GRAY_DYE)) {
+                            Toggle toggle;
+                            try {
+                                Toggle.valueOf(item.getItemMeta().getDisplayName().replace(" ", "_"));
+                            } catch (Exception ex) { return; }
+                            
+                            
+                        }
+                    }
+                }
+            }
         }
     }
     
