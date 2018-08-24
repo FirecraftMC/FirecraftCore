@@ -21,7 +21,7 @@ public class ToggleManager implements IToggleManager {
     
     private FirecraftCore plugin;
     
-    private final ItemStack enabledItem, disabledItem;
+    private ItemStack enabledItem, disabledItem, toggleDisabled;
     
     public ToggleManager(FirecraftCore plugin) {
         this.plugin = plugin;
@@ -30,7 +30,7 @@ public class ToggleManager implements IToggleManager {
         FirecraftCommand toggles = new FirecraftCommand("toggles", "Show the Toggles menu") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 player.getPlayer().openInventory(generateToggleInventory(player));
-                player.sendMessage("&7You have opened the Toggles Menu. (Currently View Only)");
+                player.sendMessage("&7You have opened the Toggles Menu.");
             }
         }.setBaseRank(Rank.DEFAULT);
         
@@ -38,6 +38,7 @@ public class ToggleManager implements IToggleManager {
         
         enabledItem = new ItemStackBuilder(Material.LIME_DYE).withName(ChatColor.GREEN + "{toggle}").withLore("&7Click to disable").buildItem();
         disabledItem = new ItemStackBuilder(Material.GRAY_DYE).withName(ChatColor.RED + "{toggle}").withLore("&7Click to enable").buildItem();
+        toggleDisabled = new ItemStackBuilder(Material.BARRIER).withName(ChatColor.RED + "That toggle is currently disabled.").buildItem();
     }
     
     @EventHandler
@@ -57,18 +58,30 @@ public class ToggleManager implements IToggleManager {
                                 System.out.println(ex.getMessage());
                                 return;
                             }
-                            
                             FirecraftPlayer player = plugin.getPlayer(e.getWhoClicked().getUniqueId());
-                            boolean value = !player.getProfile().getToggleValue(toggle);
-                            ItemStackBuilder valueItemBuilder;
-                            if (value) {
-                                valueItemBuilder = new ItemStackBuilder(enabledItem).withName(enabledItem.getItemMeta().getDisplayName().replace("{toggle}", toggle.name().replace("_", " "))).withLore("&7Click to disable");
+                            
+                            if (!toggle.isEnabled()) {
+                                e.getInventory().setItem(e.getSlot(), toggleDisabled);
+                                player.getPlayer().updateInventory();
+                                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                                    try {
+                                        e.getInventory().setItem(e.getSlot(), item);
+                                        player.getPlayer().updateInventory();
+                                    } catch (Exception ex) {
+                                    }
+                                }, 5 * 20);
                             } else {
-                                valueItemBuilder = new ItemStackBuilder(disabledItem).withName(disabledItem.getItemMeta().getDisplayName().replace("{toggle}", toggle.name().replace("_", " "))).withLore("&7Click to enable");
+                                boolean value = !player.getProfile().getToggleValue(toggle);
+                                ItemStackBuilder valueItemBuilder;
+                                if (value) {
+                                    valueItemBuilder = new ItemStackBuilder(enabledItem).withName(enabledItem.getItemMeta().getDisplayName().replace("{toggle}", toggle.name().replace("_", " "))).withLore("&7Click to disable");
+                                } else {
+                                    valueItemBuilder = new ItemStackBuilder(disabledItem).withName(disabledItem.getItemMeta().getDisplayName().replace("{toggle}", toggle.name().replace("_", " "))).withLore("&7Click to enable");
+                                }
+                                e.getClickedInventory().setItem(e.getSlot(), valueItemBuilder.buildItem());
+                                player.getPlayer().updateInventory();
+                                player.getProfile().toggle(toggle);
                             }
-                            e.getClickedInventory().setItem(e.getSlot(), valueItemBuilder.buildItem());
-                            player.getPlayer().updateInventory();
-                            player.getProfile().toggle(toggle);
                         }
                     }
                 }
