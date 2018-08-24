@@ -3,6 +3,7 @@ main: net.firecraftmc.core.FirecraftCore
 version: 1.15-ALPHA
 load: STARTUP
 author: Firestar311
+api-version: 1.13
 commands:
     chat:
         description: Base command for everything chat.
