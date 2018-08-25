@@ -69,7 +69,7 @@ public class ToggleManager implements IToggleManager {
                                         player.getPlayer().updateInventory();
                                     } catch (Exception ex) {
                                     }
-                                }, 5 * 20);
+                                }, 3 * 20);
                             } else {
                                 boolean value = !player.getProfile().getToggleValue(toggle);
                                 ItemStackBuilder valueItemBuilder;
