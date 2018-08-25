@@ -2,9 +2,9 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.api.command.FirecraftCommand;
 import net.firecraftmc.api.enums.Rank;
-import net.firecraftmc.api.enums.Toggle;
 import net.firecraftmc.api.interfaces.IToggleManager;
 import net.firecraftmc.api.model.player.FirecraftPlayer;
+import net.firecraftmc.api.toggles.Toggle;
 import net.firecraftmc.api.util.ItemStackBuilder;
 import net.firecraftmc.core.FirecraftCore;
 import org.bukkit.*;
@@ -21,7 +21,7 @@ public class ToggleManager implements IToggleManager {
     
     private FirecraftCore plugin;
     
-    private ItemStack enabledItem, disabledItem, toggleDisabled, toggleNoPerm;
+    private ItemStack enabledItem, disabledItem, toggleDisabled;
     
     public ToggleManager(FirecraftCore plugin) {
         this.plugin = plugin;
@@ -39,7 +39,6 @@ public class ToggleManager implements IToggleManager {
         enabledItem = new ItemStackBuilder(Material.LIME_DYE).withName(ChatColor.GREEN + "{toggle}").withLore("&7Click to disable").buildItem();
         disabledItem = new ItemStackBuilder(Material.GRAY_DYE).withName(ChatColor.RED + "{toggle}").withLore("&7Click to enable").buildItem();
         toggleDisabled = new ItemStackBuilder(Material.BARRIER).withName(ChatColor.RED + "That toggle is currently disabled.").buildItem();
-        toggleNoPerm = new ItemStackBuilder(Material.BARRIER).withName(ChatColor.RED + "You do not have permission to use that toggle").buildItem();
     }
     
     @EventHandler
@@ -54,7 +53,7 @@ public class ToggleManager implements IToggleManager {
                         if (item.getType().equals(Material.LIME_DYE) || item.getType().equals(Material.GRAY_DYE)) {
                             Toggle toggle;
                             try {
-                                toggle = Toggle.valueOf(ChatColor.stripColor(item.getItemMeta().getDisplayName().replace(" ", "_")));
+                                toggle = Toggle.getToggle(ChatColor.stripColor(item.getItemMeta().getDisplayName()));
                             } catch (Exception ex) {
                                 System.out.println(ex.getMessage());
                                 return;
@@ -75,13 +74,14 @@ public class ToggleManager implements IToggleManager {
                                 boolean value = !player.getProfile().getToggleValue(toggle);
                                 ItemStackBuilder valueItemBuilder;
                                 if (value) {
-                                    valueItemBuilder = new ItemStackBuilder(enabledItem).withName(enabledItem.getItemMeta().getDisplayName().replace("{toggle}", toggle.name().replace("_", " "))).withLore("&7Click to disable");
+                                    valueItemBuilder = new ItemStackBuilder(enabledItem).withName(enabledItem.getItemMeta().getDisplayName().replace("{toggle}", toggle.getName())).withLore("&7Click to disable");
                                 } else {
-                                    valueItemBuilder = new ItemStackBuilder(disabledItem).withName(disabledItem.getItemMeta().getDisplayName().replace("{toggle}", toggle.name().replace("_", " "))).withLore("&7Click to enable");
+                                    valueItemBuilder = new ItemStackBuilder(disabledItem).withName(disabledItem.getItemMeta().getDisplayName().replace("{toggle}", toggle.getName())).withLore("&7Click to enable");
                                 }
                                 e.getClickedInventory().setItem(e.getSlot(), valueItemBuilder.buildItem());
                                 player.getPlayer().updateInventory();
                                 player.getProfile().toggle(toggle);
+                                toggle.onToggle(value, player);
                             }
                         }
                     }
@@ -95,12 +95,12 @@ public class ToggleManager implements IToggleManager {
         Map<Integer, ItemStack> toggleStacks = new HashMap<>();
         for (Entry<Toggle, Boolean> entry : player.getProfile().getToggles().entrySet()) {
             Toggle toggle = entry.getKey();
-            ItemStackBuilder toggleItemBuilder = new ItemStackBuilder(toggle.getMaterial()).withLore("&7Description coming soon.").withName(ChatColor.GOLD + toggle.name().replace("_", " "));
+            ItemStackBuilder toggleItemBuilder = new ItemStackBuilder(toggle.getMaterial()).withLore("&7" + toggle.getDescription()).withName(ChatColor.GOLD + toggle.getName());
             ItemStackBuilder valueItemBuilder;
             if (entry.getValue()) {
-                valueItemBuilder = new ItemStackBuilder(enabledItem).withName(enabledItem.getItemMeta().getDisplayName().replace("{toggle}", toggle.name().replace("_", " "))).withLore("&7Click to disable");
+                valueItemBuilder = new ItemStackBuilder(enabledItem).withName(enabledItem.getItemMeta().getDisplayName().replace("{toggle}", toggle.getName())).withLore("&7Click to disable");
             } else {
-                valueItemBuilder = new ItemStackBuilder(disabledItem).withName(disabledItem.getItemMeta().getDisplayName().replace("{toggle}", toggle.name().replace("_", " "))).withLore("&7Click to enable");
+                valueItemBuilder = new ItemStackBuilder(disabledItem).withName(disabledItem.getItemMeta().getDisplayName().replace("{toggle}", toggle.getName())).withLore("&7Click to enable");
             }
             
             toggleStacks.put(toggle.getSlot(), toggleItemBuilder.buildItem());
