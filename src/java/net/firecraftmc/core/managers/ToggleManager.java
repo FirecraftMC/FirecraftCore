@@ -21,7 +21,7 @@ public class ToggleManager implements IToggleManager {
     
     private FirecraftCore plugin;
     
-    private ItemStack enabledItem, disabledItem, toggleDisabled;
+    private ItemStack enabledItem, disabledItem, toggleDisabled, toggleNoPerm;
     
     public ToggleManager(FirecraftCore plugin) {
         this.plugin = plugin;
@@ -39,6 +39,7 @@ public class ToggleManager implements IToggleManager {
         enabledItem = new ItemStackBuilder(Material.LIME_DYE).withName(ChatColor.GREEN + "{toggle}").withLore("&7Click to disable").buildItem();
         disabledItem = new ItemStackBuilder(Material.GRAY_DYE).withName(ChatColor.RED + "{toggle}").withLore("&7Click to enable").buildItem();
         toggleDisabled = new ItemStackBuilder(Material.BARRIER).withName(ChatColor.RED + "That toggle is currently disabled.").buildItem();
+        toggleNoPerm = new ItemStackBuilder(Material.BARRIER).withName(ChatColor.RED + "You do not have permission to use that toggle").buildItem();
     }
     
     @EventHandler
