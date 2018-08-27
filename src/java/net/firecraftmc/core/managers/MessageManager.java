@@ -60,6 +60,9 @@ public class MessageManager {
     
                 if (!target.getProfile().getToggleValue(Toggle.getToggle("messages"))) {
                     if (!Rank.isStaff(player.getMainRank())) {
+                        player.sendMessage("<ec>That player has messages disabled");
+                        return;
+                    } else {
                         if (!player.getMainRank().isEqualToOrHigher(target.getMainRank())) {
                             player.sendMessage("<ec>That player has messages disabled");
                             return;

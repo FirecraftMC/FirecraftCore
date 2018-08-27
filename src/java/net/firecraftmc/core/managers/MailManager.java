@@ -47,10 +47,13 @@ public class MailManager {
                 }
                 
                 FirecraftPlayer target = plugin.getPlayer(args[1]);
-                if (!target.getProfile().getToggleValue(Toggle.getToggle("mail"))) {
+                if (!target.getProfile().getToggleValue(Toggle.getToggle("messages"))) {
                     if (!Rank.isStaff(player.getMainRank())) {
+                        player.sendMessage("<ec>That player has messages disabled");
+                        return;
+                    } else {
                         if (!player.getMainRank().isEqualToOrHigher(target.getMainRank())) {
-                            player.sendMessage("<ec>That player has mail disabled");
+                            player.sendMessage("<ec>That player has messages disabled");
                             return;
                         }
                     }

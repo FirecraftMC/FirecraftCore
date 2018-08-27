@@ -35,7 +35,7 @@ public class TeleportationManager implements Listener {
         new BukkitRunnable() {
             public void run() {
                 Iterator<Long> iter = requests.keySet().iterator();
-                iter.forEachRemaining((value) ->  {
+                iter.forEachRemaining((value) -> {
                     long expire = requests.get(value).getExpire();
                     if (expire <= TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())) {
                         FirecraftPlayer requester = plugin.getPlayerManager().getPlayer(requests.get(value).getRequester());
@@ -53,7 +53,7 @@ public class TeleportationManager implements Listener {
                 });
             }
         }.runTaskTimer(plugin, 0L, 20L);
-
+        
         plugin.getSocket().addSocketListener(packet -> {
             FirecraftServer server = plugin.getServerManager().getServer(packet.getServerId());
             if (packet instanceof FPSCTeleport) {
@@ -77,7 +77,7 @@ public class TeleportationManager implements Listener {
                 Utils.Chat.sendStaffChatMessage(plugin.getPlayerManager().getPlayers(), staffMember, format);
             }
         });
-    
+        
         FirecraftCommand teleport = new FirecraftCommand("teleport", "Teleport to another player.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
@@ -86,21 +86,21 @@ public class TeleportationManager implements Listener {
                         return;
                     }
                 }
-    
+                
                 if (args.length == 1) {
                     FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
                     if (target == null) {
                         player.sendMessage(Messages.couldNotFindPlayer(args[0]));
                         return;
                     }
-    
+                    
                     if (target.getMainRank().isHigher(player.getMainRank())) {
                         if (target.isVanished()) {
                             player.sendMessage(Messages.couldNotFindPlayer(args[0]));
                             return;
                         }
                     }
-    
+                    
                     player.teleport(target.getLocation());
                     FPSCTeleport teleport = new FPSCTeleport(plugin.getFCServer().getId(), player.getUniqueId(), target.getUniqueId());
                     plugin.getSocket().sendPacket(teleport);
@@ -109,9 +109,9 @@ public class TeleportationManager implements Listener {
                         player.sendMessage(Messages.noPermission);
                         return;
                     }
-    
+                    
                     FirecraftPlayer t1 = null, t2 = null;
-    
+                    
                     for (FirecraftPlayer fp : plugin.getPlayerManager().getPlayers()) {
                         if (fp.getName().equalsIgnoreCase(args[0])) {
                             t1 = fp;
@@ -119,36 +119,36 @@ public class TeleportationManager implements Listener {
                             t2 = fp;
                         }
                     }
-    
+                    
                     if (t1 == null) {
                         player.sendMessage(Messages.tpTargetInvalid("first"));
                         return;
                     }
-    
+                    
                     if (t2 == null) {
                         player.sendMessage(Messages.tpTargetInvalid("second"));
                         return;
                     }
-    
+                    
                     if (t1.getMainRank().isHigher(player.getMainRank())) {
                         if (t1.isVanished()) {
                             player.sendMessage(Messages.tpTargetInvalid("first"));
                             return;
                         }
                     }
-    
+                    
                     if (t2.getMainRank().isHigher(player.getMainRank())) {
                         if (t2.isVanished()) {
                             player.sendMessage(Messages.tpTargetInvalid("second"));
                             return;
                         }
                     }
-    
+                    
                     if (t1.getMainRank().isHigher(player.getMainRank())) {
                         player.sendMessage(Messages.noPermToTpHigherRank);
                         return;
                     }
-    
+                    
                     t1.teleport(t2.getLocation());
                     FPSCTeleportOthers teleport = new FPSCTeleportOthers(plugin.getFCServer().getId(), player.getUniqueId(), t1.getUniqueId(), t2.getUniqueId());
                     plugin.getSocket().sendPacket(teleport);
@@ -157,7 +157,7 @@ public class TeleportationManager implements Listener {
                 }
             }
         }.setBaseRank(Rank.TRIAL_MOD).addAlias("tp");
-    
+        
         FirecraftCommand back = new FirecraftCommand("back", "Go back to your previous location") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 if (lastLocation.containsKey(player.getUniqueId())) {
@@ -168,7 +168,7 @@ public class TeleportationManager implements Listener {
                 }
             }
         }.setBaseRank(Rank.DEFAULT);
-    
+        
         FirecraftCommand tphere = new FirecraftCommand("tphere", "Teleport to another player.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 if (!(args.length == 1)) {
@@ -187,19 +187,19 @@ public class TeleportationManager implements Listener {
                         return;
                     }
                 }
-    
+                
                 FirecraftPlayer target = null;
                 for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
                     if (p.getName().equalsIgnoreCase(args[0])) {
                         target = p;
                     }
                 }
-    
+                
                 if (target == null) {
                     player.sendMessage(Messages.couldNotFindPlayer(args[0]));
                     return;
                 }
-    
+                
                 if (target.getMainRank().isHigher(player.getMainRank())) {
                     if (target.isVanished()) {
                         player.sendMessage(Messages.couldNotFindPlayer(args[0]));
@@ -208,13 +208,13 @@ public class TeleportationManager implements Listener {
                         player.sendMessage("<ec>You cannot teleport someone of higher rank to you.");
                     }
                 }
-    
+                
                 target.teleport(player.getLocation());
                 FPSCTeleportHere tpHere = new FPSCTeleportHere(plugin.getFCServer().getId(), player.getUniqueId(), target.getUniqueId());
                 plugin.getSocket().sendPacket(tpHere);
             }
         }.setBaseRank(Rank.MODERATOR);
-    
+        
         FirecraftCommand tpall = new FirecraftCommand("tpall", "Teleport all players to you") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 if (player.getMainRank().equals(Rank.HEAD_ADMIN)) {
@@ -240,7 +240,7 @@ public class TeleportationManager implements Listener {
                 }
             }
         }.setBaseRank(Rank.HEAD_ADMIN);
-    
+        
         FirecraftCommand tpa = new FirecraftCommand("tpa", "Request to teleport to another player") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 if (!(args.length == 1)) {
@@ -253,7 +253,7 @@ public class TeleportationManager implements Listener {
                     player.sendMessage(Messages.couldNotFindPlayer(args[0]));
                     return;
                 }
-    
+                
                 if (target.getMainRank().isHigher(player.getMainRank())) {
                     if (target.isVanished()) {
                         player.sendMessage(Messages.couldNotFindPlayer(args[0]));
@@ -265,25 +265,28 @@ public class TeleportationManager implements Listener {
                     player.sendMessage("&cYou are not allowed to request to teleport to " + target.getName() + " because they are ignoring you.");
                     return;
                 }
-    
+                
                 if (!target.getProfile().getToggleValue(Toggle.getToggle("teleport requests"))) {
                     if (!Rank.isStaff(player.getMainRank())) {
+                        player.sendMessage("<ec>That player has teleport requests disabled");
+                        return;
+                    } else {
                         if (!player.getMainRank().isEqualToOrHigher(target.getMainRank())) {
                             player.sendMessage("<ec>That player has teleport requests disabled");
                             return;
                         }
                     }
                 }
-    
+                
                 long currentTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
                 long expire = currentTime + 60;
-    
+                
                 requests.put(currentTime, new TPRequest(player.getUniqueId(), target.getUniqueId(), expire));
                 target.sendMessage(Messages.tpRequestReceive(player.getName()));
                 player.sendMessage(Messages.tpRequestSend(target.getName()));
             }
         }.setBaseRank(Rank.DEFAULT);
-    
+        
         FirecraftCommand tpaccept = new FirecraftCommand("tpaccept", "Accept a teleport request") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 Map.Entry<Long, TPRequest> entry = getRequestByRequested(player.getUniqueId());
@@ -297,7 +300,7 @@ public class TeleportationManager implements Listener {
                     player.sendMessage(Messages.requesterOffline);
                     return;
                 }
-    
+                
                 FirecraftPlayer requester = plugin.getPlayerManager().getPlayer(r.getUniqueId());
                 requester.sendMessage(Messages.requestRespondSender("accepted", player.getName()));
                 player.sendMessage(Messages.requestRespondReceiver("accepted", requester.getName()));
@@ -305,7 +308,7 @@ public class TeleportationManager implements Listener {
                 requests.remove(entry.getKey());
             }
         }.setBaseRank(Rank.DEFAULT);
-    
+        
         FirecraftCommand tpdeny = new FirecraftCommand("tpdeny", "Deny a teleport request") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 Map.Entry<Long, TPRequest> entry = getRequestByRequested(player.getUniqueId());
@@ -319,7 +322,7 @@ public class TeleportationManager implements Listener {
                     player.sendMessage(Messages.requesterOffline);
                     return;
                 }
-    
+                
                 FirecraftPlayer requester = plugin.getPlayerManager().getPlayer(r.getUniqueId());
                 requester.sendMessage(Messages.requestRespondSender("denied", player.getName()));
                 player.sendMessage(Messages.requestRespondReceiver("denied", requester.getName()));
