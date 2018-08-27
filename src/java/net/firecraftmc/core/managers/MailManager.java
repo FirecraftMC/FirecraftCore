@@ -5,6 +5,7 @@ import net.firecraftmc.api.enums.Rank;
 import net.firecraftmc.api.model.player.FirecraftPlayer;
 import net.firecraftmc.api.model.player.Mail;
 import net.firecraftmc.api.packets.FPacketMail;
+import net.firecraftmc.api.toggles.Toggle;
 import net.firecraftmc.core.FirecraftCore;
 import org.apache.commons.lang.StringUtils;
 
@@ -46,6 +47,14 @@ public class MailManager {
                 }
                 
                 FirecraftPlayer target = plugin.getPlayer(args[1]);
+                if (!target.getProfile().getToggleValue(Toggle.getToggle("mail"))) {
+                    if (!Rank.isStaff(player.getMainRank())) {
+                        if (!player.getMainRank().isEqualToOrHigher(target.getMainRank())) {
+                            player.sendMessage("<ec>That player has mail disabled");
+                            return;
+                        }
+                    }
+                }
                 long date = System.currentTimeMillis();
                 String text = StringUtils.join(args, " ", 2, args.length);
                 Mail mail = plugin.getFCDatabase().createMail(date, player.getUniqueId(), target.getUniqueId(), text, false);

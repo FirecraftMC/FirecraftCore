@@ -6,6 +6,7 @@ import net.firecraftmc.api.model.player.FirecraftPlayer;
 import net.firecraftmc.api.model.player.TPRequest;
 import net.firecraftmc.api.model.server.FirecraftServer;
 import net.firecraftmc.api.packets.staffchat.*;
+import net.firecraftmc.api.toggles.Toggle;
 import net.firecraftmc.api.util.Messages;
 import net.firecraftmc.api.util.Utils;
 import net.firecraftmc.core.FirecraftCore;
@@ -259,9 +260,19 @@ public class TeleportationManager implements Listener {
                         return;
                     }
                 }
+                
                 if (target.isIgnoring(player.getUniqueId())) {
                     player.sendMessage("&cYou are not allowed to request to teleport to " + target.getName() + " because they are ignoring you.");
                     return;
+                }
+    
+                if (!target.getProfile().getToggleValue(Toggle.getToggle("teleport requests"))) {
+                    if (!Rank.isStaff(player.getMainRank())) {
+                        if (!player.getMainRank().isEqualToOrHigher(target.getMainRank())) {
+                            player.sendMessage("<ec>That player has teleport requests disabled");
+                            return;
+                        }
+                    }
                 }
     
                 long currentTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());

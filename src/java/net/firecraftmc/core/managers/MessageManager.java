@@ -5,6 +5,7 @@ import net.firecraftmc.api.enums.Channel;
 import net.firecraftmc.api.enums.Rank;
 import net.firecraftmc.api.model.player.FirecraftPlayer;
 import net.firecraftmc.api.packets.FPacketPrivateMessage;
+import net.firecraftmc.api.toggles.Toggle;
 import net.firecraftmc.api.util.*;
 import net.firecraftmc.core.FirecraftCore;
 import org.bukkit.Bukkit;
@@ -33,9 +34,6 @@ public class MessageManager {
                 
                 FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
                 
-                //TODO Add the conversation stuff
-                
-                
                 if (target.isVanished()) {
                     if (!player.getMainRank().isHigher(target.getMainRank())) {
                         player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
@@ -58,6 +56,15 @@ public class MessageManager {
                 if (target.isRecording()) {
                     player.sendMessage(Prefixes.MESSAGING + "<ec>That player is recording, they cannot receive messages.");
                     return;
+                }
+    
+                if (!target.getProfile().getToggleValue(Toggle.getToggle("messages"))) {
+                    if (!Rank.isStaff(player.getMainRank())) {
+                        if (!player.getMainRank().isEqualToOrHigher(target.getMainRank())) {
+                            player.sendMessage("<ec>That player has messages disabled");
+                            return;
+                        }
+                    }
                 }
     
                 if (!(args.length > 1)) {
