@@ -96,6 +96,7 @@ public class ChatManager implements Listener {
                     return;
                 }
                 String format = Utils.Chat.formatGlobal(player, Utils.getReason(0, args));
+                plugin.getFCDatabase().saveChatMessage(player.getUniqueId(), plugin.getFCServer(), System.currentTimeMillis(), Channel.GLOBAL, Utils.getReason(0, args));
                 for (FirecraftPlayer op : plugin.getPlayerManager().getPlayers()) {
                     if (!op.isIgnoring(player.getUniqueId())) {
                         op.sendMessage(format);
@@ -119,6 +120,7 @@ public class ChatManager implements Listener {
                 }
                 FPStaffChatMessage staffChatMessage = new FPStaffChatMessage(plugin.getFCServer().getId(), player.getUniqueId(), message);
                 plugin.getSocket().sendPacket(staffChatMessage);
+                plugin.getFCDatabase().saveChatMessage(player.getUniqueId(), plugin.getFCServer(), System.currentTimeMillis(), Channel.STAFF, message);
             }
         };
         staffShortcut.addAlias("s").setBaseRank(Rank.TRIAL_MOD);
@@ -297,6 +299,8 @@ public class ChatManager implements Listener {
                     }
                 }
             }
+            
+            plugin.getFCDatabase().saveChatMessage(player.getUniqueId(), plugin.getFCServer(), System.currentTimeMillis(), Channel.GLOBAL, e.getMessage());
             for (FirecraftPlayer op : plugin.getPlayerManager().getPlayers()) {
                 if (!op.isIgnoring(player.getUniqueId())) {
                     op.sendMessage(format);
@@ -307,6 +311,9 @@ public class ChatManager implements Listener {
                 player.sendMessage(Prefixes.CHAT + Messages.serverNotSet);
                 return;
             }
+            
+            plugin.getFCDatabase().saveChatMessage(player.getUniqueId(), plugin.getFCServer(), System.currentTimeMillis(), Channel.STAFF, e.getMessage());
+            
             FPStaffChatMessage msg = new FPStaffChatMessage(plugin.getFCServer().getId(), player.getUniqueId(), e.getMessage());
             plugin.getSocket().sendPacket(msg);
         } else if (player.getChannel().equals(Channel.PRIVATE)) {
@@ -321,6 +328,7 @@ public class ChatManager implements Listener {
             }
             String message = e.getMessage();
             plugin.getMessageManager().sendMessages(player, target, message);
+            plugin.getFCDatabase().saveChatMessage(player.getUniqueId(), plugin.getFCServer(), System.currentTimeMillis(), Channel.PRIVATE, "To:" + target.getUniqueId().toString() + " " + e.getMessage());
         }
     }
 }

@@ -7,6 +7,9 @@ import net.firecraftmc.api.util.Messages;
 import net.firecraftmc.core.FirecraftCore;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,6 +21,12 @@ public class CommandManager implements ICommandManager {
 
     public CommandManager(FirecraftCore plugin) {
         this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onCmdPreProcess(PlayerCommandPreprocessEvent e) {
+        plugin.getFCDatabase().saveCommand(e.getPlayer().getUniqueId(), plugin.getFCServer(), System.currentTimeMillis(), e.getMessage());
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
