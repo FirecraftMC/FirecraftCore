@@ -396,7 +396,7 @@ public class PunishmentManager implements Listener {
     
     private void handleRuleList(FirecraftPlayer player, int page) {
         PaginatorFactory<Rule> factory = new PaginatorFactory<>();
-        factory.setMaxElements(7).setHeader("§aRules page {pagenumber} out of {totalpages}").setFooter("§aUse /mrules page {nextpage} to view the next page.");
+        factory.setMaxElements(5).setHeader("§aRules page {pagenumber} out of {totalpages}").setFooter("§aUse /mrules page {nextpage} to view the next page.");
         Collection<Rule> rules = ModeratorRules.getRules().values();
         rules.forEach(report -> factory.addElement(report));
         Paginator<Rule> paginator = factory.build();
