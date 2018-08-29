@@ -206,6 +206,7 @@ public class TeleportationManager implements Listener {
                         return;
                     } else {
                         player.sendMessage("<ec>You cannot teleport someone of higher rank to you.");
+                        return;
                     }
                 }
                 
