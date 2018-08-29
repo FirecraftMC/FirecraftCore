@@ -119,7 +119,7 @@ public class WarpManager implements IWarpManager {
                         }
                     }
                     
-                    player.sendMessage("<nc>The warps that are available to you are <nc>" + sb.toString());
+                    player.sendMessage("<nc>The warps that are available to you are <vc>" + sb.toString());
                     return;
                 }
                 
@@ -134,7 +134,7 @@ public class WarpManager implements IWarpManager {
                     return;
                 }
     
-                if (warp.getMinimumRank().isHigher(player.getMainRank())) {
+                if (!player.getMainRank().isEqualToOrHigher(warp.getMinimumRank())) {
                     player.sendMessage(Prefixes.WARPS + Messages.noPermission);
                     return;
                 }
