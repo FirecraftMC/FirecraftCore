@@ -4,6 +4,7 @@ import net.firecraftmc.api.FirecraftAPI;
 import net.firecraftmc.api.command.FirecraftCommand;
 import net.firecraftmc.api.enums.Rank;
 import net.firecraftmc.api.model.player.FirecraftPlayer;
+import net.firecraftmc.api.toggles.Toggle;
 import net.firecraftmc.core.FirecraftCore;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,8 +23,8 @@ public class GodManager implements Listener {
                     return;
                 }
                 
-                player.setGod(!player.isGodEnabled());
-                player.sendMessage("<nc>You have toggled god mode to <vc>" + player.isGodEnabled());
+                player.toggle(Toggle.GOD_MODE);
+                player.sendMessage("<nc>You have toggled god mode to <vc>" + player.getToggleValue(Toggle.GOD_MODE));
             }
         }.setBaseRank(Rank.FAMOUS);
     }
@@ -33,7 +34,7 @@ public class GodManager implements Listener {
         if (e.getEntity() instanceof Player) {
             FirecraftPlayer player = FirecraftAPI.getPlayer(e.getEntity().getUniqueId());
             assert player != null;
-            if (player.isGodEnabled()) e.setCancelled(true);
+            if (player.getToggleValue(Toggle.GOD_MODE)) e.setCancelled(true);
         }
     }
 }

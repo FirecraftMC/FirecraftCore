@@ -8,6 +8,7 @@ import net.firecraftmc.api.packets.FPacketReport;
 import net.firecraftmc.api.packets.staffchat.*;
 import net.firecraftmc.api.paginator.Paginator;
 import net.firecraftmc.api.paginator.PaginatorFactory;
+import net.firecraftmc.api.toggles.Toggle;
 import net.firecraftmc.api.util.*;
 import net.firecraftmc.core.FirecraftCore;
 
@@ -33,7 +34,7 @@ public class ReportManager {
                 String format = Utils.Chat.formatReportAssignOthers(plugin.getFCServer().getName(), staffMember.getName(), assignOthers.getAssignee(), assignOthers.getId());
                 plugin.getPlayerManager().getPlayers().forEach(p -> {
                     if (Rank.isStaff(p.getMainRank())) {
-                        if (!p.isRecording()) {
+                        if (!p.getToggleValue(Toggle.RECORDING)) {
                             p.sendMessage(format);
                         }
                     }
@@ -44,7 +45,7 @@ public class ReportManager {
                 String format = Utils.Chat.formatReportAssignSelf(plugin.getFCServer().getName(), staffMember.getName(), assignSelf.getId());
                 plugin.getPlayerManager().getPlayers().forEach(p -> {
                     if (Rank.isStaff(p.getMainRank())) {
-                        if (!p.isRecording()) {
+                        if (!p.getToggleValue(Toggle.RECORDING)) {
                             p.sendMessage(format);
                         }
                     }
@@ -55,7 +56,7 @@ public class ReportManager {
                 String format = Utils.Chat.formatReportSetOutcome(plugin.getFCServer().getName(), staffMember.getName(), setOutcome.getId(), setOutcome.getOutcome());
                 plugin.getPlayerManager().getPlayers().forEach(p -> {
                     if (Rank.isStaff(p.getMainRank())) {
-                        if (!p.isRecording()) {
+                        if (!p.getToggleValue(Toggle.RECORDING)) {
                             p.sendMessage(format);
                         }
                     }
@@ -66,7 +67,7 @@ public class ReportManager {
                 String format = Utils.Chat.formatReportSetStatus(plugin.getFCServer().getName(), staffMember.getName(), setOutcome.getId(), setOutcome.getStatus());
                 plugin.getPlayerManager().getPlayers().forEach(p -> {
                     if (Rank.isStaff(p.getMainRank())) {
-                        if (!p.isRecording()) {
+                        if (!p.getToggleValue(Toggle.RECORDING)) {
                             p.sendMessage(format);
                         }
                     }

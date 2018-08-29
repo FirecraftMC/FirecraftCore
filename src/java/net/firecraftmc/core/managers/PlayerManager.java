@@ -11,6 +11,7 @@ import net.firecraftmc.api.model.player.FirecraftPlayer;
 import net.firecraftmc.api.packets.*;
 import net.firecraftmc.api.packets.staffchat.FPStaffChatJoin;
 import net.firecraftmc.api.packets.staffchat.FPStaffChatQuit;
+import net.firecraftmc.api.toggles.Toggle;
 import net.firecraftmc.api.util.Messages;
 import net.firecraftmc.api.util.Utils;
 import net.firecraftmc.core.FirecraftCore;
@@ -165,8 +166,8 @@ public class PlayerManager implements IPlayerManager {
         
         FirecraftCommand record = new FirecraftCommand("record", "Set yourself to recording mode") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
-                player.setRecording(!player.isRecording());
-                if (player.isRecording()) {
+                player.toggle(Toggle.RECORDING);
+                if (player.getToggleValue(Toggle.RECORDING)) {
                     player.sendMessage("&bYou have turned on recording mode, this means:");
                     player.sendMessage("&8- &eYou show up as the default rank to other players.");
                     player.sendMessage("&8- &eYou will be able to access all of your rank based perks.");

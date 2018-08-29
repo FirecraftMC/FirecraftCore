@@ -7,6 +7,7 @@ import net.firecraftmc.api.model.player.FirecraftPlayer;
 import net.firecraftmc.api.packets.staffchat.FPStaffChatMessage;
 import net.firecraftmc.api.punishments.Punishment;
 import net.firecraftmc.api.punishments.Punishment.Type;
+import net.firecraftmc.api.toggles.Toggle;
 import net.firecraftmc.api.util.*;
 import net.firecraftmc.core.FirecraftCore;
 import org.bukkit.Bukkit;
@@ -35,7 +36,7 @@ public class ChatManager implements Listener {
                 String format = Utils.Chat.formatStaffMessage(plugin.getServerManager().getServer(staffMessage.getServerId()), staffMember, staffMessage.getMessage());
                 plugin.getPlayerManager().getPlayers().forEach(p -> {
                     if (Rank.isStaff(p.getMainRank())) {
-                        if (!p.isRecording()) {
+                        if (!p.getToggleValue(Toggle.RECORDING)) {
                             p.sendMessage(format);
                         }
                     }

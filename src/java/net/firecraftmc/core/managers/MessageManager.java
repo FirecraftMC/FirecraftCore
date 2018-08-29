@@ -53,7 +53,7 @@ public class MessageManager {
                     return;
                 }
                 
-                if (target.isRecording()) {
+                if (target.getToggleValue(Toggle.RECORDING)) {
                     player.sendMessage(Prefixes.MESSAGING + "<ec>That player is recording, they cannot receive messages.");
                     return;
                 }
@@ -136,7 +136,7 @@ public class MessageManager {
     }
     
     public void sendMessages(FirecraftPlayer player, FirecraftPlayer target, String[] args, int reasonIndex) {
-        if (target.isRecording()) {
+        if (target.getToggleValue(Toggle.RECORDING)) {
             player.sendMessage(Prefixes.MESSAGING + Messages.recordingNoMessage);
             return;
         }
