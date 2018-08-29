@@ -32,7 +32,7 @@ public class ToggleManager implements IToggleManager {
                 player.getPlayer().openInventory(generateToggleInventory(player));
                 player.sendMessage("&7You have opened the Toggles Menu.");
             }
-        }.setBaseRank(Rank.DEFAULT);
+        }.setBaseRank(Rank.DEFAULT).setRespectsRecordMode(false);
         
         plugin.getCommandManager().addCommand(toggles);
         
