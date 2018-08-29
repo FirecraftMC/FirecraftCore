@@ -27,6 +27,8 @@ public class GodManager implements Listener {
                 player.sendMessage("<nc>You have toggled god mode to <vc>" + player.getToggleValue(Toggle.GOD_MODE));
             }
         }.setBaseRank(Rank.FAMOUS);
+        
+        plugin.getCommandManager().addCommand(god);
     }
     
     @EventHandler
