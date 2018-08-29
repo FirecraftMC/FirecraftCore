@@ -201,7 +201,7 @@ public class PlayerManager implements IPlayerManager {
                 }
             }
         };
-        record.setBaseRank(Rank.FAMOUS);
+        record.setBaseRank(Rank.FAMOUS).setRespectsRecordMode(false);
         
         FirecraftCommand stream = new FirecraftCommand("stream", "Broadast or set your stream url") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
