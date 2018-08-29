@@ -353,6 +353,11 @@ public class PunishmentManager implements Listener {
             return;
         }
         
+        if (target.getMainRank().isEqualToOrHigher(player.getMainRank())) {
+            player.sendMessage(Prefixes.ENFORCER + "<ec>You cannot punish someone of equal rank or higher than yours.");
+            return;
+        }
+        
         FPacketPunish punish = new FPacketPunish(FirecraftAPI.getServer().getId(), punishment.getId());
         plugin.getSocket().sendPacket(punish);
     }
