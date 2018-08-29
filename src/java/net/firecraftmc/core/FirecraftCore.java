@@ -4,7 +4,6 @@ import net.firecraftmc.api.FirecraftAPI;
 import net.firecraftmc.api.enums.Rank;
 import net.firecraftmc.api.integrations.FCEconVault;
 import net.firecraftmc.api.interfaces.*;
-import net.firecraftmc.api.menus.MenuManager;
 import net.firecraftmc.api.model.Database;
 import net.firecraftmc.api.model.FirecraftSocket;
 import net.firecraftmc.api.model.player.FirecraftPlayer;
@@ -44,7 +43,6 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     private IEconomyManager economyManager = null;
     private ICommandManager commandManager = null;
     private MessageManager messageManager = null;
-    private MenuManager menuManager = null;
     private IToggleManager toggleManager = null;
     
     public void loadPlugin() {
@@ -94,8 +92,6 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     
         FCEconVault fcEconVault = new FCEconVault(FirecraftCore.this);
         fcEconVault.registerServices();
-    
-        this.menuManager = new MenuManager(this);
     
         for (Player p : Bukkit.getOnlinePlayers()) {
             FirecraftPlayer player = this.database.getPlayer(p.getUniqueId());
@@ -368,10 +364,6 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     
     public MessageManager getMessageManager() {
         return messageManager;
-    }
-    
-    public MenuManager getMenuManager() {
-        return menuManager;
     }
     
     public IToggleManager getToggleManager() {
