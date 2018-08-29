@@ -9,6 +9,7 @@ import net.firecraftmc.api.punishments.Punishment;
 import net.firecraftmc.api.punishments.Punishment.Type;
 import net.firecraftmc.api.toggles.Toggle;
 import net.firecraftmc.api.util.*;
+import net.firecraftmc.api.vanish.VanishToggle;
 import net.firecraftmc.core.FirecraftCore;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -279,7 +280,7 @@ public class ChatManager implements Listener {
         }
 
         if (player.getChannel().equals(Channel.GLOBAL)) {
-            if (player.isVanished() && !player.getVanishInfo().canChat()) {
+            if (player.isVanished() && !player.getVanishInfo().getSetting(VanishToggle.CHAT)) {
                 player.sendMessage(Prefixes.CHAT + Messages.noTalkGlobal);
                 return;
             }
