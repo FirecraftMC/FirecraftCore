@@ -350,6 +350,8 @@ public class ReportManager {
             }
         };
         reportAdmin.setBaseRank(Rank.TRIAL_MOD).addAlias("ra");
+        
+        plugin.getCommandManager().addCommands(report, reportAdmin);
     }
     
     private Report getReport(String[] args, int length, FirecraftPlayer player) {
