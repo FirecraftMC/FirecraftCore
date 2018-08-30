@@ -141,13 +141,13 @@ public class VanishManager implements Listener {
     
     @EventHandler
     public void entityDamage(EntityDamageByEntityEvent e) {
-        if (!(e.getDamager() instanceof Player)) e.setCancelled(checkCancel(e.getEntity(), VanishToggle.INTERACT));
-        else e.setCancelled(checkCancel(e.getDamager(), VanishToggle.INTERACT, "damage entities"));
+        if (!(e.getDamager() instanceof Player)) e.setCancelled(checkCancel(e.getEntity(), VanishToggle.DAMAGE));
+        else e.setCancelled(checkCancel(e.getDamager(), VanishToggle.DAMAGE, "damage entities"));
     }
     
     @EventHandler
     public void entityDamage(EntityDamageByBlockEvent e) {
-        e.setCancelled(checkCancel(e.getEntity(), VanishToggle.INTERACT));
+        e.setCancelled(checkCancel(e.getEntity(), VanishToggle.DAMAGE));
     }
     
     @EventHandler
