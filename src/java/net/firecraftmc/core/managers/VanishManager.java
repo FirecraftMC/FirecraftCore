@@ -17,7 +17,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerBucketEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -129,7 +130,7 @@ public class VanishManager implements Listener {
     
     @EventHandler
     public void onItemPickup(EntityPickupItemEvent e) {
-        e.setCancelled(checkCancel(e.getEntity(), VanishToggle.PICKUP, "pickup items"));
+        e.setCancelled(checkCancel(e.getEntity(), VanishToggle.PICKUP));
     }
     
     @EventHandler
@@ -169,7 +170,12 @@ public class VanishManager implements Listener {
     }
     
     @EventHandler
-    public void onPlayerBucketEvent(PlayerBucketEvent e) {
+    public void onPlayerBucketEmptyEvent(PlayerBucketEmptyEvent e) {
+        e.setCancelled(checkCancel(e.getPlayer(), VanishToggle.INTERACT, "use buckets"));
+    }
+    
+    @EventHandler
+    public void onPlayerBucketFillEvent(PlayerBucketFillEvent e) {
         e.setCancelled(checkCancel(e.getPlayer(), VanishToggle.INTERACT, "use buckets"));
     }
     
