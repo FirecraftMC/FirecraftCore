@@ -43,7 +43,7 @@ public class VanishManager implements Listener {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 if (args.length == 0) {
                     if (player.isVanished()) {
-                        boolean flight = player.getVanishInfo().allowFlightBeforeVanish();
+                        boolean flight = player.getVanishSettings().allowFlightBeforeVanish();
                         player.unVanish();
                         
                         for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
@@ -75,7 +75,7 @@ public class VanishManager implements Listener {
                         }
                         
                         player.setActionBar(new ActionBar(Messages.actionBar_Vanished));
-                        player.getVanishInfo().setAllowFlightBeforeVanish(player.getPlayer().getAllowFlight());
+                        player.getVanishSettings().setAllowFlightBeforeVanish(player.getPlayer().getAllowFlight());
                         player.getPlayer().setAllowFlight(true);
                     }
                     FPSCVanishToggle toggleVanish = new FPSCVanishToggle(plugin.getFCServer().getId(), player.getUniqueId());
@@ -121,8 +121,8 @@ public class VanishManager implements Listener {
             ItemStack item = e.getCurrentItem();
             if (item.getType().equals(Material.LIME_DYE) || item.getType().equals(Material.GRAY_DYE)) {
                 VanishToggle toggle = VanishToggle.getToggle(item.getItemMeta().getDisplayName());
-                player.getVanishInfo().toggle(toggle);
-                VanishToggleMenu.Entry entry = VanishToggleMenu.getItemForValue(toggle, player.getVanishInfo().getSetting(toggle));
+                player.getVanishSettings().toggle(toggle);
+                VanishToggleMenu.Entry entry = VanishToggleMenu.getItemForValue(toggle, player.getVanishSettings().getSetting(toggle));
                 e.getInventory().setItem(entry.getSlot(), entry.getItemStack());
             }
         }
@@ -188,7 +188,7 @@ public class VanishManager implements Listener {
         if (entity instanceof Player) {
             FirecraftPlayer player = plugin.getPlayer(entity.getUniqueId());
             if (!player.isVanished()) return false;
-            return !player.getVanishInfo().getSetting(toggle);
+            return !player.getVanishSettings().getSetting(toggle);
         } else return false;
     }
     
@@ -196,7 +196,7 @@ public class VanishManager implements Listener {
         if (entity instanceof Player) {
             FirecraftPlayer player = plugin.getPlayer(entity.getUniqueId());
             if (!player.isVanished()) return false;
-            if (!player.getVanishInfo().getSetting(toggle)) {
+            if (!player.getVanishSettings().getSetting(toggle)) {
                 player.sendMessage(Messages.cannotActionVanished(message));
                 return true;
             }

@@ -280,7 +280,7 @@ public class ChatManager implements Listener {
         }
 
         if (player.getChannel().equals(Channel.GLOBAL)) {
-            if (player.isVanished() && !player.getVanishInfo().getSetting(VanishToggle.CHAT)) {
+            if (player.isVanished() && !player.getVanishSettings().getSetting(VanishToggle.CHAT)) {
                 player.sendMessage(Prefixes.CHAT + Messages.noTalkGlobal);
                 return;
             }

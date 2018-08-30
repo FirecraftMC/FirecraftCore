@@ -51,7 +51,7 @@ public class StaffmodeManager implements IStaffmodeManager {
                     player.setAllowFlight(true);
                     player.setGameMode(GameMode.SPECTATOR);
                     player.vanish();
-                    player.getVanishInfo().toggleChatInteract();
+                    player.getVanishSettings().toggleChatInteract();
                     for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
                         if (!p.getMainRank().isEqualToOrHigher(player.getMainRank())) {
                             p.getPlayer().hidePlayer(player.getPlayer());
