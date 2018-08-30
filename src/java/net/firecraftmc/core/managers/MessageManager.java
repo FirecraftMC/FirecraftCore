@@ -41,7 +41,7 @@ public class MessageManager {
                     }
                 }
                 
-                if (target.isNicked()) {
+                if (target.isNicked()) { //TODO Possible bug here
                     if (target.getName().equalsIgnoreCase(args[0])) {
                         player.sendMessage(Prefixes.MESSAGING + Messages.notOnline);
                         return;
