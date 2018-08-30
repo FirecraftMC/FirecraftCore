@@ -162,7 +162,7 @@ public class PunishmentManager implements Listener {
         
         FirecraftCommand punish = new FirecraftCommand("punish", "Punish a player given a specific rule based on the number of offenses") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
-                if (!(args.length == 2)) {
+                if (!(args.length >= 2)) {
                     player.sendMessage(Prefixes.ENFORCER + "<ec>Usage: /punish <player> <rule>");
                     return;
                 }
@@ -173,7 +173,7 @@ public class PunishmentManager implements Listener {
                 try {
                     rule = ModeratorRules.getRule(Integer.parseInt(args[1]));
                 } catch (NumberFormatException e) {
-                    rule = ModeratorRules.getRule(args[1]);
+                    rule = ModeratorRules.getRule(Utils.getReason(1, args));
                 }
                 
                 if (rule == null) {
