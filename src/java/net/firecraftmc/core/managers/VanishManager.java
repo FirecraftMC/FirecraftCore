@@ -17,8 +17,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.inventory.ItemStack;
@@ -135,8 +134,8 @@ public class VanishManager implements Listener {
     }
     
     @EventHandler
-    public void onItemDrop(EntityDropItemEvent e) {
-        e.setCancelled(checkCancel(e.getEntity(), VanishToggle.DROP, "drop items"));
+    public void onItemDrop(PlayerDropItemEvent e) {
+        e.setCancelled(checkCancel(e.getPlayer(), VanishToggle.DROP, "drop items"));
     }
     
     @EventHandler
