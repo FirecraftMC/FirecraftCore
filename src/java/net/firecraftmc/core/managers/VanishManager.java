@@ -19,6 +19,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -152,6 +153,11 @@ public class VanishManager implements Listener {
     @EventHandler
     public void entityTarget(EntityTargetLivingEntityEvent e) {
         e.setCancelled(checkCancel(e.getTarget(), VanishToggle.ENTITY_TARGET));
+    }
+    
+    @EventHandler
+    public void onVehicleDamage(VehicleDamageEvent e) {
+        e.setCancelled(checkCancel(e.getAttacker(), VanishToggle.DESTROY_VEHICLE, "damage vehicles"));
     }
     
     @EventHandler
