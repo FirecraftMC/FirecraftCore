@@ -117,11 +117,14 @@ public class VanishManager implements Listener {
             if (e.getCurrentItem().getItemMeta().getDisplayName().equals("")) return;
             
             FirecraftPlayer player = plugin.getPlayer(e.getWhoClicked().getUniqueId());
-    
+            
             ItemStack item = e.getCurrentItem();
             if (item.getType().equals(Material.LIME_DYE) || item.getType().equals(Material.GRAY_DYE)) {
                 VanishToggle toggle = VanishToggle.getToggle(item.getItemMeta().getDisplayName());
                 player.getVanishSettings().toggle(toggle);
+                if (toggle.equals(VanishToggle.COLLISION)) {
+                    player.getPlayer().setCollidable(!player.getVanishSettings().getSetting(toggle));
+                }
                 VanishToggleMenu.Entry entry = VanishToggleMenu.getItemForValue(toggle, player.getVanishSettings().getSetting(toggle));
                 e.getInventory().setItem(entry.getSlot(), entry.getItemStack());
             }
