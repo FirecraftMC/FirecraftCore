@@ -3,6 +3,7 @@ package net.firecraftmc.core.managers;
 import net.firecraftmc.api.command.FirecraftCommand;
 import net.firecraftmc.api.enums.Rank;
 import net.firecraftmc.api.interfaces.IToggleManager;
+import net.firecraftmc.api.menus.VanishToggleMenu;
 import net.firecraftmc.api.model.player.FirecraftPlayer;
 import net.firecraftmc.api.toggles.Toggle;
 import net.firecraftmc.api.util.ItemStackBuilder;
@@ -50,6 +51,7 @@ public class ToggleManager implements IToggleManager {
             if (item != null) {
                 if (item.getItemMeta() != null) {
                     if (item.getItemMeta().getDisplayName() != null) {
+                        FirecraftPlayer player = plugin.getPlayer(e.getWhoClicked().getUniqueId());
                         if (item.getType().equals(Material.LIME_DYE) || item.getType().equals(Material.GRAY_DYE)) {
                             Toggle toggle;
                             try {
@@ -58,7 +60,6 @@ public class ToggleManager implements IToggleManager {
                                 System.out.println(ex.getMessage());
                                 return;
                             }
-                            FirecraftPlayer player = plugin.getPlayer(e.getWhoClicked().getUniqueId());
                             
                             if (!toggle.isEnabled()) {
                                 e.getInventory().setItem(e.getSlot(), toggleDisabled);
@@ -82,6 +83,14 @@ public class ToggleManager implements IToggleManager {
                                 player.getPlayer().updateInventory();
                                 player.getProfile().toggle(toggle);
                                 toggle.onToggle(value, player);
+                            }
+                        } else if (item.getType().equals(Toggle.VANISH.getMaterial())) {
+                            if (player.isVanished()) {
+                                e.setCancelled(true);
+                                e.setCurrentItem(null);
+                                Bukkit.getScheduler().runTaskLater(plugin, () -> new VanishToggleMenu(player).openPlayer(), 2L);
+                            } else {
+                                player.sendMessage("<ec>You cannot open the Vanish Settings menu if you are not vanished.");
                             }
                         }
                     }
