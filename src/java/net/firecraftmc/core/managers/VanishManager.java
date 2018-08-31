@@ -125,7 +125,8 @@ public class VanishManager implements Listener {
                 VanishToggle toggle = VanishToggle.getToggle(item.getItemMeta().getDisplayName());
                 player.getVanishSettings().toggle(toggle);
                 if (toggle.equals(VanishToggle.COLLISION)) {
-                    player.getPlayer().setCollidable(!player.getVanishSettings().getSetting(toggle));
+                    if (player.isVanished())
+                        player.getPlayer().setCollidable(!player.getVanishSettings().getSetting(toggle));
                 }
                 VanishToggleMenu.Entry entry = VanishToggleMenu.getItemForValue(toggle, player.getVanishSettings().getSetting(toggle));
                 e.getInventory().setItem(entry.getSlot(), entry.getItemStack());
