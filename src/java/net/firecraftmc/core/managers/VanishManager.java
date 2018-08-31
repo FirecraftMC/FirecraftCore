@@ -95,8 +95,9 @@ public class VanishManager implements Listener {
                     if (args.length == 1) {
                         VanishToggleMenu menu = new VanishToggleMenu(player);
                         menu.openPlayer();
+                    } else {
+                        player.sendMessage(Prefixes.VANISH + "<ec>Command based toggling is currently disabled");
                     }
-                    
                 }
             }
         }.setBaseRank(Rank.MODERATOR).addRank(Rank.VIP).addAlias("v");
@@ -109,12 +110,13 @@ public class VanishManager implements Listener {
         if (!e.getInventory().getTitle().toLowerCase().contains(VanishToggleMenu.getName().toLowerCase())) {
             e.setCancelled(checkCancel(e.getWhoClicked(), VanishToggle.INTERACT, "interact with inventories"));
         } else {
+            if (e.getRawSlot() != e.getSlot()) return;
             e.setCancelled(true);
             if (e.getCurrentItem() == null) return;
             if (e.getCurrentItem().getItemMeta() == null) return;
-            if (e.getRawSlot() != e.getSlot()) return;
             if (e.getCurrentItem().getItemMeta().getDisplayName() == null) return;
             if (e.getCurrentItem().getItemMeta().getDisplayName().equals("")) return;
+            e.setCancelled(true);
             
             FirecraftPlayer player = plugin.getPlayer(e.getWhoClicked().getUniqueId());
             
