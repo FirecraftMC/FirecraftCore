@@ -90,6 +90,7 @@ public class ToggleManager implements IToggleManager {
                                 e.setCurrentItem(null);
                                 Bukkit.getScheduler().runTaskLater(plugin, () -> new VanishToggleMenu(player).openPlayer(), 2L);
                             } else {
+                                e.setCancelled(true);
                                 player.sendMessage("<ec>You cannot open the Vanish Settings menu if you are not vanished.");
                             }
                         }
