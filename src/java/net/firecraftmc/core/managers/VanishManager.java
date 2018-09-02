@@ -7,7 +7,7 @@ import net.firecraftmc.api.model.player.ActionBar;
 import net.firecraftmc.api.model.player.FirecraftPlayer;
 import net.firecraftmc.api.packets.staffchat.FPSCVanishToggle;
 import net.firecraftmc.api.util.*;
-import net.firecraftmc.api.vanish.VanishToggle;
+import net.firecraftmc.api.vanish.VanishSetting;
 import net.firecraftmc.core.FirecraftCore;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -108,7 +108,7 @@ public class VanishManager implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClick(InventoryClickEvent e) {
         if (!e.getInventory().getTitle().toLowerCase().contains(VanishToggleMenu.getName().toLowerCase())) {
-            e.setCancelled(checkCancel(e.getWhoClicked(), VanishToggle.INTERACT, "interact with inventories"));
+            e.setCancelled(checkCancel(e.getWhoClicked(), VanishSetting.INTERACT, "interact with inventories"));
         } else {
             if (e.getRawSlot() != e.getSlot()) return;
             e.setCancelled(true);
@@ -122,9 +122,9 @@ public class VanishManager implements Listener {
             
             ItemStack item = e.getCurrentItem();
             if (item.getType().equals(Material.LIME_DYE) || item.getType().equals(Material.GRAY_DYE)) {
-                VanishToggle toggle = VanishToggle.getToggle(item.getItemMeta().getDisplayName());
+                VanishSetting toggle = VanishSetting.getToggle(item.getItemMeta().getDisplayName());
                 player.getVanishSettings().toggle(toggle);
-                if (toggle.equals(VanishToggle.COLLISION)) {
+                if (toggle.equals(VanishSetting.COLLISION)) {
                     if (player.isVanished())
                         player.getPlayer().setCollidable(!player.getVanishSettings().getSetting(toggle));
                 }
@@ -136,61 +136,61 @@ public class VanishManager implements Listener {
     
     @EventHandler
     public void onItemPickup(EntityPickupItemEvent e) {
-        e.setCancelled(checkCancel(e.getEntity(), VanishToggle.PICKUP));
+        e.setCancelled(checkCancel(e.getEntity(), VanishSetting.PICKUP));
     }
     
     @EventHandler
     public void onItemDrop(PlayerDropItemEvent e) {
-        e.setCancelled(checkCancel(e.getPlayer(), VanishToggle.DROP, "drop items"));
+        e.setCancelled(checkCancel(e.getPlayer(), VanishSetting.DROP, "drop items"));
     }
     
     @EventHandler
     public void entityDamage(EntityDamageByEntityEvent e) {
-        if (!(e.getDamager() instanceof Player)) e.setCancelled(checkCancel(e.getEntity(), VanishToggle.DAMAGE));
-        else e.setCancelled(checkCancel(e.getDamager(), VanishToggle.DAMAGE, "damage entities"));
+        if (!(e.getDamager() instanceof Player)) e.setCancelled(checkCancel(e.getEntity(), VanishSetting.DAMAGE));
+        else e.setCancelled(checkCancel(e.getDamager(), VanishSetting.DAMAGE, "damage entities"));
     }
     
     @EventHandler
     public void entityDamage(EntityDamageByBlockEvent e) {
-        e.setCancelled(checkCancel(e.getEntity(), VanishToggle.DAMAGE));
+        e.setCancelled(checkCancel(e.getEntity(), VanishSetting.DAMAGE));
     }
     
     @EventHandler
     public void entityTarget(EntityTargetLivingEntityEvent e) {
-        e.setCancelled(checkCancel(e.getTarget(), VanishToggle.ENTITY_TARGET));
+        e.setCancelled(checkCancel(e.getTarget(), VanishSetting.ENTITY_TARGET));
     }
     
     @EventHandler
     public void onVehicleDamage(VehicleDamageEvent e) {
-        e.setCancelled(checkCancel(e.getAttacker(), VanishToggle.DESTROY_VEHICLE, "damage vehicles"));
+        e.setCancelled(checkCancel(e.getAttacker(), VanishSetting.DESTROY_VEHICLE, "damage vehicles"));
     }
     
     @EventHandler
     public void onVehicleDestroy(VehicleDestroyEvent e) {
-        e.setCancelled(checkCancel(e.getAttacker(), VanishToggle.DESTROY_VEHICLE, "destroy vehicles"));
+        e.setCancelled(checkCancel(e.getAttacker(), VanishSetting.DESTROY_VEHICLE, "destroy vehicles"));
     }
     
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
-        e.setCancelled(checkCancel(e.getPlayer(), VanishToggle.BREAK, "break blocks"));
+        e.setCancelled(checkCancel(e.getPlayer(), VanishSetting.BREAK, "break blocks"));
     }
     
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
-        e.setCancelled(checkCancel(e.getPlayer(), VanishToggle.PLACE, "place blocks"));
+        e.setCancelled(checkCancel(e.getPlayer(), VanishSetting.PLACE, "place blocks"));
     }
     
     @EventHandler
     public void onPlayerBucketEmptyEvent(PlayerBucketEmptyEvent e) {
-        e.setCancelled(checkCancel(e.getPlayer(), VanishToggle.INTERACT, "use buckets"));
+        e.setCancelled(checkCancel(e.getPlayer(), VanishSetting.INTERACT, "use buckets"));
     }
     
     @EventHandler
     public void onPlayerBucketFillEvent(PlayerBucketFillEvent e) {
-        e.setCancelled(checkCancel(e.getPlayer(), VanishToggle.INTERACT, "use buckets"));
+        e.setCancelled(checkCancel(e.getPlayer(), VanishSetting.INTERACT, "use buckets"));
     }
     
-    private boolean checkCancel(Entity entity, VanishToggle toggle) {
+    private boolean checkCancel(Entity entity, VanishSetting toggle) {
         if (entity instanceof Player) {
             FirecraftPlayer player = plugin.getPlayer(entity.getUniqueId());
             if (!player.isVanished()) return false;
@@ -198,7 +198,7 @@ public class VanishManager implements Listener {
         } else return false;
     }
     
-    private boolean checkCancel(Entity entity, VanishToggle toggle, String message) {
+    private boolean checkCancel(Entity entity, VanishSetting toggle, String message) {
         if (entity instanceof Player) {
             FirecraftPlayer player = plugin.getPlayer(entity.getUniqueId());
             if (!player.isVanished()) return false;
