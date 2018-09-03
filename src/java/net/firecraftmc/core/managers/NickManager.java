@@ -54,7 +54,7 @@ public class NickManager {
                     rank = nickname.getMainRank();
                 }
     
-                if (Rank.isStaff(rank) || rank.equals(Rank.QUALITY_ASSURANCE) || rank.equals(Rank.BUILD_TEAM)) {
+                if (Rank.isStaff(rank) || rank.equals(Rank.BUILD_TEAM)) {
                     if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
                         player.sendMessage(Prefixes.NICKNAME + "<ec>You cannot use a staff rank.");
                         return;
@@ -85,7 +85,7 @@ public class NickManager {
                 plugin.getSocket().sendPacket(setNick);
             }
         };
-        nick.setBaseRank(Rank.FAMOUS).removeRanks(Rank.QUALITY_ASSURANCE, Rank.BUILD_TEAM, Rank.TRIAL_MOD, Rank.MOD);
+        nick.setBaseRank(Rank.FAMOUS).removeRanks(Rank.BUILD_TEAM, Rank.TRIAL_MOD, Rank.MOD);
         
         FirecraftCommand unnick = new FirecraftCommand("unnick", "Remove your nickname.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -117,7 +117,7 @@ public class NickManager {
                 plugin.getSocket().sendPacket(resetNick);
             }
         };
-        unnick.addAliases("resetnick", "nickreset").setBaseRank(Rank.FAMOUS).removeRanks(Rank.QUALITY_ASSURANCE, Rank.BUILD_TEAM, Rank.TRIAL_MOD, Rank.MOD);
+        unnick.addAliases("resetnick", "nickreset").setBaseRank(Rank.FAMOUS).removeRanks(Rank.BUILD_TEAM, Rank.TRIAL_MOD, Rank.MOD);
         
         FirecraftCommand nickrandom = new FirecraftCommand("nickrandom", "Get a random nick that is not a staff rank.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -153,7 +153,7 @@ public class NickManager {
                         rank = nickname.getMainRank();
                     }
         
-                    if (Rank.isStaff(rank) || rank.equals(Rank.QUALITY_ASSURANCE) || rank.equals(Rank.BUILD_TEAM)) {
+                    if (Rank.isStaff(rank) || rank.equals(Rank.BUILD_TEAM)) {
                         player.sendMessage(Prefixes.NICKNAME + "<ec>You cannot use a staff rank.");
                         return;
                     }
@@ -181,7 +181,7 @@ public class NickManager {
                 }.runTaskLater(plugin, 20L);
             }
         };
-        nickrandom.setBaseRank(Rank.FAMOUS).removeRanks(Rank.QUALITY_ASSURANCE, Rank.BUILD_TEAM, Rank.TRIAL_MOD, Rank.MOD);
+        nickrandom.setBaseRank(Rank.FAMOUS).removeRanks(Rank.BUILD_TEAM, Rank.TRIAL_MOD, Rank.MOD);
         
         plugin.getCommandManager().addCommands(nick, unnick, nickrandom);
     }
