@@ -70,7 +70,7 @@ public class StaffmodeManager implements IStaffmodeManager {
                             player.sendMessage("&8- &eYou can now use /tp <player> to teleport to other players.");
                             player.sendMessage("&8- &eYou can now use /echest <player> to view other player's echests (view-only)");
                             player.sendMessage("&8- &eYou can now use /invsee <player> to view other player's inventories (view-only)");
-                            if (player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
+                            if (player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
                                 player.sendMessage("&8- &eYou can now use the /tphere command.");
                             }
                         }

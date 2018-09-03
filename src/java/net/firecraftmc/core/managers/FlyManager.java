@@ -10,7 +10,7 @@ public class FlyManager {
     public FlyManager(FirecraftCore plugin) {
         FirecraftCommand fly = new FirecraftCommand("fly", "Toggles your fly status") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
-                if (player.getMainRank().equals(Rank.TRIAL_MOD) || player.getMainRank().equals(Rank.MODERATOR)) {
+                if (player.getMainRank().equals(Rank.TRIAL_MOD) || player.getMainRank().equals(Rank.MOD)) {
                     player.sendMessage("<ec>Please use staff mode if you have to fly.");
                     return;
                 }

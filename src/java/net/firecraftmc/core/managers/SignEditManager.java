@@ -86,7 +86,7 @@ public class SignEditManager implements Listener {
                     p.sendSignChange(sign.getLocation(), sign.getLines());
                 }
             }
-        }.setBaseRank(Rank.MODERATOR);
+        }.setBaseRank(Rank.MOD);
         
         plugin.getCommandManager().addCommand(signEdit);
     }

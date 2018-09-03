@@ -149,7 +149,7 @@ public class ChatManager implements Listener {
                 }
             }
         };
-        clearChat.addAlias("cc").setBaseRank(Rank.MODERATOR);
+        clearChat.addAlias("cc").setBaseRank(Rank.MOD);
         
         FirecraftCommand globalMute = new FirecraftCommand("globalmute", "Mutes the global chat for everyone below your rank.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {

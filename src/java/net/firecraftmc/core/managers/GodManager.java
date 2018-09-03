@@ -18,7 +18,7 @@ public class GodManager implements Listener {
     
         FirecraftCommand god = new FirecraftCommand("god", "Toggle your god status") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
-                if (player.hasRank(Rank.MODERATOR, Rank.TRIAL_MOD)) {
+                if (player.hasRank(Rank.MOD, Rank.TRIAL_MOD)) {
                     player.sendMessage("<ec>Please use staff mode instead of this command.");
                     return;
                 }

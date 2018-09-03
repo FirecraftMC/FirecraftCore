@@ -140,7 +140,7 @@ public class InventoryManager implements Listener {
                 player.sendMessage("<nc>Here is <vc>" + target.getName() + "'s <nc>inventory (view-only)");
             }
         };
-        invsee.setBaseRank(Rank.MODERATOR);
+        invsee.setBaseRank(Rank.MOD);
         
         plugin.getCommandManager().addCommands(clearInventory, enderChest, workbench, invsee);
     }

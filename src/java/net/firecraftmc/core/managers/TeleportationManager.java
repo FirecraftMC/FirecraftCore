@@ -178,7 +178,7 @@ public class TeleportationManager implements Listener {
                 
                 if (!player.getMainRank().isEqualToOrHigher(Rank.ADMIN)) {
                     if (plugin.getStaffmodeManager().inStaffMode(player)) {
-                        if (!player.getMainRank().isEqualToOrHigher(Rank.MODERATOR)) {
+                        if (!player.getMainRank().isEqualToOrHigher(Rank.MOD)) {
                             player.sendMessage(Messages.noPermission);
                             return;
                         }
@@ -214,7 +214,7 @@ public class TeleportationManager implements Listener {
                 FPSCTeleportHere tpHere = new FPSCTeleportHere(plugin.getFCServer().getId(), player.getUniqueId(), target.getUniqueId());
                 plugin.getSocket().sendPacket(tpHere);
             }
-        }.setBaseRank(Rank.MODERATOR);
+        }.setBaseRank(Rank.MOD);
         
         FirecraftCommand tpall = new FirecraftCommand("tpall", "Teleport all players to you") {
             public void executePlayer(FirecraftPlayer player, String[] args) {

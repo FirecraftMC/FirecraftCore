@@ -65,19 +65,19 @@ public class PunishmentManager implements Listener {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 handleTempPunishCommand(player, args, Type.TEMP_BAN);
             }
-        }.setBaseRank(Rank.MODERATOR);
+        }.setBaseRank(Rank.MOD);
         
         FirecraftCommand mute = new FirecraftCommand("mute", "Permanently mutes a player") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 handlePermPunishmentCommand(player, args, Type.MUTE);
             }
-        }.setBaseRank(Rank.MODERATOR);
+        }.setBaseRank(Rank.MOD);
         
         FirecraftCommand tempmute = new FirecraftCommand("tempmute", "Temporarily mutes a player") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 handleTempPunishCommand(player, args, Type.TEMP_MUTE);
             }
-        }.setBaseRank(Rank.MODERATOR);
+        }.setBaseRank(Rank.MOD);
         
         FirecraftCommand jail = new FirecraftCommand("jail", "Jails a player on the server") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -112,7 +112,7 @@ public class PunishmentManager implements Listener {
                     t.teleport(jailLocation);
                 }
             }
-        }.setBaseRank(Rank.MODERATOR);
+        }.setBaseRank(Rank.MOD);
         
         FirecraftCommand kick = new FirecraftCommand("kick", "Kicks a player from the server") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -126,7 +126,7 @@ public class PunishmentManager implements Listener {
                 FPacketPunish punish = new FPacketPunish(plugin.getFCServer().getName(), punishment.getId());
                 plugin.getSocket().sendPacket(punish);
             }
-        }.setBaseRank(Rank.MODERATOR);
+        }.setBaseRank(Rank.MOD);
         
         FirecraftCommand warn = new FirecraftCommand("warn", "Warns a player on the server") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -140,25 +140,25 @@ public class PunishmentManager implements Listener {
                 FPacketPunish punish = new FPacketPunish(plugin.getFCServer().getName(), punishment.getId());
                 plugin.getSocket().sendPacket(punish);
             }
-        }.setBaseRank(Rank.MODERATOR);
+        }.setBaseRank(Rank.MOD);
         
         FirecraftCommand unban = new FirecraftCommand("unban", "Removes all active bans from a player") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 handleUnpunishCommand(player, args, "ban");
             }
-        }.setBaseRank(Rank.MODERATOR);
+        }.setBaseRank(Rank.MOD);
         
         FirecraftCommand unmute = new FirecraftCommand("unmute", "Removes all active mutes from a player") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 handleUnpunishCommand(player, args, "mute");
             }
-        }.setBaseRank(Rank.MODERATOR);
+        }.setBaseRank(Rank.MOD);
         
         FirecraftCommand unjail = new FirecraftCommand("unjail", "Removes active jails from a player") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 handleUnpunishCommand(player, args, "jail");
             }
-        }.setBaseRank(Rank.MODERATOR);
+        }.setBaseRank(Rank.MOD);
         
         FirecraftCommand punish = new FirecraftCommand("punish", "Punish a player given a specific rule based on the number of offenses") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
