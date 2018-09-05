@@ -2,6 +2,7 @@ package net.firecraftmc.core.managers;
 
 import net.firecraftmc.api.command.FirecraftCommand;
 import net.firecraftmc.api.enums.Rank;
+import net.firecraftmc.api.menus.PlayerToggleMenu;
 import net.firecraftmc.api.menus.VanishToggleMenu;
 import net.firecraftmc.api.model.player.ActionBar;
 import net.firecraftmc.api.model.player.FirecraftPlayer;
@@ -93,7 +94,7 @@ public class VanishManager implements Listener {
                     }
                     
                     if (args.length == 1) {
-                        VanishToggleMenu menu = new VanishToggleMenu(player);
+                        PlayerToggleMenu menu = new PlayerToggleMenu(player);
                         menu.openPlayer();
                     } else {
                         player.sendMessage(Prefixes.VANISH + "<ec>Command based toggling is currently disabled");

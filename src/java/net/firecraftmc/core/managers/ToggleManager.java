@@ -3,7 +3,7 @@ package net.firecraftmc.core.managers;
 import net.firecraftmc.api.command.FirecraftCommand;
 import net.firecraftmc.api.enums.Rank;
 import net.firecraftmc.api.interfaces.IToggleManager;
-import net.firecraftmc.api.menus.VanishToggleMenu;
+import net.firecraftmc.api.menus.PlayerToggleMenu;
 import net.firecraftmc.api.model.player.FirecraftPlayer;
 import net.firecraftmc.api.toggles.Toggle;
 import net.firecraftmc.api.util.ItemStackBuilder;
@@ -88,7 +88,7 @@ public class ToggleManager implements IToggleManager {
                             if (player.isVanished()) {
                                 e.setCancelled(true);
                                 e.setCurrentItem(null);
-                                Bukkit.getScheduler().runTaskLater(plugin, () -> new VanishToggleMenu(player).openPlayer(), 2L);
+                                Bukkit.getScheduler().runTaskLater(plugin, () -> new PlayerToggleMenu(player).openPlayer(), 2L);
                             } else {
                                 e.setCancelled(true);
                                 player.sendMessage("<ec>You cannot open the Vanish Settings menu if you are not vanished.");
