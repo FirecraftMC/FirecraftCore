@@ -181,7 +181,7 @@ public class PunishmentManager implements Listener {
                     return;
                 }
                 
-                RulePunishment rulePunishment = Enforcer.getNextPunishment(rule, target);
+                RulePunishment rulePunishment = Enforcer.getNextPunishment(player, rule, target);
                 Punishment punishment = Enforcer.createPunishment(target, player, System.currentTimeMillis(), rule, rulePunishment);
                 if (punishment == null) {
                     player.sendMessage(Prefixes.ENFORCER + "<ec>There was an error creating the punishment.");
