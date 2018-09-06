@@ -314,7 +314,7 @@ public class PunishmentManager implements Listener {
     private void handlePunishmentList(List<? extends Punishment> punishments, FirecraftPlayer player, int page) {
         PaginatorFactory<Punishment> paginatorFactory = new PaginatorFactory<>();
         paginatorFactory.setMaxElements(7).setHeader("§aPunishment history page {pagenumber} out of {totalpages}").setFooter("§aUse /history page {nextpage} to view the next page.");
-        punishments.forEach(report -> paginatorFactory.addElement(report));
+        punishments.forEach(paginatorFactory::addElement);
         Paginator<Punishment> paginator = paginatorFactory.build();
         paginator.display(player.getPlayer(), page);
     }
@@ -403,7 +403,7 @@ public class PunishmentManager implements Listener {
         PaginatorFactory<Rule> factory = new PaginatorFactory<>();
         factory.setMaxElements(5).setHeader("§aRules page {pagenumber} out of {totalpages}").setFooter("§aUse /mrules page {nextpage} to view the next page.");
         Collection<Rule> rules = ModeratorRules.getRules().values();
-        rules.forEach(report -> factory.addElement(report));
+        rules.forEach(factory::addElement);
         Paginator<Rule> paginator = factory.build();
         paginator.display(player.getPlayer(), page);
     }

@@ -189,7 +189,7 @@ public class ReportManager {
                     
                     PaginatorFactory<Report> paginatorFactory = new PaginatorFactory<>();
                     paginatorFactory.setMaxElements(7).setHeader("§aReports page {pagenumber} out of {totalpages}").setFooter("§aUse /reportadmin page {nextpage} to view the next page.");
-                    reports.forEach(report -> paginatorFactory.addElement(report));
+                    reports.forEach(paginatorFactory::addElement);
                     Paginator<Report> paginator = paginatorFactory.build();
                     paginators.put(player.getUniqueId(), paginator);
                     paginator.display(player.getPlayer(), 1);
