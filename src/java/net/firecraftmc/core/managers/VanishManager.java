@@ -7,6 +7,7 @@ import net.firecraftmc.api.menus.VanishToggleMenu;
 import net.firecraftmc.api.model.player.ActionBar;
 import net.firecraftmc.api.model.player.FirecraftPlayer;
 import net.firecraftmc.api.packets.staffchat.FPSCVanishToggle;
+import net.firecraftmc.api.toggles.types.VanishToggle;
 import net.firecraftmc.api.util.*;
 import net.firecraftmc.api.vanish.VanishSetting;
 import net.firecraftmc.core.FirecraftCore;
@@ -108,9 +109,8 @@ public class VanishManager implements Listener {
     
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClick(InventoryClickEvent e) {
-        if (!e.getInventory().getTitle().toLowerCase().contains(VanishToggleMenu.getName().toLowerCase())) {
-            e.setCancelled(checkCancel(e.getWhoClicked(), VanishSetting.INTERACT, "interact with inventories"));
-        } else {
+        String title = e.getInventory().getTitle().toLowerCase();
+        if (title.contains(VanishToggleMenu.getName().toLowerCase())) {
             if (e.getRawSlot() != e.getSlot()) return;
             e.setCancelled(true);
             if (e.getCurrentItem() == null) return;
@@ -131,6 +131,10 @@ public class VanishManager implements Listener {
                 }
                 VanishToggleMenu.Entry entry = VanishToggleMenu.getItemForValue(toggle, player.getVanishSettings().getSetting(toggle));
                 e.getInventory().setItem(entry.getSlot(), entry.getItemStack());
+            }
+        } else {
+            if (!title.contains(PlayerToggleMenu.getName().toLowerCase())) {
+                e.setCancelled(checkCancel(e.getWhoClicked(), VanishSetting.INTERACT, "interact with inventories"));
             }
         }
     }
