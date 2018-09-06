@@ -7,7 +7,6 @@ import net.firecraftmc.api.menus.VanishToggleMenu;
 import net.firecraftmc.api.model.player.ActionBar;
 import net.firecraftmc.api.model.player.FirecraftPlayer;
 import net.firecraftmc.api.packets.staffchat.FPSCVanishToggle;
-import net.firecraftmc.api.toggles.types.VanishToggle;
 import net.firecraftmc.api.util.*;
 import net.firecraftmc.api.vanish.VanishSetting;
 import net.firecraftmc.core.FirecraftCore;

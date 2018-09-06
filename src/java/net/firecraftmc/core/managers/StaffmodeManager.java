@@ -8,6 +8,7 @@ import net.firecraftmc.api.model.player.FirecraftPlayer;
 import net.firecraftmc.api.packets.staffchat.FPSCStaffmodeToggle;
 import net.firecraftmc.api.util.Messages;
 import net.firecraftmc.api.util.Utils;
+import net.firecraftmc.api.vanish.VanishSetting;
 import net.firecraftmc.core.FirecraftCore;
 import org.bukkit.GameMode;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -51,7 +52,7 @@ public class StaffmodeManager implements IStaffmodeManager {
                     player.setAllowFlight(true);
                     player.setGameMode(GameMode.SPECTATOR);
                     player.vanish();
-                    player.getVanishSettings().toggleChatInteract();
+                    player.getVanishSettings().toggle(VanishSetting.CHAT);
                     for (FirecraftPlayer p : plugin.getPlayerManager().getPlayers()) {
                         if (!p.getMainRank().isEqualToOrHigher(player.getMainRank())) {
                             p.getPlayer().hidePlayer(player.getPlayer());
