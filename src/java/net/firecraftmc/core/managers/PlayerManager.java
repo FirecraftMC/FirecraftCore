@@ -50,12 +50,15 @@ public class PlayerManager implements IPlayerManager {
         plugin.getSocket().addSocketListener(packet -> {
             if (packet instanceof FPacketRankUpdate) {
                 FPacketRankUpdate rankUpdate = (FPacketRankUpdate) packet;
-                FirecraftPlayer player = getPlayer(rankUpdate.getTarget());
-                if (player != null) {
-                    Rank rank = plugin.getFCDatabase().getPlayer(player.getUniqueId()).getMainRank();
-                    player.setMainRank(rank);
-                    player.sendMessage(Messages.socketRankUpdate);
-                    player.updatePlayerListName();
+                FirecraftPlayer target = getPlayer(rankUpdate.getTarget());
+                FirecraftPlayer updater = getPlayer(rankUpdate.getUpdater());
+                if (target != null) {
+                    Rank rank = plugin.getFCDatabase().getPlayer(target.getUniqueId()).getMainRank();
+                    target.setMainRank(rank);
+                    target.sendMessage(Messages.socketRankUpdate);
+                    target.updatePlayerListName();
+                    String format = Utils.Chat.formatRankUpdate(plugin.getFCServer(packet.getServerId()), updater, target, rankUpdate.getOldRank(), rankUpdate.getNewRank());
+                    Utils.Chat.sendStaffChatMessage(getPlayers(), updater, format);
                 }
             } else if (packet instanceof FPStaffChatJoin) {
                 FPStaffChatJoin staffJoin = ((FPStaffChatJoin) packet);
@@ -129,9 +132,10 @@ public class PlayerManager implements IPlayerManager {
                             }
                         }
                         
+                        Rank oldRank = target.getMainRank();
+                        
                         plugin.getFCDatabase().updateDataColumn(target.getUniqueId(), "mainrank", rank.toString());
-                        player.sendMessage(Messages.setMainRank(target.getName(), rank));
-                        FPacketRankUpdate rankUpdate = new FPacketRankUpdate(plugin.getFCServer().getId(), player.getUniqueId(), target.getUniqueId());
+                        FPacketRankUpdate rankUpdate = new FPacketRankUpdate(plugin.getFCServer().getId(), player.getUniqueId(), target.getUniqueId(), oldRank, rank);
                         plugin.getSocket().sendPacket(rankUpdate);
                     }
                 } else {
