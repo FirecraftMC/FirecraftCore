@@ -40,15 +40,16 @@ public class ToggleManager implements IToggleManager {
             if (e.getCurrentItem().getItemMeta().getDisplayName() == null) return;
             if (e.getCurrentItem().getItemMeta().getDisplayName().equals("")) return;
             e.setCancelled(true);
-    
+            
             FirecraftPlayer player = plugin.getPlayer(e.getWhoClicked().getUniqueId());
-    
+            
             ItemStack item = e.getCurrentItem();
             if (item.getType().equals(Material.LIME_DYE) || item.getType().equals(Material.GRAY_DYE)) {
                 Toggle toggle = Toggle.getToggle(item.getItemMeta().getDisplayName());
                 player.toggle(toggle);
                 PlayerToggleMenu.Entry entry = PlayerToggleMenu.getItemForValue(toggle, player.getToggleValue(toggle));
                 e.getInventory().setItem(entry.getSlot(), entry.getItemStack());
+                toggle.onToggle(player.getToggleValue(toggle), player);
             }
         }
     }

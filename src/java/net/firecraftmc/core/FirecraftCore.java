@@ -168,6 +168,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
     }
     
     private void registerAllCommands() {
+        new AFKManager(this);
         new BroadcastManager(this);
         new ChatManager(this);
         new DevManager(this);
@@ -177,6 +178,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         new HealManager(this);
         this.homeManager = new HomeManager(this);
         new IgnoreManager(this);
+        new IncognitoManager(this);
         new InventoryManager(this);
         new ItemManager(this);
         new ListManager(this);
@@ -194,6 +196,7 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         new FlyManager(this);
         new HelpManager(this);
         this.toggleManager = new ToggleManager(this);
+        getCommand("afk").setExecutor(commandManager);
         Utils.Command.registerCommands(this, commandManager, "players", "fct", "ignore", "unignore", "record", "stream");
         Utils.Command.registerCommands(this, commandManager, "list", "stafflist");
         Utils.Command.registerCommands(this, commandManager, "ignore", "unignore");
