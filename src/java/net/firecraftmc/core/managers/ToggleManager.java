@@ -39,7 +39,6 @@ public class ToggleManager implements IToggleManager {
             if (e.getCurrentItem().getItemMeta() == null) return;
             if (e.getCurrentItem().getItemMeta().getDisplayName() == null) return;
             if (e.getCurrentItem().getItemMeta().getDisplayName().equals("")) return;
-            e.setCancelled(true);
             
             FirecraftPlayer player = plugin.getPlayer(e.getWhoClicked().getUniqueId());
             
