@@ -145,7 +145,7 @@ public class EconomyManager implements IEconomyManager {
                 ItemStack itemStack = new ItemStack(Material.PAPER, 1);
                 itemStack.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 1);
                 ItemMeta meta = itemStack.getItemMeta();
-                meta.setDisplayName("§6Bank Note: §e$" + amount);
+                meta.setDisplayName("§6Bank Response: §e$" + amount);
                 meta.setLore(Arrays.asList("", "§bRight-click this note to redeem.", "§dThis note is worth: §e$" + amount));
                 meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 itemStack.setItemMeta(meta);
