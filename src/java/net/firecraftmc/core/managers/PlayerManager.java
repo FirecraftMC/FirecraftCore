@@ -121,13 +121,13 @@ public class PlayerManager implements IPlayerManager {
                     if (Utils.Command.checkCmdAliases(args, 2, "mainrank", "mr")) {
                         Rank rank = Rank.getRank(args[3]);
                         if (rank == null) {
-                            player.sendMessage("&cThat is not a valid rank.");
+                            player.sendMessage("<ec>That is not a valid rank.");
                             return;
                         }
                         
                         if (rank.equals(Rank.FIRECRAFT_TEAM)) {
                             if (!player.getUniqueId().equals(FirecraftAPI.firestar311)) {
-                                player.sendMessage("&cThe Firecraft Team rank can only be updated by Firestar311");
+                                player.sendMessage("<ec>The Firecraft Team rank can only be updated by Firestar311");
                                 return;
                             }
                         }
@@ -139,7 +139,7 @@ public class PlayerManager implements IPlayerManager {
                         plugin.getSocket().sendPacket(rankUpdate);
                     }
                 } else {
-                    player.sendMessage("&cNo other subcommands are currently implemented.");
+                    player.sendMessage("<ec>No other subcommands are currently implemented.");
                 }
             }
         };

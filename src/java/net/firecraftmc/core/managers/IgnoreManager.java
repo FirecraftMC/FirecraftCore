@@ -18,7 +18,7 @@ public class IgnoreManager {
     
                 if (Rank.isStaff(player.getMainRank())) {
                     if (!player.getMainRank().equals(Rank.FIRECRAFT_TEAM)) {
-                        player.sendMessage("&cStaff members cannot ignore other players.");
+                        player.sendMessage("<ec>Staff members cannot ignore other players.");
                         return;
                     }
                 }
@@ -26,17 +26,17 @@ public class IgnoreManager {
                 for (String i : args) {
                     FirecraftPlayer target = plugin.getPlayerManager().getPlayer(i);
                     if (target == null) {
-                        player.sendMessage("&cThe name {name} is not valid".replace("{name}", i));
+                        player.sendMessage("<ec>The name {name} is not valid".replace("{name}", i));
                         continue;
                     }
         
                     if (Rank.isStaff(target.getMainRank())) {
-                        player.sendMessage("&c{name} is a staff member, you cannot ignore them.".replace("{name}", i));
+                        player.sendMessage("<ec>{name} is a staff member, you cannot ignore them.".replace("{name}", i));
                         continue;
                     }
                     
                     if (player.isIgnoring(target.getUniqueId())) {
-                        player.sendMessage("&c{name} is already on your ignored users list.".replace("{name}", i));
+                        player.sendMessage("<ec>{name} is already on your ignored users list.".replace("{name}", i));
                         continue;
                     }
         
@@ -57,12 +57,12 @@ public class IgnoreManager {
                 for (String i : args) {
                     FirecraftPlayer target = plugin.getPlayerManager().getPlayer(i);
                     if (target == null) {
-                        player.sendMessage("&cThe name {name} is not valid".replace("{name}", i));
+                        player.sendMessage("<ec>The name {name} is not valid".replace("{name}", i));
                         continue;
                     }
                     
                     if (!player.isIgnoring(target.getUniqueId())) {
-                        player.sendMessage("&c{name} is not on your ignored users list.".replace("{name}", i));
+                        player.sendMessage("<ec>{name} is not on your ignored users list.".replace("{name}", i));
                         continue;
                     }
         

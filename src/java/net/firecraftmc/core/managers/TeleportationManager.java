@@ -263,7 +263,7 @@ public class TeleportationManager implements Listener {
                 }
                 
                 if (target.isIgnoring(player.getUniqueId())) {
-                    player.sendMessage("&cYou are not allowed to request to teleport to " + target.getName() + " because they are ignoring you.");
+                    player.sendMessage("<ec>You are not allowed to request to teleport to " + target.getName() + " because they are ignoring you.");
                     return;
                 }
                 

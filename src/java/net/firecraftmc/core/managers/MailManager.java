@@ -67,7 +67,7 @@ public class MailManager {
                 }
                 FPacketMail packetMail = new FPacketMail(plugin.getFCServer().getId(), mail.getId());
                 plugin.getSocket().sendPacket(packetMail);
-                player.sendMessage("<nc>You send a mail message to <vc>" + target.getName() + " <nc>with the message <vc>" + text);
+                player.sendMessage("<nc>You sent a mail message to <vc>" + target.getName() + " <nc>with the message <vc>" + text);
             }
         };
         

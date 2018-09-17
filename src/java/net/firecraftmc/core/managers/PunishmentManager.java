@@ -40,7 +40,7 @@ public class PunishmentManager implements Listener {
             } else if (packet instanceof FPacketMuteExpire) {
                 Punishment punishment = plugin.getFCDatabase().getPunishment(((FPacketMuteExpire) packet).getMuteId());
                 FirecraftPlayer target = plugin.getPlayer(punishment.getTarget());
-                target.sendMessage("<nc>Your mute has expired. Please give up to a minute to be able to talk again.");
+                target.sendMessage("<nc>Your mute has expired. Please allow up to a minute to be able to talk again.");
                 if (target.getScoreboard() != null) {
                     target.getScoreboard().updateScoreboard(target);
                 }

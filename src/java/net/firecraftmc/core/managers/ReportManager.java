@@ -365,13 +365,13 @@ public class ReportManager {
         try {
             rId = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
-            player.sendMessage(Prefixes.REPORT + "&cThe number for the report id is invalid.");
+            player.sendMessage(Prefixes.REPORT + "<ec>The number for the report id is invalid.");
             return null;
         }
         
         Report report = plugin.getFCDatabase().getReport(rId);
         if (report == null) {
-            player.sendMessage(Prefixes.REPORT + "&cThe report could not be found with that id.");
+            player.sendMessage(Prefixes.REPORT + "<ec>The report could not be found with that id.");
             return null;
         }
         return report;

@@ -100,7 +100,7 @@ public class InventoryManager implements Listener {
                 }
                 FirecraftPlayer target = plugin.getPlayerManager().getPlayer(args[0]);
                 if (target.getPlayer() == null) {
-                    player.sendMessage("<ec>Sorry, but viewing offline player's inventories is not supported.");
+                    player.sendMessage("<ec>Sorry, but viewing offline player's inventories is not yet supported.");
                     return;
                 }
     

@@ -37,7 +37,7 @@ public class ItemManager {
                 }
             }
         };
-        setname.setBaseRank(Rank.INFERNO);
+        setname.setBaseRank(Rank.FIRECRAFT_TEAM);
         
         FirecraftCommand setlore = new FirecraftCommand("setlore", "Sets the lore of an item.") {
             public void executePlayer(FirecraftPlayer player, String[] args) {
@@ -61,7 +61,7 @@ public class ItemManager {
                 }
             }
         };
-        setlore.setBaseRank(Rank.INFERNO);
+        setlore.setBaseRank(Rank.FIRECRAFT_TEAM);
         
         plugin.getCommandManager().addCommands(setname, setlore);
     }

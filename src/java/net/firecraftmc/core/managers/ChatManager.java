@@ -49,7 +49,7 @@ public class ChatManager implements Listener {
             public void executePlayer(FirecraftPlayer player, String[] args) {
                 if (Utils.Command.checkCmdAliases(args, 0, "staff", "st", "s")) {
                     if (args.length != 1) {
-                        player.sendMessage(Prefixes.CHAT + "§cYou must provide a channel to switch to.");
+                        player.sendMessage(Prefixes.CHAT + "<ec>You must provide a channel to switch to.");
                     }
                     if (!Rank.isStaff(player.getMainRank())) {
                         player.sendMessage(Prefixes.CHAT + Messages.onlyStaff);
@@ -167,14 +167,14 @@ public class ChatManager implements Listener {
                                         globalMuteMinSpeak = r;
                                         for (FirecraftPlayer p : plugin.getPlayers()) {
                                             p.sendMessage("");
-                                            p.sendMessage("&4&l╔══════════════════════════");
+                                            p.sendMessage("&4&l╔═══════════════════════════════");
                                             p.sendMessage("&4&l║");
                                             p.sendMessage("&4&l║ &d&lGlobal Mute settings changed!");
                                             p.sendMessage("&4&l║");
                                             p.sendMessage("&4&l║ <nc>Those with the rank " + globalMuteMinSpeak.getPrefix() + " <nc>or higher can speak.");
-                                            p.sendMessage("&4&l║ <nc>This change was made by <vc>" + player.getName());
+                                            p.sendMessage("&4&l║ <nc>This change was made by " + player.getNameNoPrefix());
                                             p.sendMessage("&4&l║");
-                                            p.sendMessage("&4&l╚══════════════════════════");
+                                            p.sendMessage("&4&l╚═══════════════════════════════");
                                             p.sendMessage("");
                                         }
                                         return;
@@ -204,7 +204,7 @@ public class ChatManager implements Listener {
                             p.sendMessage("");
                             p.sendMessage("&4&l╔══════════════════════════");
                             p.sendMessage("&4&l║");
-                            p.sendMessage("&4&l║ &a&lGlobal Chat has been unmuted by <vc>" + player.getName() + "<nc>!");
+                            p.sendMessage("&4&l║ &a&lGlobal Chat has been unmuted by <vc>" + player.getNameNoPrefix() + "<nc>!");
                             p.sendMessage("&4&l║ <nc>You may once again speak in global chat.");
                             p.sendMessage("&4&l║");
                             p.sendMessage("&4&l╚══════════════════════════");
@@ -220,7 +220,7 @@ public class ChatManager implements Listener {
                     for (FirecraftPlayer p : plugin.getPlayers()) {
                         p.sendMessage("");
                         p.sendMessage("&4&l╔══════════════════════════");
-                        p.sendMessage("&4&l║ &c&lGlobal Chat has been muted by <vc>" + player.getName() + "<nc>!");
+                        p.sendMessage("&4&l║ &c&lGlobal Chat has been muted by <vc>" + player.getNameNoPrefix() + "<nc>!");
                         p.sendMessage("&4&l║");
                         p.sendMessage("&4&l║ <nc>Only players with the rank " + globalMuteMinSpeak.getPrefix() + " <nc> or higher may speak.");
                         p.sendMessage("&4&l║ <nc>This only affects global chat, other channels are not restricted.");
@@ -261,7 +261,7 @@ public class ChatManager implements Listener {
             if (punishment.isActive()) {
                 if (punishment.getType().equals(Punishment.Type.MUTE) || punishment.getType().equals(Punishment.Type.TEMP_MUTE)) {
                     player.sendMessage("");
-                    player.sendMessage("&4&l╔══════════════════════════");
+                    player.sendMessage("&4&l╔═══════════════════════════════");
                     player.sendMessage("&4&l║ &c&lYou are currently muted!");
                     player.sendMessage("&4&l║");
                     if (punishment.getType().equals(Type.TEMP_MUTE))
@@ -269,7 +269,7 @@ public class ChatManager implements Listener {
                     else player.sendMessage("&4&l║ <nc>This mute is <vc>&lPERMANENT");
                     player.sendMessage("&4&l║ <nc>The staff member that muted you is <vc>" + punishment.getPunisherName());
                     player.sendMessage("&4&l║");
-                    player.sendMessage("&4&l╚══════════════════════════");
+                    player.sendMessage("&4&l╚═══════════════════════════════");
                     player.sendMessage("");
                     return;
                 } else if (punishment.getType().equals(Punishment.Type.JAIL)) {

@@ -81,7 +81,7 @@ public class MessageManager {
                 
                 if (target.getPlayer() == null) {
                     if (!player.getMainRank().isEqualToOrHigher(Rank.PHOENIX)) {
-                        player.sendMessage(Prefixes.MESSAGING + "<ec>Messaging across servers is for the Phoenix rank or above.");
+                        player.sendMessage(Prefixes.MESSAGING + "<ec>Messaging across servers is for the" + Rank.PHOENIX.getPrefix() + " <ec>rank or above.");
                         return;
                     }
                     
