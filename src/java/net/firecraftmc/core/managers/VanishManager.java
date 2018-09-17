@@ -101,7 +101,7 @@ public class VanishManager implements Listener {
                     }
                 }
             }
-        }.setBaseRank(Rank.MOD).addRank(Rank.VIP).addAlias("v");
+        }.setBaseRank(Rank.TRIAL_MOD).addRank(Rank.BUILD_TEAM).addRank(Rank.VIP).addAlias("v");
         
         plugin.getCommandManager().addCommand(vanish);
     }

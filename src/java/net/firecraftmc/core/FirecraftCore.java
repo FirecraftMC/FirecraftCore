@@ -196,7 +196,6 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         new FlyManager(this);
         new HelpManager(this);
         this.toggleManager = new ToggleManager(this);
-        getCommand("afk").setExecutor(commandManager);
         Utils.Command.registerCommands(this, commandManager, "players", "fct", "ignore", "unignore", "record", "stream");
         Utils.Command.registerCommands(this, commandManager, "list", "stafflist");
         Utils.Command.registerCommands(this, commandManager, "ignore", "unignore");
@@ -204,28 +203,17 @@ public class FirecraftCore extends JavaPlugin implements IFirecraftCore {
         Utils.Command.registerCommands(this, commandManager, "nick", "unnick", "nickrandom");
         Utils.Command.registerCommands(this, commandManager, "gamemode", "gmc", "gms", "gma", "gmsp");
         Utils.Command.registerCommands(this, commandManager, "teleport", "tphere", "back", "tpall", "tpaccept", "tpdeny", "tpa", "setspawn", "spawn", "randomtp");
-        this.getCommand("dev").setExecutor(commandManager);
-        this.getCommand("feed").setExecutor(commandManager);
-        this.getCommand("heal").setExecutor(commandManager);
-        this.getCommand("signedit").setExecutor(commandManager);
+        Utils.Command.registerCommands(this, commandManager, "dev", "feed", "heal", "signedit", "weather", "vanish", "staffmode", "firecraftserver");
+        Utils.Command.registerCommands(this, commandManager, "afk", "mail", "fly", "god", "help", "toggles", "incognito");
         Utils.Command.registerCommands(this, commandManager, "punish", "mrules", "ban", "tempban", "mute", "tempmute", "jail", "setjail", "kick", "warn", "ipban", "unban", "unmute", "unjail", "history");
         Utils.Command.registerCommands(this, commandManager, "setname", "setlore");
-        this.getCommand("weather").setExecutor(commandManager);
         Utils.Command.registerCommands(this, commandManager, "time", "day", "night");
         Utils.Command.registerCommands(this, commandManager, "broadcast", "socketbroadcast");
         Utils.Command.registerCommands(this, commandManager, "clearinventory", "enderchest", "workbench", "invsee");
         Utils.Command.registerCommands(this, commandManager, "sethome", "delhome", "home");
-        getCommand("vanish").setExecutor(commandManager);
         Utils.Command.registerCommands(this, commandManager, "report", "reportadmin");
         Utils.Command.registerCommands(this, commandManager, "message", "reply");
-        getCommand("staffmode").setExecutor(commandManager);
-        getCommand("firecraftserver").setExecutor(commandManager);
         Utils.Command.registerCommands(this, commandManager, "economy", "pay", "withdraw", "balance", "baltop");
-        getCommand("mail").setExecutor(commandManager);
-        getCommand("fly").setExecutor(commandManager);
-        getCommand("god").setExecutor(commandManager);
-        getCommand("help").setExecutor(commandManager);
-        getCommand("toggles").setExecutor(commandManager);
     }
     
     private void versionSpecificTasks() {
